@@ -1,3 +1,3 @@
-import app from "@/routes.ts";
-// Initialize the server and start listening for incoming requests
-Deno.serve(app.fetch);
+import { start } from "@/server/deno.ts";
+// Init
+start();
