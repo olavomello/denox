@@ -36,8 +36,8 @@ export default function contactPage(c: Context): string {
     failed ? '<p class="field-error" role="alert">Please check the fields and try again.</p>' : ""
   }
     <br>
-    <!-- Form example: data-api enables the DenoX form helper (no-JS fallback via action) -->
-    <form data-api="/api/contact" data-target="#contact-ok" data-reset="true"
+    <!-- Form example: data-api enables the DenoX form helper -->
+    <form data-api="/api/contact" data-target="#contact-success" data-reset="true"
       action="/contact" method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required placeholder="Enter your name">
@@ -50,8 +50,8 @@ export default function contactPage(c: Context): string {
       <span data-error-for="message" role="alert" aria-live="polite" class="field-error"></span>
       <button type="submit">Submit</button>
     </form>
-    <template id="contact-ok">
-      <p class="success">Thanks! We received your message.</p>
+    <template id="contact-success">
+      <p class="success"></p>
     </template>
   `;
 }
