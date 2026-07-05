@@ -8,6 +8,7 @@ WORKDIR /app
 # Cache dependencies first for better layer reuse.
 COPY deno.json ./
 COPY src ./src
+COPY denox.config.ts ./
 RUN deno cache src/main.ts
 
 # Regenerate the route table inside the image.
