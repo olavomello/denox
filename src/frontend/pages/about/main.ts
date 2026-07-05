@@ -17,7 +17,7 @@ export const config = {
  */
 export default function aboutPage(_c: Context): string {
   return `
-    <h1>About Denox</h1>
-    <p>Denox combines file based routing, MVC and native Deno APIs on top of Hono.</p>
+    <h1>About DenoX</h1>
+    <p>DenoX combines file based routing, MVC and native Deno APIs on top of Hono.</p>
   `;
 }

@@ -20,7 +20,7 @@ export default function defaultLayout(_c: Context, content: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Denox</title>
+  <title>DenoX</title>
 </head>
 <body>
   <header>
@@ -35,7 +35,7 @@ export default function defaultLayout(_c: Context, content: string): string {
 ${content}
   </main>
   <footer>
-    <p>Powered by Denox</p>
+    <p>Powered by DenoX</p>
   </footer>
 </body>
 </html>

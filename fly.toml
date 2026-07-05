@@ -1,4 +1,4 @@
-# Fly.io configuration for Denox.
+# Fly.io configuration for DenoX.
 # Deploy: `deno task deploy fly` (or `fly deploy`).
 # Uses the root Dockerfile. Set secrets first:
 #   fly secrets set CORS_ORIGIN=https://yourdomain.com

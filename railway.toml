@@ -1,11 +1,11 @@
-# Railway configuration for Denox.
+# Railway configuration for DenoX.
 # Deploy: `deno task deploy railway` (or `railway up`).
 # Builds from the root Dockerfile.
 #
 # Required variables (set in the Railway dashboard or via CLI):
 #   railway variables --set APP_ENV=production --set HOSTNAME=0.0.0.0 \
 #     --set CORS_ORIGIN=https://yourdomain.com
-# Railway injects PORT automatically; Denox reads it at startup.
+# Railway injects PORT automatically; DenoX reads it at startup.
 
 [build]
 builder = "DOCKERFILE"

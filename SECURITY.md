@@ -17,7 +17,7 @@ within 72 hours.
 
 ## Built-in protections
 
-Denox applies these controls globally (see `src/middleware/`):
+DenoX applies these controls globally (see `src/middleware/`):
 
 - Secure headers + Content Security Policy, `X-Frame-Options: DENY`
 - CORS with explicit origins (wildcard rejected in production)

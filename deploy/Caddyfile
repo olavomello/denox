@@ -1,4 +1,4 @@
-# Caddy reverse proxy for Denox — automatic HTTPS.
+# Caddy reverse proxy for DenoX — automatic HTTPS.
 # Replace example.com with your domain.
 
 example.com {

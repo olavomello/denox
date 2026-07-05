@@ -23,7 +23,7 @@ export default function homePage(c: Context): string {
   const name = escapeHtml(c.req.query("name") ?? "world");
   return `
     <h1>Hello, ${name}!</h1>
-    <p>Welcome to <strong>Denox</strong> — a full stack framework for Deno powered by Hono.</p>
+    <p>Welcome to <strong>DenoX</strong> — a full stack framework for Deno powered by Hono.</p>
     <p>Try <a href="/?name=Deno">/?name=Deno</a> or the JSON API at <a href="/api/ping">/api/ping</a>.</p>
   `;
 }

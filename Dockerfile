@@ -1,4 +1,4 @@
-# Denox production image.
+# DenoX production image.
 # Multi-stage: cache dependencies, generate routes, run as non-root.
 
 FROM denoland/deno:2.5.4 AS base

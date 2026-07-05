@@ -11,7 +11,7 @@ date: 2026-07-05
 ## Objective
 
 Provide a JSON API to list, fetch and create users, serving as the reference implementation of the
-Denox MVC feature slice (model → DTO → repository → service → controller → routes).
+DenoX MVC feature slice (model → DTO → repository → service → controller → routes).
 
 ## Scope
 

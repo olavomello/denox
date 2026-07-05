@@ -1,5 +1,5 @@
 /**
- * Denox deploy command generator.
+ * DenoX deploy command generator.
  *
  * Usage:
  *   deno task deploy <target>            # print the deploy plan

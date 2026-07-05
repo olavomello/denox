@@ -1,6 +1,6 @@
-# Contributing to Denox
+# Contributing to DenoX
 
-Thank you for contributing! Denox follows **Specification Driven Development**: read `AGENTS.md`
+Thank you for contributing! DenoX follows **Specification Driven Development**: read `AGENTS.md`
 first — it is the authoritative engineering contract for both humans and AI agents.
 
 ## Workflow

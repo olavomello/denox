@@ -1,6 +1,6 @@
 # Deployment Guide
 
-How to run Denox in every supported environment.
+How to run DenoX in every supported environment.
 
 ---
 
@@ -84,7 +84,7 @@ The container runs as the non-root `deno` user with least-privilege flags and a 
 
 ## Reverse proxy + HTTPS
 
-Denox should sit behind a TLS-terminating proxy in production.
+DenoX should sit behind a TLS-terminating proxy in production.
 
 - **Nginx**: `deploy/nginx.conf` (use certbot for certificates).
 - **Caddy**: `deploy/Caddyfile` (automatic HTTPS).

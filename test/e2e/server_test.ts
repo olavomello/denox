@@ -26,7 +26,7 @@ Deno.test("e2e: API and pages respond over a real socket", async () => {
 
     const home = await fetch(`${baseUrl}/`);
     assertEquals(home.status, 200);
-    assertStringIncludes(await home.text(), "Denox");
+    assertStringIncludes(await home.text(), "DenoX");
 
     const created = await fetch(`${baseUrl}/api/users`, {
       method: "POST",

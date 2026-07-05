@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Denox are documented in this file. Format based on
+All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [0.2.1] - 2026-07-05

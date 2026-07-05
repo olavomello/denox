@@ -1,8 +1,8 @@
 # AGENTS.md
 
-## Denox Engineering Guidelines
+## DenoX Engineering Guidelines
 
-> This document is the authoritative engineering contract for the Denox project. Every contribution
+> This document is the authoritative engineering contract for the DenoX project. Every contribution
 > — human or AI agent — must comply with it. When this document and existing code disagree, this
 > document wins; open an issue.
 
@@ -10,7 +10,7 @@
 
 # Mission
 
-Develop Denox as a production grade Full Stack Framework for Deno focused on:
+Develop DenoX as a production grade Full Stack Framework for Deno focused on:
 
 - Performance
 - Simplicity

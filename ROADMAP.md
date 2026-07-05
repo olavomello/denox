@@ -1,4 +1,4 @@
-# Denox Roadmap
+# DenoX Roadmap
 
 ## 0.3 — Persistence
 

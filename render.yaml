@@ -1,4 +1,4 @@
-# Render Blueprint for Denox.
+# Render Blueprint for DenoX.
 # Deploy: connect the repo on render.com (Blueprints) or `deno task deploy render`.
 # Builds from the root Dockerfile. Render injects PORT automatically.
 
