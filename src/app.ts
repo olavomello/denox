@@ -26,14 +26,7 @@ export function createApp(): Hono {
 
   // Static files
   app.use(
-    "/assets/*",
-    serveStatic({
-      root: "./public",
-    }),
-  );
-
-  app.use(
-    "/images/*",
+    "/*",
     serveStatic({
       root: "./public",
     }),
