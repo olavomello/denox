@@ -1,7 +1,7 @@
 {
   "tasks": {
     "routes": "deno run --allow-read=src/frontend --allow-write=src/frontend/pages.gen.ts src/frontend/generate_routes.ts",
-    "dev": "deno task routes && deno run --allow-net --allow-read --allow-env --watch src/main.ts",
+    "dev": "deno task fmt && deno task routes && deno run --allow-net --allow-read --allow-env --watch src/main.ts",
     "start": "deno run --allow-net --allow-read --allow-env src/main.ts",
     "test": "deno test --allow-net --allow-read --allow-env",
     "test:unit": "deno test --allow-env test/unit/",
@@ -36,13 +36,8 @@
   },
   "lint": {
     "rules": {
-      "tags": [
-        "recommended"
-      ]
+      "tags": ["recommended"]
     }
   },
-  "exclude": [
-    "dist/",
-    "coverage/"
-  ]
+  "exclude": ["dist/", "coverage/"]
 }
