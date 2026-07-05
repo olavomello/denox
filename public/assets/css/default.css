@@ -113,7 +113,36 @@ h1 {
   backdrop-filter: blur(24px);
   box-shadow: 0 20px 60px var(--shadow);
 }
+/* Form styles */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+form label {
+  font-weight: 500;
+}
+form input,
+form textarea {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-light);
+}
+form button {
+  align-self: flex-start;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: var(--surface-light);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+form button:hover {
+  background: var(--primary-hover);
+}
 
+/* Footer styles */
 footer {
   padding: 30px;
   text-align: center;
