@@ -8,6 +8,7 @@
  */
 
 import { Hono } from "hono";
+import { serveStatic } from "hono/deno";
 import apiRoutes from "@/api/main.ts";
 import webRoutes from "@/frontend/main.ts";
 import { errorHandler, notFoundHandler } from "@/middleware/error_handler.ts";
@@ -22,6 +23,22 @@ import { security } from "@/middleware/security.ts";
  */
 export function createApp(): Hono {
   const app = new Hono();
+
+  // Static files
+  app.use(
+    "/assets/*",
+    serveStatic({
+      root: "./public",
+    }),
+  );
+
+  app.use(
+    "/favicon.png",
+    serveStatic({
+      path: "./public/images/favicon.png",
+    }),
+  );
+
 
   app.use("*", requestLogger());
   for (const middleware of security()) {

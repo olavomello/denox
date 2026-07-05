@@ -1,0 +1,143 @@
+:root {
+  --background: #f8fafc;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-light: rgba(255, 255, 255, 0.92);
+  --primary: #6ea8fe;
+  --primary-hover: #5b93f7;
+  --secondary: #8b7cf6;
+  --text: #1f2937;
+  --text-muted: #64748b;
+  --border: rgba(15, 23, 42, 0.08);
+  --shadow: rgba(15, 23, 42, 0.08);
+  --radius: 14px;
+  --max-width: 1200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  background: radial-gradient(circle at top, #eef6ff 0%, #f8fafc 45%, #ffffff 100%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: underline;
+  color: var(--primary);
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.72);
+  border-bottom: 1px solid var(--border);
+}
+
+.container {
+  width: min(100%, var(--max-width));
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.navbar {
+  height: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7cc7ff, #9f8cff);
+  box-shadow: 0 10px 24px rgba(110, 168, 254, 0.25);
+}
+
+nav {
+  display: flex;
+  gap: 24px;
+}
+
+nav a {
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: color .2s ease;
+}
+
+nav a:hover {
+  color: var(--primary);
+}
+
+main {
+  flex: 1;
+  width: min(100%, var(--max-width));
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.content {
+  padding: 40px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 60px var(--shadow);
+}
+
+footer {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.45);
+  border-top: 1px solid var(--border);
+}
+
+footer strong {
+  color: var(--primary);
+}
+
+::selection {
+  background: #dbeafe;
+  color: var(--text);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    height: auto;
+    padding: 18px 0;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .content {
+    padding: 28px;
+  }
+}
