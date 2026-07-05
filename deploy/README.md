@@ -15,6 +15,37 @@ The `dev` task regenerates the route table and starts the server with `--watch`.
 
 ---
 
+## PaaS platforms (one command)
+
+Platform manifests live at the **repository root** (required by each platform's convention):
+`fly.toml`, `railway.toml`, `render.yaml`. All of them build from the root `Dockerfile` and
+health-check `/api/health`.
+
+List targets, print a plan, or execute:
+
+```bash
+deno task deploy                 # list targets
+deno task deploy fly             # dry run: shows steps + reminders
+deno task deploy fly --run       # executes (delegates auth to the fly CLI)
+```
+
+| Target        | Command                         | Notes                                                     |
+| ------------- | ------------------------------- | --------------------------------------------------------- |
+| `deno-deploy` | `deno task deploy deno-deploy`  | First-class Deno hosting; `deployctl login` once.         |
+| `fly`         | `deno task deploy fly`          | Uses root `fly.toml`; set secrets via `fly secrets set`.  |
+| `railway`     | `deno task deploy railway`      | Uses root `railway.toml`; set variables in the dashboard. |
+| `render`      | Git-driven (Blueprints)         | Reads root `render.yaml` on connect.                      |
+| `docker`      | `deno task deploy docker --run` | `docker compose up -d --build`.                           |
+| `vps`         | `deno task deploy vps --run`    | Compiles the binary; then follow the systemd steps below. |
+
+Every platform needs `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a real `CORS_ORIGIN` (startup
+rejects `*` in production). `PORT` is injected by Railway/Render and read automatically.
+
+> Vercel is intentionally not a target: it runs Node/Edge functions, not a long-running `Deno.serve`
+> process. A Hono-adapter based port is tracked in the roadmap.
+
+---
+
 ## Production (bare metal / VM)
 
 ### Option A — compiled binary + systemd

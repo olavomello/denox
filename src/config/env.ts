@@ -91,7 +91,10 @@ export function loadEnv(raw: Readonly<Record<string, string | undefined>>): Env 
   const env: Env = {
     APP_ENV: readEnum("APP_ENV", APP_ENVS, "development"),
     PORT: readInt("PORT", 8000, 1, 65535),
-    HOSTNAME: (raw["HOSTNAME"] ?? "127.0.0.1").trim() || "127.0.0.1",
+    HOSTNAME: (() => {
+      const fallback = (raw["APP_ENV"] ?? "development") === "production" ? "0.0.0.0" : "127.0.0.1";
+      return (raw["HOSTNAME"] ?? fallback).trim() || fallback;
+    })(),
     LOG_LEVEL: readEnum("LOG_LEVEL", LOG_LEVELS, "info"),
     CORS_ORIGIN: readOrigins("CORS_ORIGIN", "*"),
     RATE_LIMIT_MAX: readInt("RATE_LIMIT_MAX", 100, 1, 1_000_000),

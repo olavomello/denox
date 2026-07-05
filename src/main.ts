@@ -15,7 +15,8 @@ Deno.serve(
     port: env.PORT,
     hostname: env.HOSTNAME,
     onListen: ({ hostname, port }) => {
-      logger.info(`Denox listening on http://${hostname}:${port}`, { env: env.APP_ENV });
+      const host = hostname === "0.0.0.0" ? "localhost" : hostname;
+      logger.info(`Denox listening on http://${host}:${port}`, { env: env.APP_ENV });
     },
   },
   app.fetch,

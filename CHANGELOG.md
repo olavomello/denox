@@ -3,6 +3,22 @@
 All notable changes to Denox are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.1] - 2026-07-05
+
+### Added
+
+- Multi-platform deploy layer: root manifests for Fly.io (`fly.toml`), Railway (`railway.toml`) and
+  Render (`render.yaml`), all built from the root Dockerfile with `/api/health` checks.
+- `scripts/deploy.ts` + `deno task deploy <target> [--run]`: lists targets, prints the deploy plan
+  (env reminders included) and optionally executes it, delegating authentication to each platform
+  CLI. Targets: deno-deploy, fly, railway, render, docker, vps.
+
+### Changed
+
+- `HOSTNAME` default is now `127.0.0.1` in development and `0.0.0.0` only in production; startup log
+  prints a clickable localhost URL.
+- `deploy/README.md`: PaaS section with the platform matrix.
+
 ## [0.2.0] - 2026-07-05
 
 ### Added

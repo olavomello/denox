@@ -1,0 +1,19 @@
+# Render Blueprint for Denox.
+# Deploy: connect the repo on render.com (Blueprints) or `deno task deploy render`.
+# Builds from the root Dockerfile. Render injects PORT automatically.
+
+services:
+  - type: web
+    name: denox
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: HOSTNAME
+        value: "0.0.0.0"
+      - key: LOG_LEVEL
+        value: info
+      - key: CORS_ORIGIN
+        sync: false # set the real value in the Render dashboard
