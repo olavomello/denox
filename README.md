@@ -20,6 +20,9 @@ workflow while remaining fast, modular and free from unnecessary complexity.
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Version](https://img.shields.io/badge/version-0.2.1-green)
 
+Read
+[Medium](https://olavomello.medium.com/denox-a-full-stack-dynamic-framework-ai-ready-and-built-natively-for-deno-a819cc94d5a5)
+
 ---
 
 ## Features
