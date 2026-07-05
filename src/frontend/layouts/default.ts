@@ -30,6 +30,7 @@ export default function defaultLayout(
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
     <link rel="stylesheet" href="/assets/css/default.css" />
+    <script type="module" src="/assets/js/denox-form.js"></script>
   </head>
   <body>
   <header>

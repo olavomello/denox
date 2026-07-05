@@ -3,6 +3,22 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.3] - 2026-07-05
+
+### Added
+
+- **Form interaction layer**: `public/assets/js/denox-form.js` progressive enhancement helper (zero
+  build, zero deps) — `data-api` forms submit JSON to the API without navigation, per-field
+  validation errors map to `[data-error-for]` slots from the standard envelope, success templates,
+  cancelable `denox:success`/`denox:error` events, `aria-busy`/`aria-invalid`.
+- Contact API slice (`POST /api/contact`) with DTO validation and repository interface; no-JS
+  fallback `POST /contact` (Post-Redirect-Get) using the same DTO and service.
+- SDD artifacts and docs (`docs/form-interaction.md`); tests across the three layers.
+
+### Fixed
+
+- `/contact` form previously posted to a non-existent route (404).
+
 ## [0.2.2] - 2026-07-05
 
 ### Added

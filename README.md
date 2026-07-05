@@ -32,6 +32,8 @@ Read on
 - 🏆 **Production Ready by Default** — SEO (meta, Open Graph, Twitter Cards, JSON-LD, sitemap,
   robots), PWA manifest, asset preload, lazy images and cache headers — automatic, driven by
   `denox.config.ts`, opt-out per feature
+- 📮 **API-backed forms, zero build** — `data-api` forms submit JSON, map per-field validation
+  errors automatically and keep page state; native fallback without JS
 - ⚡ **Hono** HTTP engine on native `Deno.serve`
 - 🗂 **File based routing** — `pages/about/main.ts` → `/about`, `[id]` → `:id`
 - 🏛 **MVC feature slices** — model · DTO · repository · service · controller · routes, with
@@ -166,6 +168,8 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.2.3** — 📮 Form interaction layer: progressive-enhancement helper (`data-api` forms → JSON
+  API, per-field errors, no navigation) + contact API slice with no-JS fallback.
 - **0.2.2** — 🏆 Production Ready by Default: config-driven SEO (sitemap, robots, Open Graph,
   Twitter Cards, JSON-LD), generated PWA manifest, asset preload, lazy images and static
   cache/security headers via `denox.config.ts`.
