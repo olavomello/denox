@@ -1,17 +1,17 @@
 ![](https://github.com/olavomello/denox/blob/main/public/images/denox-logo.png?raw=true)
 
-# Denox
+# 🦖 DenoX
 
 > **A modern Full Stack Framework for Deno powered by Hono.**
 
 Build fast, scalable and maintainable applications using **Deno**, **Hono**, **File Based Routing**
 and a clean **MVC** architecture — with security, testing and deployment built in from day one.
 
-Denox combines the best ideas from modern web frameworks into a lightweight, high performance
+DenoX combines the best ideas from modern web frameworks into a lightweight, high performance
 framework built natively for Deno. Inspired by the developer experience of frameworks like Next.js
 and Laravel, it provides file based routing, dynamic routes, automatic route discovery, configurable
 layouts, nested pages, convention over configuration, TypeScript first development and a clean MVC
-architecture. Powered by Hono and the native Deno runtime, Denox delivers a familiar, productive
+architecture. Powered by Hono and the native Deno runtime, DenoX delivers a familiar, productive
 workflow while remaining fast, modular and free from unnecessary complexity.
 
 [![CI](https://github.com/olavomello/denox/actions/workflows/ci.yml/badge.svg)](https://github.com/olavomello/denox/actions/workflows/ci.yml)
