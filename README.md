@@ -158,4 +158,4 @@ implementation → tests → docs. The quality gate is one command: `deno task c
 
 ## License
 
-[MIT](LICENSE) © (Olavo Mello)[https://www.linkedin.com/in/olavo-mello/]
+[MIT](LICENSE) © [https://www.linkedin.com/in/olavo-mello/](Olavo Mello)
