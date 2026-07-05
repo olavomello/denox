@@ -51,6 +51,11 @@ function toAbsolute(base: string, path: string): string {
   return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
+/** Removes HTML tags from a string. */
+function stripHtml(value: string | undefined): string {
+  return (value ?? "").replace(/<[^>]*>/g, "").trim();
+}
+
 /** Cached public/ asset discovery result. */
 interface DiscoveredAssets {
   readonly css: readonly string[];
@@ -94,8 +99,8 @@ function jsonLd(c: Context, meta: PageMeta | undefined, base: string): string {
   const data = {
     "@context": "https://schema.org",
     "@type": isHome ? "WebSite" : "WebPage",
-    name: meta?.title ?? site.app.name,
-    description: meta?.description ?? site.app.description,
+    name: escapeHtml(meta?.title ?? site.app.name),
+    description: escapeHtml(meta?.description ?? site.app.description),
     url: `${base}${new URL(c.req.url).pathname}`,
     ...(site.app.author !== "" ? { author: { "@type": "Person", name: site.app.author } } : {}),
   };
@@ -119,7 +124,7 @@ export function injectHead(c: Context, document: string, meta?: PageMeta): strin
   const base = resolveBaseUrl(c);
   const path = new URL(c.req.url).pathname;
   const title = meta?.title !== undefined ? `${meta.title} — ${site.app.name}` : site.app.name;
-  const description = meta?.description ?? site.app.description;
+  const description = stripHtml(meta?.description ?? site.app.description);
   const image = toAbsolute(base, meta?.image ?? site.app.image);
   const canonical = meta?.canonical ?? `${base}${path}`;
   const tags: string[] = [];

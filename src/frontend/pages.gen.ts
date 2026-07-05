@@ -3,13 +3,15 @@
 
 import * as page0 from "./pages/index.ts";
 import * as page1 from "./pages/about/main.ts";
-import * as page2 from "./pages/products/main.ts";
-import * as page3 from "./pages/users/main.ts";
+import * as page2 from "./pages/contact/main.ts";
+import * as page3 from "./pages/products/main.ts";
+import * as page4 from "./pages/users/main.ts";
 
 /** Static route table generated from src/frontend/pages/. */
 export const pages = [
   { route: "/", module: page0 },
   { route: "/about", module: page1 },
-  { route: "/products", module: page2 },
-  { route: "/users", module: page3 },
+  { route: "/contact", module: page2 },
+  { route: "/products", module: page3 },
+  { route: "/users", module: page4 },
 ] as const;
