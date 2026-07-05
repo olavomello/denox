@@ -1,7 +1,7 @@
 ---
 feature: user-management
 status: approved
-author: claude (scaffold)
+author: olavomello
 reviewed_by: olavomello
 date: 2026-07-05
 ---
