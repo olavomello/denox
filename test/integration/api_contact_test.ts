@@ -36,7 +36,7 @@ Deno.test("GET /contact ships the data-api form and the helper script", async ()
   assertStringIncludes(html, 'data-api="/api/contact"');
   assertStringIncludes(html, 'data-error-for="email"');
   assertStringIncludes(html, "/assets/js/denox-form.js");
-  assertStringIncludes(html, '<template id="contact-ok">');
+  assertStringIncludes(html, '<template id="form-response">');
 });
 
 Deno.test("no-JS POST /contact follows Post-Redirect-Get on success", async () => {
