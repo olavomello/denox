@@ -28,11 +28,11 @@ export default function aboutPage(_c: Context): string {
     <!-- Form example -->
     <form action="/contact" method="post">
       <label for="name">Name:</label>
-      <input type="text" id="name" name="name" required>
+      <input type="text" id="name" name="name" required placeholder="Enter your name">
       <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+      <input type="email" id="email" name="email" required placeholder="Enter your email">
       <label for="message">Message:</label>
-      <textarea id="message" name="message" required></textarea>
+      <textarea id="message" name="message" required placeholder="Enter your message"></textarea>
       <button type="submit">Submit</button>
     </form>
   `;
