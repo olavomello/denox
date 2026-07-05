@@ -1,0 +1,10 @@
+[Unit]
+Description=Denox
+
+[Service]
+WorkingDirectory=/opt/denox
+ExecStart=/usr/bin/deno run -A src/main.ts
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
