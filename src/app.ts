@@ -33,12 +33,11 @@ export function createApp(): Hono {
   );
 
   app.use(
-    "/favicon.png",
+    "/images/*",
     serveStatic({
-      path: "./public/images/favicon.png",
+      root: "./public",
     }),
   );
-
 
   app.use("*", requestLogger());
   for (const middleware of security()) {
