@@ -38,7 +38,7 @@ export default function defaultLayout(
         href="/"
         class="brand"
       >
-        <div class="logo"></div>
+        <div class="logo"><img src="/images/icon.png" alt="DenoX Framework" width="40" height="40"  /></div>
         <span>DenoX</span>
       </a>
       <nav>
