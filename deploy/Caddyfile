@@ -1,0 +1,11 @@
+# Caddy reverse proxy for Denox — automatic HTTPS.
+# Replace example.com with your domain.
+
+example.com {
+    reverse_proxy 127.0.0.1:8000 {
+        header_up X-Forwarded-For {remote_host}
+    }
+    request_body {
+        max_size 1MB
+    }
+}

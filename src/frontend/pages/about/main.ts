@@ -1,13 +1,23 @@
+/**
+ * About page — `/about`.
+ */
+
 import type { Context } from "hono";
 
+/** Page configuration. */
 export const config = {
-    layout: "default"
-};
+  layout: "default",
+} as const;
 
-export default async function(c: Context) {
-    return  `
-                <h1>About</h1>
-                <p>This page uses the default layout.</p>
-            `;
-
+/**
+ * Renders the about page body.
+ *
+ * @param _c Request context.
+ * @returns Page HTML.
+ */
+export default function aboutPage(_c: Context): string {
+  return `
+    <h1>About Denox</h1>
+    <p>Denox combines file based routing, MVC and native Deno APIs on top of Hono.</p>
+  `;
 }

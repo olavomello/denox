@@ -1,13 +1,29 @@
+/**
+ * Home page — `/`.
+ *
+ * Demonstrates safe interpolation of untrusted input (`?name=` query)
+ * through `escapeHtml`.
+ */
+
 import type { Context } from "hono";
+import { escapeHtml } from "@/shared/html.ts";
 
+/** Page configuration. */
 export const config = {
-    layout: "default"
-};
+  layout: "default",
+} as const;
 
-export default async function(c: Context) {
-    return  `
-                <h1>Home</h1>
-                <p>This page uses the default layout.</p>
-            `;
-
+/**
+ * Renders the home page body.
+ *
+ * @param c Request context.
+ * @returns Page HTML.
+ */
+export default function homePage(c: Context): string {
+  const name = escapeHtml(c.req.query("name") ?? "world");
+  return `
+    <h1>Hello, ${name}!</h1>
+    <p>Welcome to <strong>Denox</strong> — a full stack framework for Deno powered by Hono.</p>
+    <p>Try <a href="/?name=Deno">/?name=Deno</a> or the JSON API at <a href="/api/ping">/api/ping</a>.</p>
+  `;
 }

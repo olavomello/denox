@@ -1,6 +1,29 @@
-version: "3.9"
-services:
-  denox:
-    build: .
-    ports:
-      - "8000:8000"
+# systemd unit for Denox (compiled binary deployment).
+# 1. Build:   deno task compile
+# 2. Copy:    ./dist/app -> /opt/denox/app  and  .env -> /opt/denox/.env
+# 3. Install: sudo cp deploy/denox.service /etc/systemd/system/
+#             sudo systemctl daemon-reload && sudo systemctl enable --now denox
+
+[Unit]
+Description=Denox application server
+After=network.target
+
+[Service]
+Type=simple
+User=denox
+Group=denox
+WorkingDirectory=/opt/denox
+EnvironmentFile=/opt/denox/.env
+ExecStart=/opt/denox/app
+Restart=on-failure
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/denox
+
+[Install]
+WantedBy=multi-user.target

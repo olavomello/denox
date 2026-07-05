@@ -1,13 +1,23 @@
+/**
+ * Users page — `/users`.
+ */
+
 import type { Context } from "hono";
 
+/** Page configuration. */
 export const config = {
-    layout: "default"
-};
+  layout: "default",
+} as const;
 
-export default async function(c: Context) {
-    return  `
-                <h1>Users</h1>
-                <p>This page uses the default layout.</p>
-            `;
-
+/**
+ * Renders the users page body.
+ *
+ * @param _c Request context.
+ * @returns Page HTML.
+ */
+export default function usersPage(_c: Context): string {
+  return `
+    <h1>Users</h1>
+    <p>User data is served by the JSON API at <a href="/api/users">/api/users</a>.</p>
+  `;
 }

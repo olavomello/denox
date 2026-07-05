@@ -2,378 +2,112 @@
 
 > **A modern Full Stack Framework for Deno powered by Hono.**
 
-Build fast, scalable and maintainable applications using **Deno**, **Hono**, **File Based Routing** and a clean MVC architecture.
+Build fast, scalable and maintainable applications using **Deno**, **Hono**, **File Based Routing**
+and a clean **MVC** architecture — with security, testing and deployment built in from day one.
+
+[![CI](https://github.com/olavomello/denox/actions/workflows/ci.yml/badge.svg)](https://github.com/olavomello/denox/actions/workflows/ci.yml)
+![Deno](https://img.shields.io/badge/deno-2.x-black)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+<!-- screenshot placeholder: docs/assets/denox-home.png -->
 
 ---
 
-# 🚀 Getting Started
+## Features
+
+- ⚡ **Hono** HTTP engine on native `Deno.serve`
+- 🗂 **File based routing** — `pages/about/main.ts` → `/about`, `[id]` → `:id`
+- 🏛 **MVC feature slices** — model / DTO / repository / service / controller
+- 🔐 **Security by default** — CSP, secure headers, CORS, CSRF, rate limiting, body limits,
+  timeouts, error masking, XSS-safe rendering
+- ✅ **Three test layers** — unit, integration (`app.request()`), e2e (real socket)
+- 🧾 **Typed, fail-fast configuration** — every env var validated at startup
+- 📦 **Deploy ready** — Docker, Nginx/Caddy, systemd, CI pipeline
+- 📐 **Specification Driven Development** — AI-agent-ready contract in `AGENTS.md`
+
+---
 
 ## Requirements
 
-- Deno 2.x or later
+- Deno **2.5+** — install: `curl -fsSL https://deno.land/install.sh | sh` (Windows:
+  `irm https://deno.land/install.ps1 | iex`, macOS: `brew install deno`)
 - Git
 
----
-
-## Install Deno
-
-### Windows (PowerShell)
-
-```powershell
-irm https://deno.land/install.ps1 | iex
-```
-
-or using Scoop
-
-```powershell
-scoop install deno
-```
-
-or using Chocolatey
-
-```powershell
-choco install deno
-```
-
----
-
-### macOS
-
-Using Homebrew
+## Quick Start
 
 ```bash
-brew install deno
-```
-
----
-
-### Linux
-
-```bash
-curl -fsSL https://deno.land/install.sh | sh
-```
-
----
-
-## Verify Installation
-
-```bash
-deno --version
-```
-
-Expected output
-
-```text
-deno 2.x.x
-v8 x.x.x
-typescript x.x.x
-```
-
----
-
-# Clone Repository
-
-```bash
-git clone https://github.com/<your-user>/denox.git
-
+git clone https://github.com/olavomello/denox.git
 cd denox
-```
-
----
-
-# Install Dependencies
-
-Denox uses Deno native dependency management.
-
-Simply cache the dependencies.
-
-```bash
-deno install
-```
-
-or
-
-```bash
-deno cache src/main.ts
-```
-
----
-
-# Run Development Server
-
-```bash
+cp .env.example .env
 deno task dev
 ```
 
-The application will be available at
+Open http://localhost:8000 — try `/?name=Deno`, `/about`, `/api/ping`, `/api/users`.
 
-```text
-http://localhost:8000
+## Tasks
+
+| Task                 | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `deno task dev`      | Regenerate routes + start with `--watch`    |
+| `deno task start`    | Start the server                            |
+| `deno task routes`   | Regenerate `src/frontend/pages.gen.ts`      |
+| `deno task test`     | Run unit + integration + e2e tests          |
+| `deno task coverage` | Tests with coverage report                  |
+| `deno task ci`       | Full quality gate (fmt, lint, check, tests) |
+| `deno task compile`  | Build a standalone binary in `./dist/app`   |
+
+## Architecture
+
 ```
-
----
-
-# Generate Routes
-
-Whenever new pages are added.
-
-```bash
-deno task routes
-```
-
----
-
-# Run Tests
-
-```bash
-deno task test
-```
-
----
-
-# Format Project
-
-```bash
-deno fmt
-```
-
----
-
-# Lint Project
-
-```bash
-deno lint
-```
-
----
-
-# Type Check
-
-```bash
-deno check src/main.ts
-```
-
----
-
-# Build
-
-Compile a standalone executable.
-
-```bash
-deno task build
-```
-
----
-
-# Project Structure
-
-```text
 src/
-
-├── api/
-│   ├── controllers/
-│   ├── services/
-│   ├── routes/
-│   └── main.ts
-│
-├── frontend/
-│   ├── layouts/
-│   ├── pages/
-│   ├── loader.ts
-│   ├── generate_routes.ts
-│   └── main.ts
-│
-├── middleware/
-├── config/
-├── routes.ts
-└── main.ts
+├── main.ts            entrypoint (Deno.serve)
+├── app.ts             composition root: middleware + routers
+├── config/            typed, validated environment
+├── shared/            logger, exceptions, envelope, escapeHtml
+├── middleware/        error handler, security, rate limit, request log
+├── api/               JSON API — one MVC slice per feature
+│   └── users/         model · dto · repository · service · controller · routes
+└── frontend/          file based pages + layouts (server rendered)
 ```
 
----
+Full contract and conventions: [`AGENTS.md`](AGENTS.md). Reference SDD cycle:
+[`specs/user-management.md`](specs/user-management.md) →
+[`docs/user-management.md`](docs/user-management.md).
 
-# ✨ Features
+## API example
 
-- 🦕 Native Deno Runtime
-- ⚡ Powered by Hono
-- 📁 File Based Routing
-- 🎨 Layout System
-- 🧩 MVC Architecture
-- 🚀 Zero Configuration
-- 📄 Automatic Route Generation
-- 🔥 TypeScript First
-- 🌐 REST API Ready
-- 📦 Modular Architecture
-- 🔒 Native ESM
-- 🧪 Testing Ready
-
----
-
-# 📁 File Based Routing
-
-Create a page.
-
-```text
-frontend/pages/about.ts
+```bash
+curl -X POST http://localhost:8000/api/users \
+  -H 'content-type: application/json' \
+  -d '{"name":"Grace Hopper","email":"grace@example.com"}'
 ```
 
-Automatically becomes
-
-```text
-/about
-/about.html
+```json
+{
+  "success": true,
+  "data": { "id": "…", "name": "Grace Hopper", "email": "grace@example.com", "createdAt": "…" }
+}
 ```
 
-Nested folders are supported.
+## Deployment
 
-```text
-frontend/pages/products/main.ts
+Docker, reverse proxy (Nginx/Caddy), systemd and scaling guidance:
+[`deploy/README.md`](deploy/README.md).
+
+```bash
+docker compose up -d --build
 ```
 
-Automatically becomes
+## Roadmap
 
-```text
-/products
-```
+See [`ROADMAP.md`](ROADMAP.md) — next up: database adapters, layout auto-registration, `denox` CLI,
+auth module, OpenAPI generation.
 
-Dynamic routes.
+## Contributing
 
-```text
-frontend/pages/products/[id].ts
-```
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`AGENTS.md`](AGENTS.md). Every feature follows
+Specification Driven Development.
 
-Automatically become
+## License
 
-```text
-/products/:id
-```
-
----
-
-# 🎨 Layout System
-
-Layouts are independent from pages.
-
-```text
-frontend/
-
-layouts/
-├── default.ts
-└── admin.ts
-
-pages/
-├── about.ts
-└── dashboard/
-    └── main.ts
-```
-
-Each page declares its layout.
-
-```ts
-export const config = {
-  layout: "default",
-};
-```
-
----
-
-# 🧩 MVC Flow
-
-```text
-Request
-    │
-    ▼
-Router
-    │
-    ▼
-Controller
-    │
-    ▼
-Service
-    │
-    ▼
-Repository
-    │
-    ▼
-Response
-```
-
----
-
-# 🌐 API Example
-
-```ts
-app.get("/products", ProductController.index);
-
-app.post("/products", ProductController.store);
-```
-
----
-
-# 📄 Page Example
-
-```text
-frontend/pages/products/main.ts
-```
-
-No manual route registration is required.
-
----
-
-# 🛣️ Roadmap
-
-## Current
-
-- ✅ Hono Integration
-- ✅ MVC Structure
-- ✅ File Based Routing
-- ✅ Automatic Route Generator
-- ✅ Layout System
-
-## Planned
-
-- Authentication
-- Middleware Pipeline
-- Dependency Injection
-- Validation
-- Sessions
-- Cookies
-- Static Assets
-- Template Engine
-- Database Integration
-- ORM Support
-- CLI
-- Cache
-- Scheduler
-- Events
-- Queue System
-- WebSockets
-- OpenAPI Generator
-- Internationalization
-- Testing Helpers
-
----
-
-# 🤝 Contributing
-
-Contributions are welcome.
-
-- Open an Issue
-- Submit a Pull Request
-- Share ideas
-- Improve the documentation
-
----
-
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-# ⭐ Support
-
-If you like this project, please consider giving it a **⭐** on GitHub.
-
-It helps the project grow and reach more developers.
-
-By [Olavo Mello](https://www.linkedin.com/in/olavo-mello/)
+[MIT](LICENSE) © Olavo Mello

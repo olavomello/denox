@@ -1,8 +1,16 @@
+/**
+ * Frontend router. Serves the file based pages under `/`.
+ */
+
 import { Hono } from "hono";
-import { loadPages } from "./loader.ts";
+import { csrf } from "hono/csrf";
+import { loadPages } from "@/frontend/loader.ts";
 
-const app = new Hono();
+const web = new Hono();
 
-loadPages(app);
+// CSRF protection for browser-submitted forms (origin check).
+web.use("*", csrf());
 
-export default app;
+loadPages(web);
+
+export default web;

@@ -1,0 +1,12 @@
+.git
+.github
+.vscode
+dist
+coverage
+docs
+specs
+test
+deploy
+*.md
+.env
+.env.example

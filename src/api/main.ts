@@ -1,15 +1,17 @@
-// src/api/main.ts
+/**
+ * API router. Aggregates every feature router under `/api`. New features
+ * are added with one `registerXRoutes(api)` line — nothing else changes.
+ */
 
 import { Hono } from "hono";
-
-import { registerUserRoutes } from "./routes/users.ts";
-import { registerProductRoutes } from "./routes/products.ts";
-import { registerPingRoutes } from "./routes/ping.ts";
+import { registerHealthRoutes } from "@/api/health/health.routes.ts";
+import { registerProductRoutes } from "@/api/products/product.routes.ts";
+import { registerUserRoutes } from "@/api/users/user.routes.ts";
 
 const api = new Hono();
 
+registerHealthRoutes(api);
 registerUserRoutes(api);
 registerProductRoutes(api);
-registerPingRoutes(api);
 
 export default api;
