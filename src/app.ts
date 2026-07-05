@@ -15,6 +15,7 @@ import { errorHandler, notFoundHandler } from "@/middleware/error_handler.ts";
 import { rateLimit } from "@/middleware/rate_limit.ts";
 import { requestLogger } from "@/middleware/request_logger.ts";
 import { security } from "@/middleware/security.ts";
+import { site } from "@/config/site.ts";
 
 /**
  * Creates a fully wired application instance.
@@ -24,18 +25,26 @@ import { security } from "@/middleware/security.ts";
 export function createApp(): Hono {
   const app = new Hono();
 
-  // Static files
-  app.use(
-    "/*",
-    serveStatic({
-      root: "./public",
-    }),
-  );
-
   app.use("*", requestLogger());
   for (const middleware of security()) {
     app.use("*", middleware);
   }
+
+  // Static files — after the security stack so assets also carry secure
+  // headers, with configurable cache headers for performance.
+  app.use(
+    "/*",
+    serveStatic({
+      root: "./public",
+      onFound: (_path, c) => {
+        c.header(
+          "Cache-Control",
+          `public, max-age=${site.performance.staticCacheSeconds}`,
+        );
+      },
+    }),
+  );
+
   app.use("/api/*", rateLimit());
 
   app.route("/api", apiRoutes);

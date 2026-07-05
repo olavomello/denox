@@ -29,6 +29,9 @@ Read on
 
 ## Features
 
+- 🏆 **Production Ready by Default** — SEO (meta, Open Graph, Twitter Cards, JSON-LD, sitemap,
+  robots), PWA manifest, asset preload, lazy images and cache headers — automatic, driven by
+  `denox.config.ts`, opt-out per feature
 - ⚡ **Hono** HTTP engine on native `Deno.serve`
 - 🗂 **File based routing** — `pages/about/main.ts` → `/about`, `[id]` → `:id`
 - 🏛 **MVC feature slices** — model · DTO · repository · service · controller · routes, with
@@ -158,6 +161,18 @@ deno task deploy fly --run       # execute (auth delegated to the fly CLI)
 
 Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a real `CORS_ORIGIN`
 (startup rejects `*` in production).
+
+## What's New
+
+Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
+
+- **0.2.2** — 🏆 Production Ready by Default: config-driven SEO (sitemap, robots, Open Graph,
+  Twitter Cards, JSON-LD), generated PWA manifest, asset preload, lazy images and static
+  cache/security headers via `denox.config.ts`.
+- **0.2.1** — 🚀 Multi-platform deploy layer: `deno task deploy` for Deno Deploy, Fly.io, Railway,
+  Render, Docker and VPS.
+- **0.2.0** — 🏛 Framework foundation: MVC slices with SOLID injection, three test layers, security
+  middleware stack, fail-fast typed config, SDD contract (`AGENTS.md`).
 
 ## Roadmap
 

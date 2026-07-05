@@ -3,6 +3,30 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.2] - 2026-07-05
+
+### Added
+
+- **Production Ready by Default**: root `denox.config.ts` with typed `defineConfig()` (app
+  metadata + feature toggles over production defaults); injected SEO head (title, description,
+  keywords, author, canonical, Open Graph, Twitter Cards, JSON-LD) with per-page `config.meta`;
+  generated `/sitemap.xml` (from the file based route table) and `/robots.txt`; `/site.webmanifest`
+  generated from config; preload hints for public CSS and fonts; lazy images on page content;
+  Cache-Control on static assets.
+
+### Changed
+
+- Static assets are served after the security stack (assets now carry secure headers) with
+  configurable cache headers.
+- Secure headers stack is toggleable via `security.headers`.
+- Default layout reads `lang` from config; title and manifest link are now injected (deduplicated)
+  instead of hardcoded.
+
+### Removed
+
+- Static `public/site.webmanifest` (replaced by the config-driven endpoint; it also referenced a
+  missing maskable icon).
+
 ## [0.2.1] - 2026-07-05
 
 ### Added

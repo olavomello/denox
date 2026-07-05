@@ -13,6 +13,7 @@ import { cors } from "hono/cors";
 import { bodyLimit } from "hono/body-limit";
 import { timeout } from "hono/timeout";
 import { env } from "@/config/env.ts";
+import { site } from "@/config/site.ts";
 
 /**
  * Builds the ordered list of global security middleware.
@@ -20,20 +21,25 @@ import { env } from "@/config/env.ts";
  * @returns Middleware to apply on every route.
  */
 export function security(): readonly MiddlewareHandler[] {
+  const headers: MiddlewareHandler[] = site.security.headers
+    ? [
+      secureHeaders({
+        contentSecurityPolicy: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", "data:"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'self'"],
+        },
+        xFrameOptions: "DENY",
+        referrerPolicy: "no-referrer",
+      }),
+    ]
+    : [];
   return [
-    secureHeaders({
-      contentSecurityPolicy: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:"],
-        objectSrc: ["'none'"],
-        frameAncestors: ["'none'"],
-        baseUri: ["'self'"],
-      },
-      xFrameOptions: "DENY",
-      referrerPolicy: "no-referrer",
-    }),
+    ...headers,
     cors({
       origin: env.CORS_ORIGIN === "*" ? "*" : [...env.CORS_ORIGIN],
       allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

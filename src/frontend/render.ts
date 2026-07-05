@@ -8,6 +8,9 @@
 
 import type { Context } from "hono";
 import { layouts } from "@/frontend/layouts/registry.ts";
+import { injectHead, type PageMeta } from "@/frontend/head.ts";
+import { lazifyImages } from "@/frontend/optimize.ts";
+import { site } from "@/config/site.ts";
 
 /** Contract every page module must follow. */
 export interface PageModule {
@@ -16,6 +19,8 @@ export interface PageModule {
   /** Optional page configuration. */
   readonly config?: {
     readonly layout?: string;
+    /** Per-page SEO/social metadata (see PageMeta). */
+    readonly meta?: PageMeta;
   };
 }
 
@@ -27,7 +32,8 @@ export interface PageModule {
  * @returns HTML response.
  */
 export async function render(c: Context, page: PageModule): Promise<Response> {
-  const html = await page.default(c);
+  const rendered = await page.default(c);
+  const html = site.performance.lazyImages ? lazifyImages(rendered) : rendered;
   const layoutName = page.config?.layout ?? "default";
   const layout = layouts[layoutName];
 
@@ -38,5 +44,5 @@ export async function render(c: Context, page: PageModule): Promise<Response> {
   }
 
   const document = await layout(c, html);
-  return c.html(document);
+  return c.html(injectHead(c, document, page.config?.meta));
 }

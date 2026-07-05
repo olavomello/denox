@@ -5,6 +5,7 @@
  */
 
 import type { Context } from "hono";
+import { site } from "@/config/site.ts";
 
 /**
  * Renders the default layout.
@@ -18,18 +19,16 @@ export default function defaultLayout(
   content: string,
 ): string {
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${site.app.locale}">
   <head>
     <meta charset="UTF-8" />    
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
-    <title>DenoX</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">    
     <link rel="stylesheet" href="/assets/css/default.css" />
   </head>
   <body>
