@@ -1,3 +1,5 @@
+![](https://github.com/olavomello/denox/blob/main/public/images/denox-logo.png?raw=true)
+
 # Denox
 
 > **A modern Full Stack Framework for Deno powered by Hono.**
