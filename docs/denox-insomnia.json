@@ -1,0 +1,492 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-06T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v11.0.0",
+  "resources": [
+    {
+      "_id": "wrk_denox",
+      "_type": "workspace",
+      "parentId": null,
+      "modified": 1783298560805,
+      "created": 1783298560804,
+      "name": "DenoX API",
+      "description": "DenoX framework API \u2014 users, products, contact, health, SEO/PWA endpoints.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_denox",
+      "modified": 1783298560803,
+      "created": 1783298560802,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8000"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1783298560801
+    },
+    {
+      "_id": "env_local",
+      "_type": "environment",
+      "parentId": "env_base",
+      "modified": 1783298560800,
+      "created": 1783298560799,
+      "name": "Local",
+      "data": {
+        "base_url": "http://localhost:8000"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url"
+        ]
+      },
+      "color": "#4b8bf5",
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "env_prod",
+      "_type": "environment",
+      "parentId": "env_base",
+      "modified": 1783298560798,
+      "created": 1783298560797,
+      "name": "Production (Deno Deploy)",
+      "data": {
+        "base_url": "https://denox.olavomello.deno.net"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url"
+        ]
+      },
+      "color": "#2fbf71",
+      "isPrivate": false,
+      "metaSortKey": 2
+    },
+    {
+      "_id": "fld_health",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 1783298560796,
+      "created": 1783298560795,
+      "name": "Health",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_ping",
+      "_type": "request",
+      "parentId": "fld_health",
+      "modified": 1783298560794,
+      "created": 1783298560793,
+      "url": "{{ _.base_url }}/api/ping",
+      "name": "Ping",
+      "description": "Liveness probe. Returns pong + timestamp.",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_health",
+      "_type": "request",
+      "parentId": "fld_health",
+      "modified": 1783298560792,
+      "created": 1783298560791,
+      "url": "{{ _.base_url }}/api/health",
+      "name": "Health",
+      "description": "Readiness: status, environment, uptime.",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "fld_users",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 1783298560790,
+      "created": 1783298560789,
+      "name": "Users",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_users_list",
+      "_type": "request",
+      "parentId": "fld_users",
+      "modified": 1783298560788,
+      "created": 1783298560787,
+      "url": "{{ _.base_url }}/api/users",
+      "name": "List users",
+      "description": "",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_users_get",
+      "_type": "request",
+      "parentId": "fld_users",
+      "modified": 1783298560786,
+      "created": 1783298560785,
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "name": "Get user by id",
+      "description": "Set `user_id` in the environment or replace inline. Unknown id \u2192 404 NOT_FOUND.",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_users_create",
+      "_type": "request",
+      "parentId": "fld_users",
+      "modified": 1783298560784,
+      "created": 1783298560783,
+      "url": "{{ _.base_url }}/api/users",
+      "name": "Create user",
+      "description": "201 with the created user. Duplicate email \u2192 409 CONFLICT (atomic on the KV driver).",
+      "method": "POST",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Grace Hopper\",\n  \"email\": \"grace@example.com\"\n}"
+      }
+    },
+    {
+      "_id": "req_users_invalid",
+      "_type": "request",
+      "parentId": "fld_users",
+      "modified": 1783298560782,
+      "created": 1783298560781,
+      "url": "{{ _.base_url }}/api/users",
+      "name": "Create user \u2014 validation error",
+      "description": "400 VALIDATION_ERROR with per-field details (error.details.fields).",
+      "method": "POST",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 4,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"A\",\n  \"email\": \"not-an-email\"\n}"
+      }
+    },
+    {
+      "_id": "fld_products",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 1783298560780,
+      "created": 1783298560779,
+      "name": "Products",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_products_list",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 1783298560778,
+      "created": 1783298560777,
+      "url": "{{ _.base_url }}/api/products",
+      "name": "List products",
+      "description": "",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_products_get",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 1783298560776,
+      "created": 1783298560775,
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "name": "Get product by id",
+      "description": "",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_products_create",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 1783298560774,
+      "created": 1783298560773,
+      "url": "{{ _.base_url }}/api/products",
+      "name": "Create product",
+      "description": "201 with the created product. price must be > 0 and <= 1000000.",
+      "method": "POST",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"DenoX T-Shirt\",\n  \"price\": 49.9\n}"
+      }
+    },
+    {
+      "_id": "fld_contact",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 1783298560772,
+      "created": 1783298560771,
+      "name": "Contact",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_contact_create",
+      "_type": "request",
+      "parentId": "fld_contact",
+      "modified": 1783298560770,
+      "created": 1783298560769,
+      "url": "{{ _.base_url }}/api/contact",
+      "name": "Send contact message",
+      "description": "201 with the stored message. Same endpoint the data-api form uses.",
+      "method": "POST",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Ada Lovelace\",\n  \"email\": \"ada@example.com\",\n  \"message\": \"Hello from Insomnia!\"\n}"
+      }
+    },
+    {
+      "_id": "req_contact_invalid",
+      "_type": "request",
+      "parentId": "fld_contact",
+      "modified": 1783298560768,
+      "created": 1783298560767,
+      "url": "{{ _.base_url }}/api/contact",
+      "name": "Send contact \u2014 validation error",
+      "description": "400 VALIDATION_ERROR with fields: name, email, message.",
+      "method": "POST",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"A\",\n  \"email\": \"nope\",\n  \"message\": \"\"\n}"
+      }
+    },
+    {
+      "_id": "fld_meta",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 1783298560766,
+      "created": 1783298560765,
+      "name": "SEO / PWA",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_sitemap",
+      "_type": "request",
+      "parentId": "fld_meta",
+      "modified": 1783298560764,
+      "created": 1783298560763,
+      "url": "{{ _.base_url }}/sitemap.xml",
+      "name": "Sitemap",
+      "description": "Generated from the file based route table (static routes).",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_robots",
+      "_type": "request",
+      "parentId": "fld_meta",
+      "modified": 1783298560762,
+      "created": 1783298560761,
+      "url": "{{ _.base_url }}/robots.txt",
+      "name": "Robots",
+      "description": "",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_manifest",
+      "_type": "request",
+      "parentId": "fld_meta",
+      "modified": 1783298560760,
+      "created": 1783298560759,
+      "url": "{{ _.base_url }}/site.webmanifest",
+      "name": "Web manifest",
+      "description": "Generated from denox.config.ts.",
+      "method": "GET",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    }
+  ]
+}
