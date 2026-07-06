@@ -17,6 +17,9 @@ export type AppEnv = "development" | "test" | "production";
 /** Supported log levels, ordered from most to least verbose. */
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
+/** Supported storage drivers for the repository layer. */
+export type StorageDriver = "memory" | "kv";
+
 /** Fully validated application configuration. */
 export interface Env {
   readonly APP_ENV: AppEnv;
@@ -28,6 +31,8 @@ export interface Env {
   readonly RATE_LIMIT_WINDOW_MS: number;
   readonly MAX_BODY_SIZE_BYTES: number;
   readonly REQUEST_TIMEOUT_MS: number;
+  readonly STORAGE_DRIVER: StorageDriver;
+  readonly KV_PATH: string;
 }
 
 /** Error thrown when the environment is invalid. Aborts startup. */
@@ -40,6 +45,7 @@ export class EnvValidationError extends Error {
 
 const APP_ENVS: readonly AppEnv[] = ["development", "test", "production"];
 const LOG_LEVELS: readonly LogLevel[] = ["debug", "info", "warn", "error"];
+const STORAGE_DRIVERS: readonly StorageDriver[] = ["memory", "kv"];
 
 /**
  * Parses and validates a raw environment map into a typed {@link Env}.
@@ -101,6 +107,8 @@ export function loadEnv(raw: Readonly<Record<string, string | undefined>>): Env 
     RATE_LIMIT_WINDOW_MS: readInt("RATE_LIMIT_WINDOW_MS", 60_000, 100, 3_600_000),
     MAX_BODY_SIZE_BYTES: readInt("MAX_BODY_SIZE_BYTES", 1_048_576, 1, 104_857_600),
     REQUEST_TIMEOUT_MS: readInt("REQUEST_TIMEOUT_MS", 30_000, 100, 300_000),
+    STORAGE_DRIVER: readEnum("STORAGE_DRIVER", STORAGE_DRIVERS, "memory"),
+    KV_PATH: (raw["KV_PATH"] ?? "").trim(),
   };
 
   if (env.APP_ENV === "production" && env.CORS_ORIGIN === "*") {

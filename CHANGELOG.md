@@ -3,6 +3,21 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-07-06
+
+### Added
+
+- **Persistence layer (Deno KV)**: `STORAGE_DRIVER=memory|kv` + `KV_PATH` (validated, memory
+  default); KV repositories for users, products and contact beside the in-memory ones; repository
+  factories in the composition roots; atomic e-mail uniqueness (entity + index in one KV
+  transaction, verified under concurrency); `deno task seed` (idempotent, driver-agnostic);
+  `unstable: ["kv"]` in deno.json; subprocess e2e booting the real server on the KV driver.
+
+### Changed
+
+- Services/controllers/DTOs untouched — driver selection lives entirely in the composition roots
+  (interfaces already isolated persistence).
+
 ## [0.2.3] - 2026-07-05
 
 ### Added

@@ -42,6 +42,8 @@ Read on
   timeouts, error masking, XSS-safe rendering
 - ✅ **Three test layers** — unit, integration (`app.request()`), e2e (real socket)
 - 🧾 **Typed, fail-fast configuration** — every env var validated at startup
+- 💾 **Durable storage on demand** — `STORAGE_DRIVER=kv` switches repositories to Deno KV (native on
+  Deno Deploy) with atomic uniqueness; memory stays the dev default
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
 - 📐 **Specification Driven Development** — AI-agent-ready contract in `AGENTS.md`
 
@@ -168,6 +170,8 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.3.0** — 💾 Persistence layer: Deno KV driver (`STORAGE_DRIVER=kv`) with atomic e-mail
+  uniqueness, driver factories, idempotent seed — durable data on Deno Deploy.
 - **0.2.3** — 📮 Form interaction layer: progressive-enhancement helper (`data-api` forms → JSON
   API, per-field errors, no navigation) + contact API slice with no-JS fallback.
 - **0.2.2** — 🏆 Production Ready by Default: config-driven SEO (sitemap, robots, Open Graph,

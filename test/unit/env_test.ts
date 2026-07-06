@@ -31,6 +31,12 @@ Deno.test("loadEnv fails fast on invalid values", () => {
   assertThrows(() => loadEnv({ RATE_LIMIT_MAX: "0" }), EnvValidationError);
 });
 
+Deno.test("loadEnv validates the storage driver and defaults to memory", () => {
+  assertEquals(loadEnv({}).STORAGE_DRIVER, "memory");
+  assertEquals(loadEnv({ STORAGE_DRIVER: "kv", KV_PATH: ":memory:" }).KV_PATH, ":memory:");
+  assertThrows(() => loadEnv({ STORAGE_DRIVER: "banana" }), EnvValidationError);
+});
+
 Deno.test("loadEnv rejects wildcard CORS in production", () => {
   assertThrows(
     () => loadEnv({ APP_ENV: "production", CORS_ORIGIN: "*" }),
