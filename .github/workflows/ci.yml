@@ -44,7 +44,7 @@ jobs:
         run: deno task check
 
       - name: Tests with coverage
-        run: deno test --allow-net --allow-read --allow-env --coverage=coverage
+        run: deno test --allow-net --allow-read --allow-env --allow-run=deno --coverage=coverage
 
       - name: Coverage report
         run: |
