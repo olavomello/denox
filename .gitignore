@@ -4,4 +4,6 @@ coverage/
 node_modules/
 *.log
 .DS_Store
-*.patch
+*.patch-e 
+# Generated API reference (deno task doc)
+docs/api/

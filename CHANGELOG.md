@@ -3,6 +3,16 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- `docs/guides/creating-a-feature.md`: hands-on walkthrough of the full feature workflow (SDD →
+  slice → tests → docs), referencing the Insomnia collection for interactive endpoint exploration.
+- `deno task doc`: HTML API reference generated from the mandatory JSDoc (output git-ignored).
+- Form state styles in `default.css`: `.field-error`, `.success`, `aria-invalid` borders and
+  `aria-busy` submit feedback for the form helper.
+
 ## [0.3.0] - 2026-07-06
 
 ### Added

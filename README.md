@@ -84,6 +84,7 @@ Open **http://localhost:8000** — try `/?name=Deno`, `/about`, `/api/ping`, `/a
 | `deno task coverage`  | Tests with coverage report                        |
 | `deno task ci`        | Full quality gate (fmt, lint, check, tests)       |
 | `deno task compile`   | Build a standalone binary in `./dist/app`         |
+| `deno task doc`       | Generate the HTML API reference from JSDoc        |
 | `deno task deploy`    | List deploy targets / print or run a deploy plan  |
 
 ## Architecture
@@ -107,6 +108,11 @@ src/
 Full contract and conventions: [`AGENTS.md`](AGENTS.md). Reference SDD cycle:
 [`specs/user-management.md`](specs/user-management.md) →
 [`docs/user-management.md`](docs/user-management.md).
+
+**Learning the framework:** start with the hands-on guide
+[`docs/guides/creating-a-feature.md`](docs/guides/creating-a-feature.md), explore the API with the
+Insomnia collection [`docs/denox-insomnia.json`](docs/denox-insomnia.json) (Local + Production
+environments included), and browse the generated API reference with `deno task doc`.
 
 ## API example
 

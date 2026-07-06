@@ -191,3 +191,33 @@ footer strong {
     padding: 28px;
   }
 }
+
+/* Form interaction states (denox-form.js) */
+.field-error {
+  display: block;
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin: 2px 0 10px;
+  min-height: 1em;
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+  border-color: #c0392b;
+  outline-color: #c0392b;
+}
+
+.success {
+  display: block;
+  color: #1e7e34;
+  background: #e6f4ea;
+  border: 1px solid #b7e0c2;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 10px 0;
+}
+
+form[aria-busy="true"] button[type="submit"] {
+  opacity: 0.6;
+  cursor: progress;
+}

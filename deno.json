@@ -16,7 +16,8 @@
     "compile": "deno task routes && deno compile --allow-net --allow-read --allow-env --output ./dist/app ./src/main.ts",
     "ci": "deno task fmt:check && deno task lint && deno task routes && deno task check && deno task test",
     "deploy": "deno run --allow-run --allow-read --allow-env scripts/deploy.ts",
-    "seed": "deno run --allow-read --allow-write --allow-env scripts/seed.ts"
+    "seed": "deno run --allow-read --allow-write --allow-env scripts/seed.ts",
+    "doc": "deno doc --html --name=DenoX --output=docs/api src/"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.13",
