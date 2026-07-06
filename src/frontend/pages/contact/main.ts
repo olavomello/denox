@@ -51,7 +51,7 @@ export default function contactPage(c: Context): string {
       <button type="submit">Submit</button>
     </form>
     <template id="form-response">
-      <p class="success"></p>
+      <p class="success">Thanks! We received your message.</p>
     </template>
   `;
 }
