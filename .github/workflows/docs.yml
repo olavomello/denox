@@ -1,0 +1,33 @@
+name: Docs
+
+on:
+  workflow_dispatch: # manual — mude para push: branches: [main] ao ativar o Pages
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Generate API reference
+        run: deno task doc
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/api
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
