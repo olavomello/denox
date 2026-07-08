@@ -12,6 +12,9 @@ export type CreateProductDto = NewProduct;
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 100;
 const PRICE_MAX = 1_000_000;
+const DESCRIPTION_MAX_LENGTH = 500;
+const IMAGE_URL_MAX_LENGTH = 500;
+const IMAGE_URL_PATTERN = /^(\/|https?:\/\/)/;
 
 /**
  * Validates and normalizes the create-product payload.
@@ -39,9 +42,31 @@ export function parseCreateProductDto(input: unknown): CreateProductDto {
     fields.price = `price must be a number between 0 (exclusive) and ${PRICE_MAX}`;
   }
 
+  let description: string | undefined;
+  if (body.description !== undefined) {
+    description = typeof body.description === "string" ? body.description.trim() : "";
+    if (description.length === 0 || description.length > DESCRIPTION_MAX_LENGTH) {
+      fields.description =
+        `description must be a non-empty string with up to ${DESCRIPTION_MAX_LENGTH} characters`;
+    }
+  }
+
+  let imageUrl: string | undefined;
+  if (body.imageUrl !== undefined) {
+    imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() : "";
+    if (imageUrl.length > IMAGE_URL_MAX_LENGTH || !IMAGE_URL_PATTERN.test(imageUrl)) {
+      fields.imageUrl = "imageUrl must be a path (/...) or an http(s) URL";
+    }
+  }
+
   if (Object.keys(fields).length > 0) {
     throw new ValidationException("Invalid product payload", { fields });
   }
 
-  return { name, price };
+  return {
+    name,
+    price,
+    ...(description !== undefined ? { description } : {}),
+    ...(imageUrl !== undefined ? { imageUrl } : {}),
+  };
 }

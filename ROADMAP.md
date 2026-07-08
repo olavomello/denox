@@ -6,6 +6,13 @@
 - Migrations and seed tooling
 - Repository implementations swap-in (no service/controller changes)
 
+## 0.3.x — Products showcase ✅
+
+- ✅ Server-rendered storefront on `/products` + dynamic product view (`/products/:id`) with
+  independently editable `showcase`/`product` layouts
+- ✅ Product image upload (magic-byte validation) with chunked Deno KV blob storage; dynamic
+  per-request page metadata; HTML error pages
+
 ## 0.4 — Frontend ergonomics
 
 - Layout auto-registration in the route generator

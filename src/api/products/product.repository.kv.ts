@@ -29,11 +29,19 @@ export class KvProductRepository implements ProductRepository {
   async create(data: NewProduct): Promise<Product> {
     const product: Product = {
       id: crypto.randomUUID(),
-      name: data.name,
-      price: data.price,
+      ...data,
       createdAt: new Date().toISOString(),
     };
     await this.kv.set(["products", product.id], product);
     return product;
+  }
+
+  /** Applies a partial update; @returns the updated product or null. */
+  async update(id: string, patch: Partial<NewProduct>): Promise<Product | null> {
+    const existing = await this.findById(id);
+    if (existing === null) return null;
+    const updated: Product = { ...existing, ...patch };
+    await this.kv.set(["products", id], updated);
+    return updated;
   }
 }

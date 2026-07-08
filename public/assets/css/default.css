@@ -221,3 +221,145 @@ form[aria-busy="true"] button[type="submit"] {
   opacity: 0.6;
   cursor: progress;
 }
+
+/* Products showcase (layout-showcase) */
+.content-wide {
+  max-width: 1100px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.product-card:hover,
+.product-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.product-card-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: #f4f6f8;
+}
+
+.product-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card-initial {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #9aa7b2;
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+
+.product-card-body h2 {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.product-card-description {
+  font-size: 0.88rem;
+  color: #5b6770;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price {
+  font-weight: 700;
+  color: #1e7e34;
+}
+
+.empty-state {
+  color: #5b6770;
+  background: #f4f6f8;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+/* Product view (layout-product) */
+.breadcrumb {
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.product-view {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 720px) {
+  .product-view {
+    grid-template-columns: minmax(260px, 420px) 1fr;
+    align-items: start;
+  }
+}
+
+.product-view-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  background: #f4f6f8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.product-view-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-price-large {
+  font-size: 1.6rem;
+  margin: 8px 0 14px;
+}
+
+.product-view-description {
+  line-height: 1.6;
+  color: #3c464e;
+}
+
+.product-view-meta {
+  font-size: 0.85rem;
+  color: #8a97a1;
+}
+
+/* Standalone error pages */
+.error-page {
+  max-width: 560px;
+  margin: 12vh auto;
+  text-align: center;
+  padding: 0 20px;
+}

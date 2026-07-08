@@ -7,6 +7,10 @@ export interface Product {
   readonly id: string;
   readonly name: string;
   readonly price: number;
+  /** Optional short description shown on the showcase and product view. */
+  readonly description?: string;
+  /** Optional image path (same-origin, e.g. /images/products/x.png — CSP). */
+  readonly imageUrl?: string;
   readonly createdAt: string;
 }
 
@@ -14,4 +18,6 @@ export interface Product {
 export interface NewProduct {
   readonly name: string;
   readonly price: number;
+  readonly description?: string;
+  readonly imageUrl?: string;
 }

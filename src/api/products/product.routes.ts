@@ -9,6 +9,7 @@ import type { ProductRepository } from "@/api/products/product.repository.ts";
 import { InMemoryProductRepository } from "@/api/products/product.repository.ts";
 import { KvProductRepository } from "@/api/products/product.repository.kv.ts";
 import { ProductService } from "@/api/products/product.service.ts";
+import { createBlobStorage } from "@/shared/blob_storage.ts";
 import { env } from "@/config/env.ts";
 import { requireKv } from "@/shared/storage.ts";
 
@@ -24,17 +25,23 @@ export function createProductRepository(): ProductRepository {
     : new InMemoryProductRepository();
 }
 
+/** Shared product service instance (API + server-rendered pages). */
+export const productService: ProductService = new ProductService(
+  createProductRepository(),
+  createBlobStorage(),
+);
+
 /**
  * Registers the products feature on the given router.
  *
  * @param app API router.
  */
 export function registerProductRoutes(app: Hono): void {
-  const repository = createProductRepository();
-  const service = new ProductService(repository);
-  const controller = new ProductController(service);
+  const controller = new ProductController(productService);
 
   app.get("/products", controller.index);
   app.get("/products/:id", controller.show);
   app.post("/products", controller.store);
+  app.post("/products/:id/image", controller.uploadImage);
+  app.get("/products/:id/image", controller.image);
 }

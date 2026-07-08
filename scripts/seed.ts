@@ -19,8 +19,21 @@ const users = [
 ] as const;
 
 const products = [
-  { name: "DenoX Sticker Pack", price: 9.9 },
-  { name: "DenoX T-Shirt", price: 49.9 },
+  {
+    name: "DenoX Sticker Pack",
+    price: 9.9,
+    description: "A pack of vinyl stickers featuring the DenoX dino.",
+  },
+  {
+    name: "DenoX T-Shirt",
+    price: 49.9,
+    description: "Soft cotton tee with the DenoX logo. Production ready by default.",
+  },
+  {
+    name: "DenoX Mug",
+    price: 19.9,
+    description: "Start the day with a hot deploy.",
+  },
 ] as const;
 
 const userRepository = createUserRepository();

@@ -487,6 +487,61 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "body": {}
+    },
+    {
+      "_id": "req_products_upload_image",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}/image",
+      "name": "Upload product image",
+      "method": "POST",
+      "description": "Multipart upload (field `image`, PNG/JPEG/WebP up to 1 MB \u2014 format detected from magic bytes). Sets the product's imageUrl. Select a file in the body field before sending.",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "name": "image",
+            "type": "file",
+            "fileName": ""
+          }
+        ]
+      }
+    },
+    {
+      "_id": "req_products_get_image",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}/image",
+      "name": "Get product image",
+      "method": "GET",
+      "description": "Serves the stored image with its detected content type. 404 when the product has no image.",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 6,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
     }
   ]
 }

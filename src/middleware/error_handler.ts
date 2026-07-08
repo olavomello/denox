@@ -13,7 +13,24 @@ import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { AppException } from "@/shared/exceptions/app_exception.ts";
 import { fail } from "@/shared/http.ts";
+import { escapeHtml } from "@/shared/html.ts";
 import { logger } from "@/shared/logger.ts";
+
+/** Minimal standalone HTML error page (no layout coupling). */
+function errorPage(status: number, message: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>${status}</title>
+<link rel="stylesheet" href="/assets/css/default.css"></head>
+<body><main class="error-page"><h1>${status}</h1><p>${escapeHtml(message)}</p>
+<p><a href="/">Back to home</a></p></main></body></html>`;
+}
+
+/** True when the request expects an HTML page rather than a JSON envelope. */
+function wantsHtml(c: Context): boolean {
+  return !c.req.path.startsWith("/api");
+}
 
 /**
  * Hono `onError` handler. Translates thrown errors into the standard
@@ -31,6 +48,9 @@ export function errorHandler(err: Error, c: Context): Response {
       path: c.req.path,
       message: err.message,
     });
+    if (wantsHtml(c)) {
+      return c.html(errorPage(err.status, err.message), err.status as ContentfulStatusCode);
+    }
     return c.json(
       fail(err.code, err.message, err.details),
       err.status as ContentfulStatusCode,
@@ -42,6 +62,9 @@ export function errorHandler(err: Error, c: Context): Response {
     message: err.message,
     stack: err.stack,
   });
+  if (wantsHtml(c)) {
+    return c.html(errorPage(500, "Internal server error"), 500);
+  }
   return c.json(fail("INTERNAL_ERROR", "Internal server error"), 500);
 }
 
@@ -52,5 +75,8 @@ export function errorHandler(err: Error, c: Context): Response {
  * @returns JSON 404 response.
  */
 export function notFoundHandler(c: Context): Response {
+  if (wantsHtml(c)) {
+    return c.html(errorPage(404, "Page not found"), 404);
+  }
   return c.json(fail("NOT_FOUND", `Route ${c.req.method} ${c.req.path} not found`), 404);
 }

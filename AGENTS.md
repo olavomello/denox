@@ -304,7 +304,10 @@ CHANGELOG updated, security and performance sections of the spec reviewed.
 - Deployment artifacts live in `Dockerfile`, `docker-compose.yml`, `deploy/` (Nginx, Caddy, systemd)
   with the full guide in `deploy/README.md`.
 - Release hygiene: update `CHANGELOG.md` and `VERSION` (SemVer) in the same PR as the feature.
-  `ROADMAP.md` tracks direction.
+- Version closing rite: when `VERSION` bumps, tag and publish —
+  `git tag vX.Y.Z && git push origin vX.Y.Z`, then `gh release create vX.Y.Z` with notes summarizing
+  the CHANGELOG section. Docs/chore work accumulates under `[Unreleased]` until the next feature
+  release. `ROADMAP.md` tracks direction.
 
 ---
 

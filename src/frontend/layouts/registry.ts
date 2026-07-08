@@ -10,6 +10,8 @@
 
 import type { Context } from "hono";
 import defaultLayout from "@/frontend/layouts/default.ts";
+import productLayout from "@/frontend/layouts/product.ts";
+import showcaseLayout from "@/frontend/layouts/showcase.ts";
 
 /** Signature every layout must implement. */
 export type Layout = (c: Context, content: string) => string | Promise<string>;
@@ -17,4 +19,6 @@ export type Layout = (c: Context, content: string) => string | Promise<string>;
 /** Every available layout, keyed by name. */
 export const layouts: Readonly<Record<string, Layout>> = {
   default: defaultLayout,
+  showcase: showcaseLayout,
+  product: productLayout,
 };

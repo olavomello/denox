@@ -42,6 +42,8 @@ Read on
   timeouts, error masking, XSS-safe rendering
 - ✅ **Three test layers** — unit, integration (`app.request()`), e2e (real socket)
 - 🧾 **Typed, fail-fast configuration** — every env var validated at startup
+- 🛍 **Reference storefront** — server-rendered product showcase + dynamic product view with image
+  upload (chunked KV blob storage) and per-product SEO
 - 💾 **Durable storage on demand** — `STORAGE_DRIVER=kv` switches repositories to Deno KV (native on
   Deno Deploy) with atomic uniqueness; memory stays the dev default
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
@@ -176,6 +178,9 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **Unreleased** — 🛍 Products showcase: responsive storefront + `/products/:id` dynamic view with
+  dedicated layouts, image upload with chunked KV blob storage, dynamic page metadata and HTML error
+  pages. Plus the docs layer (feature guide, Insomnia integration, `deno task doc`).
 - **0.3.0** — 💾 Persistence layer: Deno KV driver (`STORAGE_DRIVER=kv`) with atomic e-mail
   uniqueness, driver factories, idempotent seed — durable data on Deno Deploy.
 - **0.2.3** — 📮 Form interaction layer: progressive-enhancement helper (`data-api` forms → JSON
