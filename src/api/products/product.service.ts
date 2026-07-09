@@ -135,6 +135,8 @@ export class ProductService {
       const imageId = url.split("/").pop() ?? "";
       await this.blobStorage.delete(`products/${product.id}/${imageId}`);
     }
+    // Legacy single-image revision stored the blob without an imageId.
+    await this.blobStorage.delete(`products/${product.id}`);
     await this.repository.delete(product.id);
   }
 
