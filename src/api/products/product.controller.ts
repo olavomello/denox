@@ -4,7 +4,7 @@
  */
 
 import type { Context } from "hono";
-import { parseCreateProductDto } from "@/api/products/product.dto.ts";
+import { parseCreateProductDto, parseUpdateProductDto } from "@/api/products/product.dto.ts";
 import type { ProductService } from "@/api/products/product.service.ts";
 import { BadRequestException, ValidationException } from "@/shared/exceptions/app_exception.ts";
 import { ok } from "@/shared/http.ts";
@@ -48,6 +48,22 @@ export class ProductController {
     const dto = parseCreateProductDto(body);
     const product = await this.service.create(dto);
     return c.json(ok(product), 201);
+  };
+
+  /**
+   * `PATCH /api/products/:id` — partially updates name, price and/or
+   * description.
+   *
+   * @param c Request context.
+   * @returns 200 with the updated product.
+   */
+  update = async (c: Context): Promise<Response> => {
+    const body: unknown = await c.req.json().catch(() => {
+      throw new BadRequestException("Request body must be valid JSON");
+    });
+    const patch = parseUpdateProductDto(body);
+    const product = await this.service.updateDetails(c.req.param("id") ?? "", patch);
+    return c.json(ok(product), 200);
   };
 
   /**

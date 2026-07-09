@@ -26,6 +26,13 @@ Deno.test("defineConfig merges partial input over defaults per section", () => {
   assertEquals(config.seo.robots, true);
 });
 
+Deno.test("defineConfig ships ui defaults and merges overrides", () => {
+  const config = defineConfig({ ui: { nav: [{ label: "Only", href: "/only" }] } });
+  assertEquals(config.ui.nav.length, 1);
+  assertEquals(config.ui.brand.label, DEFAULT_CONFIG.ui.brand.label);
+  assertEquals(DEFAULT_CONFIG.ui.favicons.length, 3);
+});
+
 Deno.test("defineConfig output is frozen", () => {
   const config = defineConfig();
   assertEquals(Object.isFrozen(config), true);

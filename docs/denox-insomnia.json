@@ -594,6 +594,37 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "body": {}
+    },
+    {
+      "_id": "req_products_update",
+      "_type": "request",
+      "parentId": "fld_products",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "name": "Update product (partial)",
+      "method": "PATCH",
+      "description": "Partially updates name, price and/or description \u2014 provide at least one field. Useful to add descriptions to products created before the field existed.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 4.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"description\": \"Soft cotton tee with the DenoX logo.\"\n}"
+      }
     }
   ]
 }

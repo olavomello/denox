@@ -86,6 +86,47 @@ export interface PerformanceConfig {
   readonly staticCacheSeconds: number;
 }
 
+/** A favicon/touch-icon link tag. */
+export interface FaviconLink {
+  readonly rel: string;
+  readonly href: string;
+  readonly sizes?: string;
+  readonly type?: string;
+}
+
+/** A navigation menu entry. */
+export interface NavItem {
+  readonly label: string;
+  readonly href: string;
+}
+
+/** Site brand (logo + label) rendered by the shared header partial. */
+export interface BrandConfig {
+  readonly label: string;
+  readonly href: string;
+  readonly logo: string;
+}
+
+/** Footer credit rendered by the shared footer partial. */
+export interface FooterConfig {
+  readonly text: string;
+  readonly label: string;
+  readonly href: string;
+}
+
+/**
+ * Shared UI building blocks consumed by the head injector and the layout
+ * partials. Data only — markup is rendered (and escaped) by the framework.
+ * Arrays are replaced wholesale when overridden.
+ */
+export interface UiConfig {
+  readonly favicons: readonly FaviconLink[];
+  readonly stylesheets: readonly string[];
+  readonly brand: BrandConfig;
+  readonly nav: readonly NavItem[];
+  readonly footer: FooterConfig;
+}
+
 /** Security feature toggles (details live in middleware/security.ts). */
 export interface SecurityConfig {
   /** Apply secure headers + CSP globally. */
@@ -99,6 +140,7 @@ export interface DenoxConfig {
   readonly pwa: PwaConfig;
   readonly performance: PerformanceConfig;
   readonly security: SecurityConfig;
+  readonly ui: UiConfig;
 }
 
 /** Recursive partial used for the developer-facing configuration input. */
@@ -108,6 +150,7 @@ export type DenoxUserConfig = {
   readonly pwa?: Partial<PwaConfig>;
   readonly performance?: Partial<PerformanceConfig>;
   readonly security?: Partial<SecurityConfig>;
+  readonly ui?: Partial<UiConfig>;
 };
 
 /** Production-ready defaults applied under any omitted option. */
@@ -160,6 +203,23 @@ export const DEFAULT_CONFIG: DenoxConfig = Object.freeze({
   security: {
     headers: true,
   },
+  ui: {
+    favicons: [
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/images/favicon/apple-touch-icon.png" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/images/favicon/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/images/favicon/favicon-16x16.png" },
+    ],
+    stylesheets: ["/assets/css/default.css"],
+    brand: { label: "DenoX", href: "/", logo: "/images/icon.png" },
+    nav: [
+      { label: "Home", href: "/" },
+      { label: "About", href: "/about" },
+      { label: "Users", href: "/users" },
+      { label: "Products", href: "/products" },
+      { label: "Contact", href: "/contact" },
+    ],
+    footer: { text: "Powered by", label: "DenoX", href: "https://github.com/olavomello/denox" },
+  },
 });
 
 /**
@@ -176,5 +236,6 @@ export function defineConfig(user: DenoxUserConfig = {}): DenoxConfig {
     pwa: Object.freeze({ ...DEFAULT_CONFIG.pwa, ...user.pwa }),
     performance: Object.freeze({ ...DEFAULT_CONFIG.performance, ...user.performance }),
     security: Object.freeze({ ...DEFAULT_CONFIG.security, ...user.security }),
+    ui: Object.freeze({ ...DEFAULT_CONFIG.ui, ...user.ui }),
   });
 }

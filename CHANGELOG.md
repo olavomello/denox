@@ -7,6 +7,15 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Configurable UI**: new `ui` section in `denox.config.ts` (favicons, stylesheets, brand,
+  navigation, footer) rendered and escaped by the framework — head injector handles
+  favicons/stylesheets with dedupe, `layouts/partials.ts` renders header/footer, the three layouts
+  shrink to their differences; CSS preload follows the configured stylesheet list.
+- **Product image carousel** on the product view (CSS scroll-snap + `denox-carousel.js`,
+  progressive, CSP-safe) for products with 2+ images.
+- `PATCH /api/products/:id`: partial update of name, price and description (enables adding
+  descriptions to products created before the field existed).
+
 - **Products showcase**: responsive server-rendered storefront on `/products` and product view at
   `/products/:id` (first dynamic file based route), each with its own managed layout (`showcase`,
   `product`); optional `description` on products; per-request page `meta` resolvers (dynamic SEO)

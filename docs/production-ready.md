@@ -48,3 +48,22 @@ Renders `<title>About — MyApp</title>` plus matching OG/Twitter/JSON-LD.
 - Mark above-the-fold images with `loading="eager"` to opt out of lazy loading (LCP optimization).
 - With `app.url` empty, absolute URLs are derived from the request (`x-forwarded-proto` aware) —
   useful for previews.
+
+## UI (site identity)
+
+The `ui` section of `denox.config.ts` drives the shared shell — edit data, never markup (the
+framework renders and escapes it):
+
+```ts
+ui: {
+  brand: { label: "MyApp", href: "/", logo: "/images/logo.png" },
+  nav: [{ label: "Home", href: "/" }, { label: "Shop", href: "/products" }],
+  footer: { text: "Made with", label: "DenoX", href: "https://github.com/olavomello/denox" },
+  favicons: [...],          // injected into <head> with dedupe
+  stylesheets: ["/assets/css/default.css"], // linked + preloaded
+}
+```
+
+Layouts compose `siteHeader()`/`siteFooter()` from `src/frontend/layouts/partials.ts`; a fully
+custom layout can skip them. Navigation is global by design (per-layout overrides are a future
+extension).

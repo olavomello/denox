@@ -3,7 +3,7 @@
  * injected through the constructor for testability.
  */
 
-import type { CreateProductDto } from "@/api/products/product.dto.ts";
+import type { CreateProductDto, UpdateProductDto } from "@/api/products/product.dto.ts";
 import type { Product } from "@/api/products/product.model.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import type { Blob, BlobStorage } from "@/shared/blob_storage.ts";
@@ -49,6 +49,20 @@ export class ProductService {
    */
   create(dto: CreateProductDto): Promise<Product> {
     return this.repository.create(dto);
+  }
+
+  /**
+   * Applies a partial update to a product's details.
+   *
+   * @param id Product identifier.
+   * @param patch Validated partial fields.
+   * @returns Updated product.
+   * @throws {NotFoundException} When the product does not exist.
+   */
+  async updateDetails(id: string, patch: UpdateProductDto): Promise<Product> {
+    const product = await this.getById(id);
+    const updated = await this.repository.update(product.id, patch);
+    return updated ?? product;
   }
 
   /**

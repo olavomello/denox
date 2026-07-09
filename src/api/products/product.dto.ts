@@ -6,6 +6,9 @@
 import { ValidationException } from "@/shared/exceptions/app_exception.ts";
 import type { NewProduct } from "@/api/products/product.model.ts";
 
+/** Partial payload accepted by `PATCH /api/products/:id`. */
+export type UpdateProductDto = Partial<NewProduct>;
+
 /** Payload accepted by `POST /api/products`. */
 export type CreateProductDto = NewProduct;
 
@@ -58,4 +61,37 @@ export function parseCreateProductDto(input: unknown): CreateProductDto {
     price,
     ...(description !== undefined ? { description } : {}),
   };
+}
+
+/**
+ * Validates the partial update payload — every field optional, at least one
+ * required. Reuses the create validation for each provided field.
+ *
+ * @param input Untrusted request body.
+ * @returns Typed patch with only the provided fields.
+ * @throws {ValidationException} When empty or any provided field is invalid.
+ */
+export function parseUpdateProductDto(input: unknown): UpdateProductDto {
+  if (typeof input !== "object" || input === null || Array.isArray(input)) {
+    throw new ValidationException("Request body must be a JSON object");
+  }
+  const body = input as Record<string, unknown>;
+  const provided = ["name", "price", "description"].filter((key) => body[key] !== undefined);
+  if (provided.length === 0) {
+    throw new ValidationException(
+      "At least one field (name, price, description) must be provided",
+    );
+  }
+  // Fill omitted fields with valid placeholders, validate, then keep only
+  // the provided ones — single source of truth for the field rules.
+  const validated = parseCreateProductDto({
+    name: body.name ?? "placeholder",
+    price: body.price ?? 1,
+    ...(body.description !== undefined ? { description: body.description } : {}),
+  });
+  const patch: Record<string, unknown> = {};
+  for (const key of provided) {
+    patch[key] = validated[key as keyof typeof validated];
+  }
+  return patch as UpdateProductDto;
 }

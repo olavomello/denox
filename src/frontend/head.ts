@@ -132,6 +132,20 @@ export function injectHead(c: Context, document: string, meta?: PageMeta): strin
 
   if (!has("<title>")) tags.push(`<title>${escapeHtml(title)}</title>`);
 
+  for (const icon of site.ui.favicons) {
+    if (has(`href="${icon.href}"`)) continue;
+    const sizes = icon.sizes !== undefined ? ` sizes="${escapeHtml(icon.sizes)}"` : "";
+    const type = icon.type !== undefined ? ` type="${escapeHtml(icon.type)}"` : "";
+    tags.push(
+      `<link rel="${escapeHtml(icon.rel)}"${sizes}${type} href="${escapeHtml(icon.href)}">`,
+    );
+  }
+  for (const href of site.ui.stylesheets) {
+    if (!has(`href="${href}"`)) {
+      tags.push(`<link rel="stylesheet" href="${escapeHtml(href)}">`);
+    }
+  }
+
   if (site.seo.enabled) {
     if (!has('name="description"')) {
       tags.push(`<meta name="description" content="${escapeHtml(description)}">`);
@@ -180,7 +194,8 @@ export function injectHead(c: Context, document: string, meta?: PageMeta): strin
   }
 
   if (site.performance.preloadCss) {
-    for (const href of assets.css) {
+    const cssList = site.ui.stylesheets.length > 0 ? site.ui.stylesheets : assets.css;
+    for (const href of cssList) {
       tags.push(`<link rel="preload" href="${escapeHtml(href)}" as="style">`);
     }
   }

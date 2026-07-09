@@ -33,6 +33,33 @@ function formatPrice(price: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(price);
 }
 
+/** Renders the media column: carousel (2+ images), single image or placeholder. */
+function productMedia(product: Product, name: string): string {
+  if (product.images.length === 0) {
+    return `<div class="product-view-media"><span class="product-card-initial" aria-hidden="true">${
+      escapeHtml(product.name.charAt(0).toUpperCase())
+    }</span></div>`;
+  }
+  if (product.images.length === 1) {
+    return `<div class="product-view-media"><img src="${
+      escapeHtml(product.images[0] ?? "")
+    }" alt="${name}"></div>`;
+  }
+  const slides = product.images
+    .map((image, i) =>
+      `<img src="${escapeHtml(image)}" alt="${name} — photo ${i + 1}"${
+        i === 0 ? ' loading="eager"' : ' loading="lazy"'
+      }>`
+    )
+    .join("");
+  return `<div class="product-carousel" data-carousel>
+    <button type="button" class="carousel-btn carousel-prev" data-carousel-prev aria-label="Previous image">‹</button>
+    <div class="carousel-track" data-carousel-track tabindex="0" aria-label="${name} images">${slides}</div>
+    <button type="button" class="carousel-btn carousel-next" data-carousel-next aria-label="Next image">›</button>
+    <span class="carousel-counter" data-carousel-counter aria-live="polite"></span>
+  </div>`;
+}
+
 /**
  * Renders the product view body.
  *
@@ -42,26 +69,10 @@ function formatPrice(price: number): string {
 export default function productPage(c: Context): string {
   const product = c.get("product") as Product;
   const name = escapeHtml(product.name);
-  const cover = product.images[0];
-  const media = cover !== undefined
-    ? `<img src="${escapeHtml(cover)}" alt="${name}">`
-    : `<span class="product-card-initial" aria-hidden="true">${
-      escapeHtml(product.name.charAt(0).toUpperCase())
-    }</span>`;
-  const gallery = product.images.length > 1
-    ? `<div class="product-gallery">${
-      product.images.slice(1).map((image, index) =>
-        `<img src="${escapeHtml(image)}" alt="${name} — photo ${index + 2}" loading="lazy">`
-      ).join("")
-    }</div>`
-    : "";
 
   return `
     <article class="product-view">
-      <div class="product-view-media-column">
-        <div class="product-view-media">${media}</div>
-        ${gallery}
-      </div>
+      ${productMedia(product, name)}
       <div class="product-view-details">
         <h1>${name}</h1>
         <p class="product-price product-price-large">${formatPrice(product.price)}</p>

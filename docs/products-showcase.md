@@ -43,3 +43,20 @@ curl -X DELETE http://localhost:8000/api/products/<id>
 
 The Insomnia collection (`docs/denox-insomnia.json`) covers upload, public serving and both delete
 endpoints under **Products**.
+
+## Updating a product
+
+```bash
+curl -X PATCH http://localhost:8000/api/products/<id> \
+  -H "content-type: application/json" \
+  -d '{"description":"Added after creation."}'
+```
+
+Partial: send any of `name`, `price`, `description` (at least one). Handy for adding descriptions to
+products created before the field existed.
+
+## Image carousel
+
+With two or more images the product view renders a scroll-snap carousel (swipe/scroll works without
+JavaScript; `denox-carousel.js` adds prev/next buttons and the position counter). One image renders
+plain; none renders the initial placeholder. The first image stays the showcase cover and og:image.

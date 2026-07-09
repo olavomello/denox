@@ -76,7 +76,7 @@ Deno.test("showcase and product view render the first image as cover", async () 
 
   const view = await app.request(`http://localhost/products/${id}`);
   const html = await view.text();
-  assertStringIncludes(html, 'class="product-gallery"');
+  assertStringIncludes(html, "data-carousel");
   assertStringIncludes(html, 'property="og:image"');
 });
 
