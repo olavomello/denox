@@ -5,7 +5,7 @@
 > **A modern Full Stack Framework for Deno powered by Hono.**
 
 Build fast, scalable and maintainable applications using
-![**Deno**](https://github.com/denoland/deno), ![**Hono**](https://github.com/honojs/hono), **File
+[**Deno**](https://github.com/denoland/deno), [**Hono**](https://github.com/honojs/hono), **File
 Based Routing** and a clean **MVC** architecture — with security, testing and deployment built in
 from day one.
 
