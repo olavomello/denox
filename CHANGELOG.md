@@ -14,7 +14,9 @@ All notable changes to DenoX are documented in this file. Format based on
 - **Product image carousel** on the product view (CSS scroll-snap + `denox-carousel.js`,
   progressive, CSP-safe) for products with 2+ images.
 - `PATCH /api/products/:id`: partial update of name, price and description (enables adding
-  descriptions to products created before the field existed).
+  descriptions to products created before the field existed); also accepts `multipart/form-data` for
+  unified updates — text fields, new photos (`image`, repeatable) and photo removals
+  (`removeImages`) in a single request with up-front removal validation.
 
 - **Products showcase**: responsive server-rendered storefront on `/products` and product view at
   `/products/:id` (first dynamic file based route), each with its own managed layout (`showcase`,

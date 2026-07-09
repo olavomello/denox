@@ -78,15 +78,14 @@ export class ProductService {
    * @throws {ValidationException} When no file is a supported image or any
    * exceeds {@link IMAGE_MAX_BYTES}.
    */
-  async attachImages(id: string, files: readonly Uint8Array[]): Promise<Product> {
-    const product = await this.getById(id);
-
-    if (files.length === 0) {
-      throw new ValidationException("Invalid image upload", {
-        fields: { image: "at least one image file is required" },
-      });
-    }
-
+  /**
+   * Validates and stores uploaded image files, returning their public URLs.
+   * Shared by {@link attachImages} and {@link updateProduct}.
+   */
+  private async storeImages(
+    productId: string,
+    files: readonly Uint8Array[],
+  ): Promise<string[]> {
     const urls: string[] = [];
     for (const bytes of files) {
       if (bytes.length === 0 || bytes.length > IMAGE_MAX_BYTES) {
@@ -106,13 +105,78 @@ export class ProductService {
         ? "jpg"
         : "webp";
       const imageId = `${crypto.randomUUID()}.${extension}`;
-      await this.blobStorage.put(`products/${product.id}/${imageId}`, { contentType, bytes });
-      urls.push(`/uploads/products/${product.id}/${imageId}`);
+      await this.blobStorage.put(`products/${productId}/${imageId}`, { contentType, bytes });
+      urls.push(`/uploads/products/${productId}/${imageId}`);
+    }
+    return urls;
+  }
+
+  async attachImages(id: string, files: readonly Uint8Array[]): Promise<Product> {
+    const product = await this.getById(id);
+
+    if (files.length === 0) {
+      throw new ValidationException("Invalid image upload", {
+        fields: { image: "at least one image file is required" },
+      });
     }
 
+    const urls = await this.storeImages(product.id, files);
     const updated = await this.repository.update(product.id, {
       images: [...product.images, ...urls],
     });
+    return updated ?? product;
+  }
+
+  /**
+   * Unified update: applies a partial data patch, removes listed images and
+   * attaches new ones in a single operation (one repository write).
+   *
+   * @param id Product identifier.
+   * @param patch Validated partial fields (may be empty).
+   * @param newImages Raw files to attach (may be empty).
+   * @param removeImageIds Image file names to remove (may be empty).
+   * @returns Updated product.
+   * @throws {NotFoundException} When the product or a listed image is
+   * missing.
+   * @throws {ValidationException} When everything is empty or a file is not
+   * a supported image.
+   */
+  async updateProduct(
+    id: string,
+    patch: UpdateProductDto,
+    newImages: readonly Uint8Array[],
+    removeImageIds: readonly string[],
+  ): Promise<Product> {
+    const product = await this.getById(id);
+
+    if (Object.keys(patch).length === 0 && newImages.length === 0 && removeImageIds.length === 0) {
+      throw new ValidationException(
+        "At least one change (field, new image or image removal) must be provided",
+      );
+    }
+
+    // Validate every removal before mutating anything.
+    const removeUrls = removeImageIds.map((imageId) =>
+      `/uploads/products/${product.id}/${imageId}`
+    );
+    for (const [index, url] of removeUrls.entries()) {
+      if (!product.images.includes(url)) {
+        throw new NotFoundException(
+          `Image "${removeImageIds[index]}" not found on product "${id}"`,
+        );
+      }
+    }
+
+    const addedUrls = await this.storeImages(product.id, newImages);
+    for (const imageId of removeImageIds) {
+      await this.blobStorage.delete(`products/${product.id}/${imageId}`);
+    }
+
+    const images = [
+      ...product.images.filter((image) => !removeUrls.includes(image)),
+      ...addedUrls,
+    ];
+    const updated = await this.repository.update(product.id, { ...patch, images });
     return updated ?? product;
   }
 

@@ -31,6 +31,10 @@ receive one).
   cases keep the simple rendering.
 - `PATCH /api/products/:id`: partial update of name, price, description — at least one field, each
   validated by the same rules as creation.
+- **Rev. 2 (maintainer directive)**: the same endpoint accepts `multipart/form-data` combining
+  partial text fields, repeatable `image` attachments and repeatable `removeImages` deletions in one
+  request — removals validated up front, single repository write for the final state. JSON mode
+  unchanged.
 
 ### Out of scope
 

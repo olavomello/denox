@@ -51,18 +51,71 @@ export class ProductController {
   };
 
   /**
-   * `PATCH /api/products/:id` — partially updates name, price and/or
-   * description.
+   * `PATCH /api/products/:id` — partial product update.
+   *
+   * JSON body: name, price and/or description.
+   * multipart/form-data: the same text fields plus repeatable `image` files
+   * to attach and repeatable `removeImages` ids to delete — data and photos
+   * updated in a single request.
    *
    * @param c Request context.
    * @returns 200 with the updated product.
    */
   update = async (c: Context): Promise<Response> => {
+    const id = c.req.param("id") ?? "";
+
+    if (c.req.header("content-type")?.includes("multipart/form-data")) {
+      const body = await c.req.parseBody({ all: true }).catch(() => {
+        throw new BadRequestException("Request body must be valid multipart/form-data");
+      });
+
+      const dataFields: Record<string, unknown> = {};
+      const name = body["name"];
+      if (typeof name === "string") dataFields.name = name;
+      const description = body["description"];
+      if (typeof description === "string") dataFields.description = description;
+      const price = body["price"];
+      if (typeof price === "string" && price.trim() !== "") dataFields.price = Number(price);
+
+      const patch = Object.keys(dataFields).length > 0 ? parseUpdateProductDto(dataFields) : {};
+
+      const imageField = body["image"];
+      const imageEntries = Array.isArray(imageField)
+        ? imageField
+        : imageField !== undefined
+        ? [imageField]
+        : [];
+      const files = imageEntries.filter((entry): entry is File => entry instanceof File);
+      const newImages = await Promise.all(
+        files.map(async (file) => new Uint8Array(await file.arrayBuffer())),
+      );
+
+      const removeField = body["removeImages"];
+      const removeEntries = Array.isArray(removeField)
+        ? removeField
+        : removeField !== undefined
+        ? [removeField]
+        : [];
+      const removeImageIds = removeEntries.filter((entry): entry is string =>
+        typeof entry === "string" && entry !== ""
+      );
+      for (const imageId of removeImageIds) {
+        if (!/^[a-z0-9-]+\.(png|jpg|webp)$/.test(imageId)) {
+          throw new ValidationException("Invalid image upload", {
+            fields: { removeImages: `"${imageId}" is not a valid image identifier` },
+          });
+        }
+      }
+
+      const product = await this.service.updateProduct(id, patch, newImages, removeImageIds);
+      return c.json(ok(product), 200);
+    }
+
     const body: unknown = await c.req.json().catch(() => {
       throw new BadRequestException("Request body must be valid JSON");
     });
     const patch = parseUpdateProductDto(body);
-    const product = await this.service.updateDetails(c.req.param("id") ?? "", patch);
+    const product = await this.service.updateDetails(id, patch);
     return c.json(ok(product), 200);
   };
 

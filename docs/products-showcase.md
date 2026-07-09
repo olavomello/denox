@@ -55,6 +55,21 @@ curl -X PATCH http://localhost:8000/api/products/<id> \
 Partial: send any of `name`, `price`, `description` (at least one). Handy for adding descriptions to
 products created before the field existed.
 
+### Unified update (data + photos in one request)
+
+The same endpoint accepts `multipart/form-data` to change everything at once — text fields, new
+photos (`image`, repeatable) and photo removals (`removeImages` with the image id, repeatable):
+
+```bash
+curl -X PATCH http://localhost:8000/api/products/<id> \
+  -F name="New name" -F price=59.9 \
+  -F image=@new-photo.png \
+  -F removeImages=<old-image-id>.png
+```
+
+At least one change is required; every removal is validated against the product before anything
+mutates, and the final state is written in a single repository update.
+
 ## Image carousel
 
 With two or more images the product view renders a scroll-snap carousel (swipe/scroll works without
