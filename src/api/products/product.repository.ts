@@ -3,14 +3,15 @@
  * Services depend on {@link ProductRepository} (dependency inversion).
  */
 
-import type { NewProduct, Product } from "@/api/products/product.model.ts";
+import type { NewProduct, Product, ProductPatch } from "@/api/products/product.model.ts";
 
 /** Persistence contract for products. */
 export interface ProductRepository {
   findAll(): Promise<readonly Product[]>;
   findById(id: string): Promise<Product | null>;
   create(data: NewProduct): Promise<Product>;
-  update(id: string, patch: Partial<NewProduct>): Promise<Product | null>;
+  update(id: string, patch: ProductPatch): Promise<Product | null>;
+  delete(id: string): Promise<boolean>;
 }
 
 /** In memory {@link ProductRepository} for development and tests. */
@@ -38,6 +39,7 @@ export class InMemoryProductRepository implements ProductRepository {
     const product: Product = {
       id: crypto.randomUUID(),
       ...data,
+      images: [],
       createdAt: new Date().toISOString(),
     };
     this.products.set(product.id, product);
@@ -45,11 +47,16 @@ export class InMemoryProductRepository implements ProductRepository {
   }
 
   /** Applies a partial update; @returns the updated product or null. */
-  update(id: string, patch: Partial<NewProduct>): Promise<Product | null> {
+  update(id: string, patch: ProductPatch): Promise<Product | null> {
     const existing = this.products.get(id);
     if (existing === undefined) return Promise.resolve(null);
     const updated: Product = { ...existing, ...patch };
     this.products.set(id, updated);
     return Promise.resolve(updated);
+  }
+
+  /** Removes a product; @returns whether it existed. */
+  delete(id: string): Promise<boolean> {
+    return Promise.resolve(this.products.delete(id));
   }
 }

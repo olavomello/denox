@@ -23,7 +23,7 @@ export const config = {
     return {
       title: product.name,
       description: product.description ?? `${product.name} — available on DenoX.`,
-      ...(product.imageUrl !== undefined ? { image: product.imageUrl } : {}),
+      ...(product.images[0] !== undefined ? { image: product.images[0] } : {}),
     };
   },
 } as const;
@@ -42,15 +42,26 @@ function formatPrice(price: number): string {
 export default function productPage(c: Context): string {
   const product = c.get("product") as Product;
   const name = escapeHtml(product.name);
-  const media = product.imageUrl !== undefined
-    ? `<img src="${escapeHtml(product.imageUrl)}" alt="${name}">`
+  const cover = product.images[0];
+  const media = cover !== undefined
+    ? `<img src="${escapeHtml(cover)}" alt="${name}">`
     : `<span class="product-card-initial" aria-hidden="true">${
       escapeHtml(product.name.charAt(0).toUpperCase())
     }</span>`;
+  const gallery = product.images.length > 1
+    ? `<div class="product-gallery">${
+      product.images.slice(1).map((image, index) =>
+        `<img src="${escapeHtml(image)}" alt="${name} — photo ${index + 2}" loading="lazy">`
+      ).join("")
+    }</div>`
+    : "";
 
   return `
     <article class="product-view">
-      <div class="product-view-media">${media}</div>
+      <div class="product-view-media-column">
+        <div class="product-view-media">${media}</div>
+        ${gallery}
+      </div>
       <div class="product-view-details">
         <h1>${name}</h1>
         <p class="product-price product-price-large">${formatPrice(product.price)}</p>

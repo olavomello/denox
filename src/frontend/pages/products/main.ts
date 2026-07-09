@@ -32,8 +32,9 @@ function productCard(product: Product): string {
   const description = product.description !== undefined
     ? `<p class="product-card-description">${escapeHtml(product.description)}</p>`
     : "";
-  const media = product.imageUrl !== undefined
-    ? `<img src="${escapeHtml(product.imageUrl)}" alt="${name}" loading="lazy">`
+  const cover = product.images[0];
+  const media = cover !== undefined
+    ? `<img src="${escapeHtml(cover)}" alt="${name}" loading="lazy">`
     : `<span class="product-card-initial" aria-hidden="true">${
       escapeHtml(product.name.charAt(0).toUpperCase())
     }</span>`;

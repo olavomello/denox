@@ -5,6 +5,7 @@
 import { Hono } from "hono";
 import { csrf } from "hono/csrf";
 import { loadPages } from "@/frontend/loader.ts";
+import { registerMediaRoutes } from "@/frontend/media.routes.ts";
 import { contactService } from "@/api/contact/contact.routes.ts";
 import { parseCreateContactDto } from "@/api/contact/contact.dto.ts";
 import { ValidationException } from "@/shared/exceptions/app_exception.ts";
@@ -15,6 +16,9 @@ const web = new Hono();
 
 // CSRF protection for browser-submitted forms (origin check).
 web.use("*", csrf());
+
+// Public media (uploads served under the public namespace).
+registerMediaRoutes(web);
 
 // Production-ready endpoints (config-driven): sitemap, robots, manifest.
 registerSeoRoutes(web);

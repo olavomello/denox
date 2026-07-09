@@ -42,6 +42,7 @@ export function registerProductRoutes(app: Hono): void {
   app.get("/products", controller.index);
   app.get("/products/:id", controller.show);
   app.post("/products", controller.store);
-  app.post("/products/:id/image", controller.uploadImage);
-  app.get("/products/:id/image", controller.image);
+  app.post("/products/:id/images", controller.uploadImages);
+  app.delete("/products/:id/images/:imageId", controller.deleteImage);
+  app.delete("/products/:id", controller.destroy);
 }

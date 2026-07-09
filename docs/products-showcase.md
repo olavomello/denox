@@ -14,20 +14,32 @@ Both layouts live in `src/frontend/layouts/` and are registered in `registry.ts`
 
 `description` (≤500 chars) and `imageUrl` (path or http(s)) are optional on `POST /api/products`.
 
-## Image upload
+## Product images
 
 ```bash
-curl -X POST http://localhost:8000/api/products/<id>/image \
-  -F image=@photo.png
+# upload (field `image` is repeatable — multiple photos in one request)
+curl -X POST http://localhost:8000/api/products/<id>/images \
+  -F image=@front.png -F image=@back.jpg
+
+# delete one image
+curl -X DELETE http://localhost:8000/api/products/<id>/images/<imageId>
+
+# delete the product (and all of its image blobs)
+curl -X DELETE http://localhost:8000/api/products/<id>
 ```
 
-- Multipart field `image`; PNG, JPEG or WebP up to 1 MB.
-- The format is detected from **magic bytes** — client content type and filename are ignored (a
-  script named `photo.png` is rejected).
-- On success the product's `imageUrl` points to `GET /api/products/<id>/image`, which serves the
-  stored bytes with the detected content type — the showcase and product view render it
-  automatically.
-- Storage follows `STORAGE_DRIVER`: in-memory (dev) or Deno KV, where blobs are chunked across
-  values (64 KiB limit) — durable on Deno Deploy with zero external services.
+- Formats: PNG, JPEG or WebP, up to 1 MB each — detected by **magic bytes** (client content type and
+  filename are ignored; a script named `photo.png` is rejected).
+- Uploaded images are served from the **public namespace** — `GET /uploads/products/<id>/<imageId>`
+  — never under `/api`, following the public-folder convention for user-facing assets. Note: on Deno
+  Deploy the filesystem is read-only at runtime, so uploads cannot become physical files inside
+  `public/`; the bytes live in the driver-aware BlobStorage (chunked Deno KV in production) and this
+  route makes them URL-compatible with public assets. Real files in `public/` always take
+  precedence.
+- The product's `images` list holds the public URLs in upload order; the first one is the
+  showcase/product-view cover and the rest render as a gallery. `og:image` uses the cover.
+- Storage follows `STORAGE_DRIVER` (memory in dev, chunked KV in production — durable on Deno Deploy
+  with zero external services).
 
-The Insomnia collection (`docs/denox-insomnia.json`) includes both requests under **Products**.
+The Insomnia collection (`docs/denox-insomnia.json`) covers upload, public serving and both delete
+endpoints under **Products**.

@@ -52,50 +52,104 @@ export class ProductService {
   }
 
   /**
-   * Attaches an uploaded image to a product. The format is detected from
-   * magic bytes (client type/filename untrusted) and the product's
-   * `imageUrl` is pointed at the serving endpoint.
+   * Attaches one or more uploaded images to a product. Each file's format is
+   * detected from magic bytes (client type/filename untrusted); every valid
+   * image is stored under the public uploads namespace and appended to the
+   * product's `images` list.
    *
    * @param id Product identifier.
-   * @param bytes Raw uploaded bytes.
+   * @param files Raw uploaded files.
    * @returns Updated product.
    * @throws {NotFoundException} When the product does not exist.
-   * @throws {ValidationException} When the file is not a supported image or
+   * @throws {ValidationException} When no file is a supported image or any
    * exceeds {@link IMAGE_MAX_BYTES}.
    */
-  async attachImage(id: string, bytes: Uint8Array): Promise<Product> {
+  async attachImages(id: string, files: readonly Uint8Array[]): Promise<Product> {
     const product = await this.getById(id);
 
-    if (bytes.length === 0 || bytes.length > IMAGE_MAX_BYTES) {
+    if (files.length === 0) {
       throw new ValidationException("Invalid image upload", {
-        fields: { image: `image must be between 1 byte and ${IMAGE_MAX_BYTES} bytes` },
-      });
-    }
-    const contentType = sniffImageType(bytes);
-    if (contentType === null) {
-      throw new ValidationException("Invalid image upload", {
-        fields: { image: "image must be a PNG, JPEG or WebP file" },
+        fields: { image: "at least one image file is required" },
       });
     }
 
-    await this.blobStorage.put(`products/${product.id}`, { contentType, bytes });
+    const urls: string[] = [];
+    for (const bytes of files) {
+      if (bytes.length === 0 || bytes.length > IMAGE_MAX_BYTES) {
+        throw new ValidationException("Invalid image upload", {
+          fields: { image: `each image must be between 1 byte and ${IMAGE_MAX_BYTES} bytes` },
+        });
+      }
+      const contentType = sniffImageType(bytes);
+      if (contentType === null) {
+        throw new ValidationException("Invalid image upload", {
+          fields: { image: "images must be PNG, JPEG or WebP files" },
+        });
+      }
+      const extension = contentType === "image/png"
+        ? "png"
+        : contentType === "image/jpeg"
+        ? "jpg"
+        : "webp";
+      const imageId = `${crypto.randomUUID()}.${extension}`;
+      await this.blobStorage.put(`products/${product.id}/${imageId}`, { contentType, bytes });
+      urls.push(`/uploads/products/${product.id}/${imageId}`);
+    }
+
     const updated = await this.repository.update(product.id, {
-      imageUrl: `/api/products/${product.id}/image`,
+      images: [...product.images, ...urls],
     });
     return updated ?? product;
   }
 
   /**
-   * Fetches the stored image blob for a product.
+   * Removes one image from a product (blob and list entry).
    *
    * @param id Product identifier.
-   * @returns The blob.
-   * @throws {NotFoundException} When the product or its image is missing.
+   * @param imageId Image file name (as served under /uploads).
+   * @returns Updated product.
+   * @throws {NotFoundException} When the product or the image is missing.
    */
-  async getImage(id: string): Promise<Blob> {
-    const blob = await this.blobStorage.get(`products/${id}`);
+  async removeImage(id: string, imageId: string): Promise<Product> {
+    const product = await this.getById(id);
+    const url = `/uploads/products/${product.id}/${imageId}`;
+    if (!product.images.includes(url)) {
+      throw new NotFoundException(`Image "${imageId}" not found on product "${id}"`);
+    }
+    await this.blobStorage.delete(`products/${product.id}/${imageId}`);
+    const updated = await this.repository.update(product.id, {
+      images: product.images.filter((image) => image !== url),
+    });
+    return updated ?? product;
+  }
+
+  /**
+   * Deletes a product and every image blob attached to it.
+   *
+   * @param id Product identifier.
+   * @throws {NotFoundException} When the product does not exist.
+   */
+  async remove(id: string): Promise<void> {
+    const product = await this.getById(id);
+    for (const url of product.images) {
+      const imageId = url.split("/").pop() ?? "";
+      await this.blobStorage.delete(`products/${product.id}/${imageId}`);
+    }
+    await this.repository.delete(product.id);
+  }
+
+  /**
+   * Fetches a stored image blob for public serving.
+   *
+   * @param id Product identifier.
+   * @param imageId Image file name.
+   * @returns The blob.
+   * @throws {NotFoundException} When the image is missing.
+   */
+  async getImage(id: string, imageId: string): Promise<Blob> {
+    const blob = await this.blobStorage.get(`products/${id}/${imageId}`);
     if (blob === null) {
-      throw new NotFoundException(`Product "${id}" has no image`);
+      throw new NotFoundException(`Image "${imageId}" not found`);
     }
     return blob;
   }

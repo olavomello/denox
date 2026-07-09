@@ -84,10 +84,9 @@ Deno.test("POST /api/products validates the optional showcase fields", async () 
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ name: "Bad", price: 5, description: "", imageUrl: "javascript:x" }),
+    body: JSON.stringify({ name: "Bad", price: 5, description: "" }),
   });
   assertEquals(res.status, 400);
   const body = await res.json();
   assertEquals(typeof body.error.details.fields.description, "string");
-  assertEquals(typeof body.error.details.fields.imageUrl, "string");
 });

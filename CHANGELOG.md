@@ -7,6 +7,17 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Products showcase**: responsive server-rendered storefront on `/products` and product view at
+  `/products/:id` (first dynamic file based route), each with its own managed layout (`showcase`,
+  `product`); optional `description` on products; per-request page `meta` resolvers (dynamic SEO)
+  and HTML error pages for non-API routes.
+- **Product images**: multi-file upload `POST /api/products/:id/images` (multipart field `image`,
+  repeatable; PNG/JPEG/WebP ≤ 1 MB each, validated by magic bytes), served from the public namespace
+  (`GET /uploads/products/:id/:imageId`) — never under `/api`; deletion endpoints for single images
+  (`DELETE /api/products/:id/images/:imageId`) and for the product (`DELETE /api/products/:id`,
+  cascading blob cleanup); products carry an `images` list (cover + gallery); shared `BlobStorage`
+  with in-memory and chunked Deno KV drivers (durable on Deno Deploy, zero dependencies).
+
 - `docs/guides/creating-a-feature.md`: hands-on walkthrough of the full feature workflow (SDD →
   slice → tests → docs), referencing the Insomnia collection for interactive endpoint exploration.
 - `deno task doc`: HTML API reference generated from the mandatory JSDoc (output git-ignored).

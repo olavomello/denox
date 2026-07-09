@@ -363,3 +363,24 @@ form[aria-busy="true"] button[type="submit"] {
   text-align: center;
   padding: 0 20px;
 }
+
+/* Product gallery (multiple images) */
+.product-view-media-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.product-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+}
+
+.product-gallery img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f4f6f8;
+}

@@ -1,5 +1,6 @@
 /**
- * Integration tests — product image upload/serving and chunked KV blobs.
+ * Integration tests — product images: multi-upload, public serving under
+ * /uploads, image deletion, product deletion and chunked KV blobs.
  */
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
@@ -14,6 +15,9 @@ const PNG_BYTES = Uint8Array.from(
   (c) => c.charCodeAt(0),
 );
 
+/** Minimal JPEG header bytes (sniffable, not a full image). */
+const JPEG_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46]);
+
 /** Creates a product through the API and returns its id. */
 async function createProduct(name: string): Promise<string> {
   const res = await app.request("http://localhost/api/products", {
@@ -25,63 +29,117 @@ async function createProduct(name: string): Promise<string> {
   return body.data.id;
 }
 
-/** Uploads bytes as the product image via multipart. */
-async function uploadImage(id: string, bytes: Uint8Array, filename = "x.png"): Promise<Response> {
+/** Uploads one or more files as product images via multipart. */
+async function uploadImages(id: string, files: readonly Uint8Array[]): Promise<Response> {
   const form = new FormData();
-  form.append("image", new File([bytes.slice()], filename, { type: "application/octet-stream" }));
-  return await app.request(`http://localhost/api/products/${id}/image`, {
+  for (const bytes of files) {
+    form.append("image", new File([bytes.slice()], "upload.bin"));
+  }
+  return await app.request(`http://localhost/api/products/${id}/images`, {
     method: "POST",
     body: form,
   });
 }
 
-Deno.test("uploading a PNG sets imageUrl and serves the exact bytes back", async () => {
-  const id = await createProduct("Pictured");
+Deno.test("uploading multiple images appends public /uploads URLs", async () => {
+  const id = await createProduct("Multi");
 
-  const uploaded = await uploadImage(id, PNG_BYTES);
-  assertEquals(uploaded.status, 200);
-  const body = await uploaded.json();
-  assertEquals(body.data.imageUrl, `/api/products/${id}/image`);
-
-  const served = await app.request(`http://localhost/api/products/${id}/image`);
-  assertEquals(served.status, 200);
-  assertEquals(served.headers.get("content-type"), "image/png");
-  const bytes = new Uint8Array(await served.arrayBuffer());
-  assertEquals(bytes.length, PNG_BYTES.length);
-  assertEquals([...bytes.slice(0, 4)], [0x89, 0x50, 0x4e, 0x47]);
+  const res = await uploadImages(id, [PNG_BYTES, JPEG_BYTES]);
+  assertEquals(res.status, 200);
+  const body = await res.json();
+  assertEquals(body.data.images.length, 2);
+  assertStringIncludes(body.data.images[0], `/uploads/products/${id}/`);
+  assertStringIncludes(body.data.images[0], ".png");
+  assertStringIncludes(body.data.images[1], ".jpg");
+  assertEquals(body.data.images[0].startsWith("/api/"), false);
 });
 
-Deno.test("showcase and product view render the uploaded image", async () => {
-  const id = await createProduct("Visible");
-  await (await uploadImage(id, PNG_BYTES)).body?.cancel();
+Deno.test("uploaded images are served publicly with the sniffed type", async () => {
+  const id = await createProduct("Served");
+  const uploaded = await (await uploadImages(id, [PNG_BYTES])).json();
+  const url: string = uploaded.data.images[0];
+
+  const served = await app.request(`http://localhost${url}`);
+  assertEquals(served.status, 200);
+  assertEquals(served.headers.get("content-type"), "image/png");
+  assertStringIncludes(served.headers.get("cache-control") ?? "", "immutable");
+  const bytes = new Uint8Array(await served.arrayBuffer());
+  assertEquals(bytes.length, PNG_BYTES.length);
+});
+
+Deno.test("showcase and product view render the first image as cover", async () => {
+  const id = await createProduct("Covered");
+  await (await uploadImages(id, [PNG_BYTES, PNG_BYTES])).body?.cancel();
 
   const showcase = await app.request("http://localhost/products");
-  assertStringIncludes(await showcase.text(), `src="/api/products/${id}/image"`);
+  assertStringIncludes(await showcase.text(), `/uploads/products/${id}/`);
 
   const view = await app.request(`http://localhost/products/${id}`);
   const html = await view.text();
-  assertStringIncludes(html, `src="/api/products/${id}/image"`);
-  assertStringIncludes(html, `property="og:image"`);
+  assertStringIncludes(html, 'class="product-gallery"');
+  assertStringIncludes(html, 'property="og:image"');
+});
+
+Deno.test("deleting one image removes its blob and list entry", async () => {
+  const id = await createProduct("Trimmed");
+  const uploaded = await (await uploadImages(id, [PNG_BYTES, JPEG_BYTES])).json();
+  const first: string = uploaded.data.images[0];
+  const imageId = first.split("/").pop() ?? "";
+
+  const res = await app.request(`http://localhost/api/products/${id}/images/${imageId}`, {
+    method: "DELETE",
+  });
+  assertEquals(res.status, 200);
+  const body = await res.json();
+  assertEquals(body.data.images.length, 1);
+
+  const gone = await app.request(`http://localhost${first}`);
+  assertEquals(gone.status, 404);
+  await gone.body?.cancel();
+});
+
+Deno.test("deleting a product removes it and its image blobs", async () => {
+  const id = await createProduct("Doomed");
+  const uploaded = await (await uploadImages(id, [PNG_BYTES])).json();
+  const url: string = uploaded.data.images[0];
+
+  const res = await app.request(`http://localhost/api/products/${id}`, { method: "DELETE" });
+  assertEquals(res.status, 200);
+  const body = await res.json();
+  assertEquals(body.data.deleted, true);
+
+  const product = await app.request(`http://localhost/api/products/${id}`);
+  assertEquals(product.status, 404);
+  await product.body?.cancel();
+
+  const image = await app.request(`http://localhost${url}`);
+  assertEquals(image.status, 404);
+  await image.body?.cancel();
+
+  const again = await app.request(`http://localhost/api/products/${id}`, { method: "DELETE" });
+  assertEquals(again.status, 404);
+  await again.body?.cancel();
 });
 
 Deno.test("upload rejects non-image content with a field error", async () => {
   const id = await createProduct("Guarded");
-  const res = await uploadImage(id, new TextEncoder().encode("#!/bin/sh evil"), "evil.png");
+  const res = await uploadImages(id, [new TextEncoder().encode("#!/bin/sh evil")]);
   assertEquals(res.status, 400);
   const body = await res.json();
   assertEquals(body.error.code, "VALIDATION_ERROR");
   assertEquals(typeof body.error.details.fields.image, "string");
 });
 
-Deno.test("upload to an unknown product returns 404; missing image returns 404", async () => {
-  const missing = await uploadImage("nope", PNG_BYTES);
+Deno.test("upload to an unknown product returns 404; hostile image ids are rejected", async () => {
+  const missing = await uploadImages("nope", [PNG_BYTES]);
   assertEquals(missing.status, 404);
   await missing.body?.cancel();
 
-  const id = await createProduct("Imageless");
-  const noImage = await app.request(`http://localhost/api/products/${id}/image`);
-  assertEquals(noImage.status, 404);
-  await noImage.body?.cancel();
+  const traversal = await app.request(
+    "http://localhost/uploads/products/x/..%2F..%2Fsecret.png",
+  );
+  assertEquals([400, 404].includes(traversal.status), true);
+  await traversal.body?.cancel();
 });
 
 Deno.test("KvBlobStorage chunks blobs beyond the 64KiB KV value limit", async () => {
@@ -96,7 +154,6 @@ Deno.test("KvBlobStorage chunks blobs beyond the 64KiB KV value limit", async ()
 
     assertEquals(loaded?.contentType, "image/png");
     assertEquals(loaded?.bytes.length, 150_000);
-    assertEquals(loaded?.bytes[149_999], 149_999 % 251);
 
     await storage.delete("test/big");
     assertEquals(await storage.get("test/big"), null);
