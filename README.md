@@ -180,9 +180,9 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
-- **Unreleased** — 🛍 Products showcase: responsive storefront + `/products/:id` dynamic view with
-  dedicated layouts, image upload with chunked KV blob storage, dynamic page metadata and HTML error
-  pages. Plus the docs layer (feature guide, Insomnia integration, `deno task doc`).
+- **0.4.0** — 🛍 Storefront release: products showcase + dynamic product view with dedicated layouts,
+  multi-image upload with chunked KV blob storage and carousel, unified PATCH (data + photos),
+  config-driven site UI, docs layer and HTML error pages.
 - **0.3.0** — 💾 Persistence layer: Deno KV driver (`STORAGE_DRIVER=kv`) with atomic e-mail
   uniqueness, driver factories, idempotent seed — durable data on Deno Deploy.
 - **0.2.3** — 📮 Form interaction layer: progressive-enhancement helper (`data-api` forms → JSON
