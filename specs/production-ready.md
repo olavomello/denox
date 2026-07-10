@@ -1,7 +1,7 @@
 ---
 feature: production-ready
 status: approved
-author: claude (from maintainer directive)
+author: olavomello
 reviewed_by: olavomello
 date: 2026-07-05
 ---
