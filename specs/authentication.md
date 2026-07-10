@@ -1,8 +1,8 @@
 ---
 feature: authentication
-status: draft
-author: claude
-reviewed_by:
+status: approved
+author: olavomello
+reviewed_by: olavomello
 date: 2026-07-10
 ---
 
