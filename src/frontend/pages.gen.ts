@@ -6,7 +6,7 @@ import * as page1 from "./pages/about/main.ts";
 import * as page2 from "./pages/contact/main.ts";
 import * as page3 from "./pages/products/main.ts";
 import * as page4 from "./pages/users/main.ts";
-import * as page5 from "./pages/products/[id].ts";
+import * as page5 from "./pages/products/[slug].ts";
 
 /** Static route table generated from src/frontend/pages/. */
 export const pages = [
@@ -15,5 +15,5 @@ export const pages = [
   { route: "/contact", module: page2 },
   { route: "/products", module: page3 },
   { route: "/users", module: page4 },
-  { route: "/products/:id", module: page5 },
+  { route: "/products/:slug", module: page5 },
 ] as const;

@@ -74,6 +74,8 @@ export class ProductController {
       if (typeof name === "string") dataFields.name = name;
       const description = body["description"];
       if (typeof description === "string") dataFields.description = description;
+      const slug = body["slug"];
+      if (typeof slug === "string" && slug !== "") dataFields.slug = slug;
       const price = body["price"];
       if (typeof price === "string" && price.trim() !== "") dataFields.price = Number(price);
 

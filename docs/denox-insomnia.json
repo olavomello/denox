@@ -604,7 +604,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
       "name": "Update product (partial)",
       "method": "PATCH",
-      "description": "Partially updates name, price and/or description \u2014 provide at least one field. Useful to add descriptions to products created before the field existed.",
+      "description": "Partially updates name, price, description and/or slug \u2014 provide at least one field. Slug must match ^[a-z0-9-]{1,80}$ and be unique (409 on conflict); the old slug keeps 301-redirecting to the new URL. Renaming the product does NOT change its slug.",
       "parameters": [],
       "headers": [
         {
@@ -623,7 +623,7 @@
       "settingFollowRedirects": "global",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"description\": \"Soft cotton tee with the DenoX logo.\"\n}"
+        "text": "{\n  \"description\": \"Soft cotton tee with the DenoX logo.\",\n  \"slug\": \"denox-t-shirt\"\n}"
       }
     },
     {
@@ -635,7 +635,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
       "name": "Update product + photos (multipart)",
       "method": "PATCH",
-      "description": "Unified update in one request: text fields (name, price, description \u2014 all optional), repeatable `image` files to attach and repeatable `removeImages` ids (e.g. <uuid>.png) to delete. At least one change required. Removals are validated before anything mutates.",
+      "description": "Unified update in one request: text fields (name, price, description, slug \u2014 all optional), repeatable `image` files to attach and repeatable `removeImages` ids (e.g. <uuid>.png) to delete. At least one change required. Removals are validated before anything mutates.",
       "parameters": [],
       "headers": [],
       "authentication": {},
@@ -663,6 +663,11 @@
           {
             "name": "description",
             "value": "Updated description with new photos."
+          },
+          {
+            "name": "slug",
+            "value": "",
+            "disabled": true
           },
           {
             "name": "image",

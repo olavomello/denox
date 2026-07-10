@@ -12,13 +12,22 @@ import type { Context } from "hono";
 import type { Product } from "@/api/products/product.model.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { escapeHtml } from "@/shared/html.ts";
+import { NotFoundException } from "@/shared/exceptions/app_exception.ts";
 import type { PageMeta } from "@/frontend/head.ts";
 
 /** Page configuration with a per-request metadata resolver. */
 export const config = {
   layout: "product",
   meta: async (c: Context): Promise<PageMeta> => {
-    const product = await productService.getById(c.req.param("id") ?? "");
+    const stashed = c.get("product") as Product | undefined;
+    const product = stashed ??
+      await (async () => {
+        const found = await productService.findBySlug(c.req.param("slug") ?? "");
+        if (found === null) {
+          throw new NotFoundException(`Product "${c.req.param("slug")}" not found`);
+        }
+        return found;
+      })();
     c.set("product", product);
     return {
       title: product.name,

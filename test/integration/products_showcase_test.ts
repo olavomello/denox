@@ -16,7 +16,7 @@ async function createProduct(payload: Record<string, unknown>): Promise<string> 
   });
   assertEquals(res.status, 201);
   const body = await res.json();
-  return body.data.id;
+  return body.data.slug;
 }
 
 Deno.test("showcase renders products created through the API", async () => {

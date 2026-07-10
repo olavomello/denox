@@ -4,8 +4,9 @@
 
 - `/products` — responsive storefront grid (layout `showcase`), server rendered from the
   database-connected product service. Empty state links the API and `deno task seed`.
-- `/products/:id` — product view (layout `product`) with dynamic SEO (`<title>`, description and
-  `og:image` from the entity) and an HTML 404 for unknown products.
+- `/products/:slug` — product view by friendly URL (layout `product`; see
+  docs/friendly-product-urls.md) with dynamic SEO (`<title>`, description and `og:image` from the
+  entity) and an HTML 404 for unknown products.
 
 Both layouts live in `src/frontend/layouts/` and are registered in `registry.ts` — edit
 `showcase.ts` or `product.ts` to restyle each surface independently.

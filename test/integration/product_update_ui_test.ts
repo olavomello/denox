@@ -24,6 +24,13 @@ async function createProduct(name: string): Promise<string> {
   return body.data.id;
 }
 
+/** Fetches the current slug of a product. */
+async function slugOf(id: string): Promise<string> {
+  const res = await app.request(`http://localhost/api/products/${id}`);
+  const body = await res.json();
+  return body.data.slug;
+}
+
 Deno.test("PATCH /api/products/:id updates the description of an existing product", async () => {
   const id = await createProduct("Patchable");
 
@@ -37,7 +44,7 @@ Deno.test("PATCH /api/products/:id updates the description of an existing produc
   assertEquals(body.data.description, "Added after creation.");
   assertEquals(body.data.name, "Patchable");
 
-  const view = await app.request(`http://localhost/products/${id}`);
+  const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
   assertStringIncludes(await view.text(), "Added after creation.");
 });
 
@@ -80,7 +87,7 @@ Deno.test("product view renders a carousel for multiple images", async () => {
     body: form,
   })).body?.cancel();
 
-  const view = await app.request(`http://localhost/products/${id}`);
+  const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
   const html = await view.text();
   assertStringIncludes(html, "data-carousel");
   assertStringIncludes(html, "data-carousel-track");
@@ -96,7 +103,7 @@ Deno.test("single-image products render plain media (no carousel)", async () => 
     body: form,
   })).body?.cancel();
 
-  const view = await app.request(`http://localhost/products/${id}`);
+  const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
   const html = await view.text();
   assertEquals(html.includes("data-carousel"), false);
   assertStringIncludes(html, 'class="product-view-media"');

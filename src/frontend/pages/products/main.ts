@@ -39,7 +39,7 @@ function productCard(product: Product): string {
       escapeHtml(product.name.charAt(0).toUpperCase())
     }</span>`;
   return `
-    <a class="product-card" href="/products/${escapeHtml(product.id)}">
+    <a class="product-card" href="/products/${escapeHtml(product.slug)}">
       <div class="product-card-media">${media}</div>
       <div class="product-card-body">
         <h2>${name}</h2>

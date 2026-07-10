@@ -4,10 +4,11 @@
  */
 
 import { ValidationException } from "@/shared/exceptions/app_exception.ts";
+import { SLUG_PATTERN } from "@/shared/slug.ts";
 import type { NewProduct } from "@/api/products/product.model.ts";
 
 /** Partial payload accepted by `PATCH /api/products/:id`. */
-export type UpdateProductDto = Partial<NewProduct>;
+export type UpdateProductDto = Partial<NewProduct> & { readonly slug?: string };
 
 /** Payload accepted by `POST /api/products`. */
 export type CreateProductDto = NewProduct;
@@ -76,11 +77,22 @@ export function parseUpdateProductDto(input: unknown): UpdateProductDto {
     throw new ValidationException("Request body must be a JSON object");
   }
   const body = input as Record<string, unknown>;
-  const provided = ["name", "price", "description"].filter((key) => body[key] !== undefined);
+  const provided = ["name", "price", "description", "slug"].filter((key) =>
+    body[key] !== undefined
+  );
   if (provided.length === 0) {
     throw new ValidationException(
-      "At least one field (name, price, description) must be provided",
+      "At least one field (name, price, description, slug) must be provided",
     );
+  }
+
+  if (body.slug !== undefined) {
+    const slug = typeof body.slug === "string" ? body.slug : "";
+    if (!SLUG_PATTERN.test(slug)) {
+      throw new ValidationException("Invalid product payload", {
+        fields: { slug: "slug must match ^[a-z0-9-]{1,80}$" },
+      });
+    }
   }
   // Fill omitted fields with valid placeholders, validate, then keep only
   // the provided ones — single source of truth for the field rules.
@@ -91,7 +103,7 @@ export function parseUpdateProductDto(input: unknown): UpdateProductDto {
   });
   const patch: Record<string, unknown> = {};
   for (const key of provided) {
-    patch[key] = validated[key as keyof typeof validated];
+    patch[key] = key === "slug" ? body.slug : validated[key as keyof typeof validated];
   }
   return patch as UpdateProductDto;
 }

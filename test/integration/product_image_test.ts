@@ -29,6 +29,13 @@ async function createProduct(name: string): Promise<string> {
   return body.data.id;
 }
 
+/** Fetches the current slug of a product. */
+async function slugOf(id: string): Promise<string> {
+  const res = await app.request(`http://localhost/api/products/${id}`);
+  const body = await res.json();
+  return body.data.slug;
+}
+
 /** Uploads one or more files as product images via multipart. */
 async function uploadImages(id: string, files: readonly Uint8Array[]): Promise<Response> {
   const form = new FormData();
@@ -74,7 +81,7 @@ Deno.test("showcase and product view render the first image as cover", async () 
   const showcase = await app.request("http://localhost/products");
   assertStringIncludes(await showcase.text(), `/uploads/products/${id}/`);
 
-  const view = await app.request(`http://localhost/products/${id}`);
+  const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
   const html = await view.text();
   assertStringIncludes(html, "data-carousel");
   assertStringIncludes(html, 'property="og:image"');

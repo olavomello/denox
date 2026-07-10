@@ -95,6 +95,11 @@ Deno.test("KvProductRepository hydrates records written before the images revisi
     const byId = await repository.findById("legacy-1");
     assertEquals(byId?.images, []);
     assertEquals("imageUrl" in (byId ?? {}), false);
+    // Slug revision: legacy records get a slug materialized on first read,
+    // persisted atomically with its uniqueness index.
+    assertEquals(byId?.slug, "legacy-product");
+    const bySlug = await repository.findBySlug("legacy-product");
+    assertEquals(bySlug?.id, "legacy-1");
 
     const all = await repository.findAll();
     assertEquals(all[0]?.images, []);

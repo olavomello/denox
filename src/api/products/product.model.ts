@@ -7,6 +7,8 @@ export interface Product {
   readonly id: string;
   readonly name: string;
   readonly price: number;
+  /** Unique URL slug (page address: /products/<slug>). */
+  readonly slug: string;
   /** Optional short description shown on the showcase and product view. */
   readonly description?: string;
   /** Uploaded image URLs, served under the public namespace (/uploads/...). */

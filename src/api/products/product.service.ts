@@ -33,6 +33,17 @@ export class ProductService {
    * @returns The product.
    * @throws {NotFoundException} When no product has the given id.
    */
+  /**
+   * Finds a product by slug (current or stale — callers compare
+   * `product.slug` with the requested one for 301 handling).
+   *
+   * @param slug Requested slug.
+   * @returns The product or null.
+   */
+  findBySlug(slug: string): Promise<Product | null> {
+    return this.repository.findBySlug(slug);
+  }
+
   async getById(id: string): Promise<Product> {
     const product = await this.repository.findById(id);
     if (product === null) {
