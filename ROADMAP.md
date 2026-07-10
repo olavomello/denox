@@ -13,6 +13,45 @@
 - ✅ Product image upload (magic-byte validation) with chunked Deno KV blob storage; dynamic
   per-request page metadata; HTML error pages
 
+## 0.4.x — Storefront polish
+
+- Friendly product URLs: slug generated from the product name on create and editable on update,
+  unique (secondary index like the e-mail one), replacing the ID in `/products/:slug`; old ID URLs
+  redirect
+- Dynamic sitemap entries: generated pages (products, future dynamic content) included alongside the
+  static route table
+- +3 complete example layouts, visually distinct from the current one, to demonstrate framework
+  versatility (organized under `layouts/` with a practical activation path)
+
+## 0.5 — Platform: authentication & sessions
+
+- Full user authentication on top of the existing users API — architecture inspired by the Next.js
+  authentication guide (https://nextjs.org/docs/app/guides/authentication): credential verification,
+  password hashing, stateless-session cookies (signed/HttpOnly) or KV-backed sessions, auth
+  middleware protecting routes, and the authorization layer for the admin surfaces (product
+  management, uploads)
+
+## 0.6 — Media & sharing
+
+- Image optimization pipeline: on-demand resizing (including remote sources), modern formats (WebP),
+  per-device sizes, native lazy loading with optional blur-up placeholders, automatic layout-shift
+  prevention (width/height) and SEO alt text derived from image name/description — codec strategy
+  (wasm) to be resolved in the spec against the zero-dependency principle
+- Static Open Graph images per page/product via an `opengraph-image.ts` convention controlling the
+  OG image configuration
+
+## 0.7 — Payments
+
+- Payment endpoint with a provider interface — Stripe first (checkout/payment intents + webhook
+  status updates handled automatically), other providers later; optional linkage to users and
+  products; depends on authentication
+
+## 0.x — Agent Skills
+
+- Package DenoX know-how as installable skills for coding agents (Claude, Cursor, Codex):
+  feature-slice scaffolding, SDD workflow enforcement, deploy targets — distilled from AGENTS.md and
+  the guides
+
 ## 0.4 — Frontend ergonomics
 
 - Layout auto-registration in the route generator
