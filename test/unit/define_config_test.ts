@@ -33,6 +33,11 @@ Deno.test("defineConfig ships ui defaults and merges overrides", () => {
   assertEquals(DEFAULT_CONFIG.ui.favicons.length, 3);
 });
 
+Deno.test("defineConfig ships the crons toggle enabled by default", () => {
+  assertEquals(defineConfig().crons.enabled, true);
+  assertEquals(defineConfig({ crons: { enabled: false } }).crons.enabled, false);
+});
+
 Deno.test("defineConfig output is frozen", () => {
   const config = defineConfig();
   assertEquals(Object.isFrozen(config), true);

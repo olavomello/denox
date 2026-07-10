@@ -3,6 +3,16 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Cron jobs (scheduled tasks)**: third entry point at `src/crons/` powered by native `Deno.cron` —
+  typed `CronJob` contract, explicit registry (empty by default), fail-fast duplicate validation,
+  per-execution structured logging with error containment, `crons.enabled` toggle and graceful
+  degradation on runtimes without `Deno.cron`; three inert `.example.ts` recipes (daily report,
+  scheduled pricing, catalog sync).
+
 ## [0.4.0] - 2026-07-09
 
 ### Added

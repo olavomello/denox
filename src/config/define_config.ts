@@ -127,6 +127,12 @@ export interface UiConfig {
   readonly footer: FooterConfig;
 }
 
+/** Scheduled jobs configuration (see src/crons/). */
+export interface CronsConfig {
+  /** Master switch for cron scheduling at boot. */
+  readonly enabled: boolean;
+}
+
 /** Security feature toggles (details live in middleware/security.ts). */
 export interface SecurityConfig {
   /** Apply secure headers + CSP globally. */
@@ -141,6 +147,7 @@ export interface DenoxConfig {
   readonly performance: PerformanceConfig;
   readonly security: SecurityConfig;
   readonly ui: UiConfig;
+  readonly crons: CronsConfig;
 }
 
 /** Recursive partial used for the developer-facing configuration input. */
@@ -151,6 +158,7 @@ export type DenoxUserConfig = {
   readonly performance?: Partial<PerformanceConfig>;
   readonly security?: Partial<SecurityConfig>;
   readonly ui?: Partial<UiConfig>;
+  readonly crons?: Partial<CronsConfig>;
 };
 
 /** Production-ready defaults applied under any omitted option. */
@@ -203,6 +211,9 @@ export const DEFAULT_CONFIG: DenoxConfig = Object.freeze({
   security: {
     headers: true,
   },
+  crons: {
+    enabled: true,
+  },
   ui: {
     favicons: [
       { rel: "apple-touch-icon", sizes: "180x180", href: "/images/favicon/apple-touch-icon.png" },
@@ -237,5 +248,6 @@ export function defineConfig(user: DenoxUserConfig = {}): DenoxConfig {
     performance: Object.freeze({ ...DEFAULT_CONFIG.performance, ...user.performance }),
     security: Object.freeze({ ...DEFAULT_CONFIG.security, ...user.security }),
     ui: Object.freeze({ ...DEFAULT_CONFIG.ui, ...user.ui }),
+    crons: Object.freeze({ ...DEFAULT_CONFIG.crons, ...user.crons }),
   });
 }

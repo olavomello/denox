@@ -7,8 +7,11 @@
  */
 
 import { app } from "@/app.ts";
+import { registerCronJobs } from "@/crons/scheduler.ts";
 import { env } from "@/config/env.ts";
 import { logger } from "@/shared/logger.ts";
+
+registerCronJobs();
 
 Deno.serve(
   {

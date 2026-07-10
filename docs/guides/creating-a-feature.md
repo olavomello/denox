@@ -56,6 +56,12 @@ can talk to your new endpoint with zero JavaScript of your own — see
 <form data-api="/api/notes" data-target="#note-ok">...</form>
 ```
 
+## 5.1 Scheduled work (optional)
+
+If the feature needs clock-driven behavior (reports, syncs, expirations), add a job in `src/crons/`
+calling your service and register it — see [`docs/cron-jobs.md`](../cron-jobs.md). Same rule as
+pages: services do the work, entry points just trigger it.
+
 ## 6. Tests — three layers
 
 - `test/unit/` — DTO matrix + service with a mock from `test/mocks/`

@@ -12,7 +12,7 @@
     "lint": "deno lint",
     "fmt": "deno fmt",
     "fmt:check": "deno fmt --check",
-    "check": "deno check src/main.ts src/frontend/generate_routes.ts test/",
+    "check": "deno check src/main.ts src/frontend/generate_routes.ts src/crons/ test/",
     "compile": "deno task routes && deno compile --allow-net --allow-read --allow-env --output ./dist/app ./src/main.ts",
     "ci": "deno task fmt:check && deno task lint && deno task routes && deno task check && deno task test",
     "deploy": "deno run --allow-run --allow-read --allow-env scripts/deploy.ts",
@@ -48,6 +48,7 @@
     "coverage/"
   ],
   "unstable": [
+    "cron",
     "kv"
   ]
 }
