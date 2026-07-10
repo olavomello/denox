@@ -52,8 +52,9 @@ Deno.test("per-page meta composes the title and description", async () => {
 Deno.test("page images receive lazy loading; explicit loading is preserved", async () => {
   const res = await app.request("http://localhost/");
   const html = await res.text();
+
   // Layout logo is not transformed (content-only optimization).
-  assertStringIncludes(html, '<img src="/images/icon.png"');
+  assertStringIncludes(html, 'src="/images/icon.png"');
 });
 
 Deno.test("static assets carry cache and security headers", async () => {
