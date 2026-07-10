@@ -13,6 +13,22 @@ deno task dev
 
 The `dev` task regenerates the route table and starts the server with `--watch`.
 
+### Connected development (Deno Deploy Tunnels)
+
+With the app linked on Deno Deploy, add `--tunnel` to develop locally against the managed cloud
+environment:
+
+```bash
+deno task dev --tunnel
+```
+
+One flag gives you: a temporary **public URL** forwarding to your local server (webhooks, sharing
+work-in-progress); the **"Local" context environment variables** from the Deno Deploy dashboard
+injected automatically (set `STORAGE_DRIVER=kv` there to develop against a managed, isolated KV
+context instead of a local file); and **OpenTelemetry logs/traces/metrics** from the local process
+visible in the app's Observability tab. Active tunnels are listed in the dashboard's "Tunnels" tab;
+stopping the process closes the tunnel. First run prompts for authentication and app selection.
+
 ---
 
 ## PaaS platforms (one command)
