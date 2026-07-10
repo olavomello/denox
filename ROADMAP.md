@@ -20,8 +20,8 @@
   redirect
 - Dynamic sitemap entries: generated pages (products, future dynamic content) included alongside the
   static route table
-- +3 complete example layouts, visually distinct from the current one, to demonstrate framework
-  versatility (organized under `layouts/` with a practical activation path)
+- ✅ +3 complete example layouts (midnight, editorial, neobrutalist) under `layouts/examples/`,
+  registered for one-line switching
 
 ## 0.5 — Platform: authentication & sessions
 

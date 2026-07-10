@@ -7,6 +7,11 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Example layouts**: three self-contained designs under `layouts/examples/` — `midnight` (dark
+  dashboard with sidebar), `editorial` (serif magazine) and `neobrutalist` (bold borders and offset
+  shadows) — registered for one-line switching via `layout: "<name>"`, fully style-scoped,
+  ui-config-driven and escaped.
+
 - **Cron jobs (scheduled tasks)**: third entry point at `src/crons/` powered by native `Deno.cron` —
   typed `CronJob` contract, explicit registry (empty by default), fail-fast duplicate validation,
   per-execution structured logging with error containment, `crons.enabled` toggle and graceful
