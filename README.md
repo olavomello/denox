@@ -180,6 +180,11 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.5.0** — 🔐 Authentication milestone: signup/login/logout/me with native PBKDF2 hashing,
+  revocable KV-backed sessions, requireAuth/requireRole middleware (product mutations and user reads
+  now admin-only), CSRF Origin guard and login rate limiting. Plus 0.4.x storefront polish: friendly
+  product URLs with 301s, dynamic sitemap providers and three example layouts. Breaking: POST
+  /api/users removed (signup).
 - **0.4.0** — 🛍 Storefront release: products showcase + dynamic product view with dedicated layouts,
   multi-image upload with chunked KV blob storage and carousel, unified PATCH (data + photos),
   config-driven site UI, docs layer and HTML error pages.
