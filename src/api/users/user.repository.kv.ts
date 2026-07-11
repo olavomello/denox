@@ -49,8 +49,7 @@ export class KvUserRepository implements UserRepository {
   async create(data: NewUser): Promise<User> {
     const user: User = {
       id: crypto.randomUUID(),
-      name: data.name,
-      email: data.email,
+      ...data,
       createdAt: new Date().toISOString(),
     };
     const result = await this.kv.atomic()

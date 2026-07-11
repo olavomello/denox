@@ -89,6 +89,11 @@
       });
       const envelope = await response.json();
       if (envelope.success) {
+        const redirect = form.getAttribute("data-redirect");
+        if (redirect) {
+          globalThis.location.assign(redirect);
+          return;
+        }
         if (emit(form, "denox:success", envelope)) {
           renderSuccess(form);
           if (form.dataset.reset === "true") form.reset();

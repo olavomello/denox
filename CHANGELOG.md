@@ -7,6 +7,23 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Authentication, sessions & authorization (0.5)** — Next.js-guide-shaped architecture with native
+  primitives: signup/login/logout/me endpoints, PBKDF2 (Web Crypto) password hashing with per-user
+  salts and stored parameters, revocable KV-backed sessions (`expireIn` TTL) behind a hardened
+  `HttpOnly` cookie, `requireAuth`/`requireRole` middleware, Origin-check CSRF guard on
+  cookie-authenticated mutations, login brute-force rate bucket, `/login` and `/signup` pages on the
+  data-api form layer (with `data-redirect` support and no-JS PRG fallbacks), and a seeded dev
+  admin. First registered user becomes **admin**.
+
+### Changed
+
+- Product mutations (create/update/delete, image upload/removal) and users read endpoints now
+  require an **admin** session.
+
+### Removed
+
+- **Breaking**: `POST /api/users` — user creation moved to `/api/auth/signup` (always credentialed).
+
 - **Example layouts**: three self-contained designs under `layouts/examples/` — `midnight` (dark
   dashboard with sidebar), `editorial` (serif magazine) and `neobrutalist` (bold borders and offset
   shadows) — registered for one-line switching via `layout: "<name>"`, fully style-scoped,

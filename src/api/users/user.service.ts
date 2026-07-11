@@ -7,10 +7,9 @@
  * mocked repository.
  */
 
-import type { CreateUserDto } from "@/api/users/user.dto.ts";
 import type { User } from "@/api/users/user.model.ts";
 import type { UserRepository } from "@/api/users/user.repository.ts";
-import { ConflictException, NotFoundException } from "@/shared/exceptions/app_exception.ts";
+import { NotFoundException } from "@/shared/exceptions/app_exception.ts";
 
 /** Application service for the users feature. */
 export class UserService {
@@ -38,20 +37,5 @@ export class UserService {
       throw new NotFoundException(`User "${id}" not found`);
     }
     return user;
-  }
-
-  /**
-   * Creates a new user.
-   *
-   * @param dto Validated user creation data.
-   * @returns Created user.
-   * @throws {ConflictException} When the email is already registered.
-   */
-  async create(dto: CreateUserDto): Promise<User> {
-    const existing = await this.repository.findByEmail(dto.email);
-    if (existing !== null) {
-      throw new ConflictException(`Email "${dto.email}" is already registered`);
-    }
-    return await this.repository.create(dto);
   }
 }

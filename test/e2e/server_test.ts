@@ -28,10 +28,14 @@ Deno.test("e2e: API and pages respond over a real socket", async () => {
     assertEquals(home.status, 200);
     assertStringIncludes(await home.text(), "DenoX");
 
-    const created = await fetch(`${baseUrl}/api/users`, {
+    const created = await fetch(`${baseUrl}/api/auth/signup`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: "E2E User", email: "e2e@example.com" }),
+      body: JSON.stringify({
+        name: "E2E User",
+        email: "e2e@example.com",
+        password: "long-enough-pass",
+      }),
     });
     assertEquals(created.status, 201);
     await created.body?.cancel();

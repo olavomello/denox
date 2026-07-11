@@ -23,7 +23,12 @@ async function withKv(run: (kv: Deno.Kv) => Promise<void>): Promise<void> {
 Deno.test("KvUserRepository creates and finds users by id and email", async () => {
   await withKv(async (kv) => {
     const repository = new KvUserRepository(kv);
-    const created = await repository.create({ name: "Ada", email: "ada@example.com" });
+    const created = await repository.create({
+      name: "Ada",
+      email: "ada@example.com",
+      passwordHash: "pbkdf2:sha256:1000:c2FsdA==:aGFzaA==",
+      role: "user" as const,
+    });
 
     assertEquals((await repository.findById(created.id))?.email, "ada@example.com");
     assertEquals((await repository.findByEmail("ada@example.com"))?.id, created.id);
@@ -36,9 +41,20 @@ Deno.test("KvUserRepository creates and finds users by id and email", async () =
 Deno.test("KvUserRepository rejects a duplicate email sequentially", async () => {
   await withKv(async (kv) => {
     const repository = new KvUserRepository(kv);
-    await repository.create({ name: "Ada", email: "dup@example.com" });
+    await repository.create({
+      name: "Ada",
+      email: "dup@example.com",
+      passwordHash: "pbkdf2:sha256:1000:c2FsdA==:aGFzaA==",
+      role: "user" as const,
+    });
     await assertRejects(
-      () => repository.create({ name: "Clone", email: "dup@example.com" }),
+      () =>
+        repository.create({
+          name: "Clone",
+          email: "dup@example.com",
+          passwordHash: "pbkdf2:sha256:1000:c2FsdA==:aGFzaA==",
+          role: "user" as const,
+        }),
       ConflictException,
     );
   });
@@ -48,8 +64,18 @@ Deno.test("KvUserRepository email uniqueness holds under concurrency", async () 
   await withKv(async (kv) => {
     const repository = new KvUserRepository(kv);
     const results = await Promise.allSettled([
-      repository.create({ name: "A", email: "race@example.com" }),
-      repository.create({ name: "B", email: "race@example.com" }),
+      repository.create({
+        name: "A",
+        email: "race@example.com",
+        passwordHash: "pbkdf2:sha256:1000:c2FsdA==:aGFzaA==",
+        role: "user" as const,
+      }),
+      repository.create({
+        name: "B",
+        email: "race@example.com",
+        passwordHash: "pbkdf2:sha256:1000:c2FsdA==:aGFzaA==",
+        role: "user" as const,
+      }),
     ]);
     const fulfilled = results.filter((r) => r.status === "fulfilled");
     const rejected = results.filter((r) => r.status === "rejected");

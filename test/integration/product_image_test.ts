@@ -5,6 +5,9 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { app } from "@/app.ts";
+import { adminCookie } from "../helpers/auth.ts";
+
+const ADMIN = await adminCookie();
 import { KvBlobStorage } from "@/shared/blob_storage.ts";
 
 /** 1x1 transparent PNG. */
@@ -22,7 +25,7 @@ const JPEG_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x4
 async function createProduct(name: string): Promise<string> {
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name, price: 10 }),
   });
   const body = await res.json();
@@ -45,6 +48,7 @@ async function uploadImages(id: string, files: readonly Uint8Array[]): Promise<R
   return await app.request(`http://localhost/api/products/${id}/images`, {
     method: "POST",
     body: form,
+    headers: { cookie: ADMIN },
   });
 }
 
@@ -95,6 +99,7 @@ Deno.test("deleting one image removes its blob and list entry", async () => {
 
   const res = await app.request(`http://localhost/api/products/${id}/images/${imageId}`, {
     method: "DELETE",
+    headers: { cookie: ADMIN },
   });
   assertEquals(res.status, 200);
   const body = await res.json();
@@ -110,7 +115,10 @@ Deno.test("deleting a product removes it and its image blobs", async () => {
   const uploaded = await (await uploadImages(id, [PNG_BYTES])).json();
   const url: string = uploaded.data.images[0];
 
-  const res = await app.request(`http://localhost/api/products/${id}`, { method: "DELETE" });
+  const res = await app.request(`http://localhost/api/products/${id}`, {
+    method: "DELETE",
+    headers: { cookie: ADMIN },
+  });
   assertEquals(res.status, 200);
   const body = await res.json();
   assertEquals(body.data.deleted, true);
@@ -123,7 +131,10 @@ Deno.test("deleting a product removes it and its image blobs", async () => {
   assertEquals(image.status, 404);
   await image.body?.cancel();
 
-  const again = await app.request(`http://localhost/api/products/${id}`, { method: "DELETE" });
+  const again = await app.request(`http://localhost/api/products/${id}`, {
+    method: "DELETE",
+    headers: { cookie: ADMIN },
+  });
   assertEquals(again.status, 404);
   await again.body?.cancel();
 });

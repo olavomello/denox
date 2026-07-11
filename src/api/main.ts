@@ -4,14 +4,19 @@
  */
 
 import { Hono } from "hono";
+import { registerAuthRoutes } from "@/api/auth/auth.routes.ts";
 import { registerContactRoutes } from "@/api/contact/contact.routes.ts";
 import { registerHealthRoutes } from "@/api/health/health.routes.ts";
+import { originCheck } from "@/middleware/auth.ts";
 import { registerProductRoutes } from "@/api/products/product.routes.ts";
 import { registerUserRoutes } from "@/api/users/user.routes.ts";
 
 const api = new Hono();
 
+api.use("*", originCheck());
+
 registerHealthRoutes(api);
+registerAuthRoutes(api);
 registerUserRoutes(api);
 registerProductRoutes(api);
 registerContactRoutes(api);

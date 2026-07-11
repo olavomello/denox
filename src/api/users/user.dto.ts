@@ -9,8 +9,11 @@
 import { ValidationException } from "@/shared/exceptions/app_exception.ts";
 import type { NewUser } from "@/api/users/user.model.ts";
 
-/** Payload accepted by `POST /api/users`. */
-export type CreateUserDto = NewUser;
+/** Profile fields accepted from clients (credentials come from auth). */
+export type CreateUserDto = Pick<NewUser, "name" | "email">;
+
+/** Profile fields accepted from clients (credentials come from auth). */
+export type UserProfileInput = Pick<NewUser, "name" | "email">;
 
 const NAME_MIN_LENGTH = 2;
 const NAME_MAX_LENGTH = 100;

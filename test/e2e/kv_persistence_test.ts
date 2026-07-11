@@ -40,23 +40,34 @@ Deno.test("e2e: users persist through the KV driver over a real server", async (
   try {
     await waitForServer();
 
-    const created = await fetch(`${BASE}/api/users`, {
+    const created = await fetch(`${BASE}/api/auth/signup`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: "KV User", email: "kv@example.com" }),
+      body: JSON.stringify({
+        name: "KV User",
+        email: "kv@example.com",
+        password: "long-enough-pass",
+      }),
     });
     assertEquals(created.status, 201);
-    const { data } = await created.json();
+    const cookie = (created.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+    await created.body?.cancel();
 
-    const fetched = await fetch(`${BASE}/api/users/${data.id}`);
+    // The KV-backed session authenticates a follow-up request (FR-8).
+    const fetched = await fetch(`${BASE}/api/auth/me`, { headers: { cookie } });
     assertEquals(fetched.status, 200);
     const body = await fetched.json();
     assertEquals(body.data.email, "kv@example.com");
+    assertEquals(body.data.role, "admin"); // first user of this fresh KV
 
-    const duplicate = await fetch(`${BASE}/api/users`, {
+    const duplicate = await fetch(`${BASE}/api/auth/signup`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name: "Clone", email: "kv@example.com" }),
+      body: JSON.stringify({
+        name: "Clone",
+        email: "kv@example.com",
+        password: "long-enough-pass",
+      }),
     });
     assertEquals(duplicate.status, 409);
     await duplicate.body?.cancel();

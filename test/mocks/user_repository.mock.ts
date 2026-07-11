@@ -37,8 +37,7 @@ export class MockUserRepository implements UserRepository {
     this.calls.push({ method: "create", args: [data] });
     return Promise.resolve({
       id: "33333333-3333-4333-8333-333333333333",
-      name: data.name,
-      email: data.email,
+      ...data,
       createdAt: "2026-01-03T00:00:00.000Z",
     });
   }

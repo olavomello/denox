@@ -4,12 +4,15 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { app } from "@/app.ts";
+import { adminCookie } from "../helpers/auth.ts";
+
+const ADMIN = await adminCookie();
 
 /** Creates a product and returns {id, slug}. */
 async function createProduct(name: string): Promise<{ id: string; slug: string }> {
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name, price: 10 }),
   });
   const body = await res.json();
@@ -50,7 +53,7 @@ Deno.test("PATCH changes the slug; the stale slug 301s; duplicates conflict", as
 
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ slug: "renamed-by-hand" }),
   });
   assertEquals(res.status, 200);
@@ -67,7 +70,7 @@ Deno.test("PATCH changes the slug; the stale slug 301s; duplicates conflict", as
 
   const conflict = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ slug: other.slug }),
   });
   assertEquals(conflict.status, 409);
@@ -75,7 +78,7 @@ Deno.test("PATCH changes the slug; the stale slug 301s; duplicates conflict", as
 
   const invalid = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ slug: "Not Valid!" }),
   });
   assertEquals(invalid.status, 400);
@@ -87,7 +90,7 @@ Deno.test("renaming the product does NOT change its slug (stable URLs)", async (
   const { id, slug } = await createProduct("Original Name");
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name: "Completely Different" }),
   });
   assertEquals((await res.json()).data.slug, slug);

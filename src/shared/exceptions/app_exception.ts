@@ -17,7 +17,9 @@ export type ErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "TOO_MANY_REQUESTS"
-  | "INTERNAL_ERROR";
+  | "INTERNAL_ERROR"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN";
 
 /** Extra machine readable details attached to an error (field errors, etc.). */
 export type ErrorDetails = Readonly<Record<string, unknown>>;
@@ -73,6 +75,20 @@ export class ConflictException extends AppException {
 }
 
 /** 429 — the client exceeded the configured rate limit. */
+/** 401 — missing or invalid authentication. */
+export class UnauthorizedException extends AppException {
+  constructor(message = "Authentication required", details?: Record<string, unknown>) {
+    super(401, "UNAUTHORIZED", message, details);
+  }
+}
+
+/** 403 — authenticated but not allowed. */
+export class ForbiddenException extends AppException {
+  constructor(message = "Insufficient permissions", details?: Record<string, unknown>) {
+    super(403, "FORBIDDEN", message, details);
+  }
+}
+
 export class TooManyRequestsException extends AppException {
   constructor(message = "Too many requests", details?: ErrorDetails) {
     super(429, "TOO_MANY_REQUESTS", message, details);

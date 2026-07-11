@@ -147,7 +147,7 @@
       "created": 1783298560787,
       "url": "{{ _.base_url }}/api/users",
       "name": "List users",
-      "description": "",
+      "description": "[ADMIN] ",
       "method": "GET",
       "parameters": [],
       "headers": [],
@@ -170,7 +170,7 @@
       "created": 1783298560785,
       "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
       "name": "Get user by id",
-      "description": "Set `user_id` in the environment or replace inline. Unknown id \u2192 404 NOT_FOUND.",
+      "description": "[ADMIN] Set `user_id` in the environment or replace inline. Unknown id \u2192 404 NOT_FOUND.",
       "method": "GET",
       "parameters": [],
       "headers": [],
@@ -184,37 +184,6 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "body": {}
-    },
-    {
-      "_id": "req_users_create",
-      "_type": "request",
-      "parentId": "fld_users",
-      "modified": 1783298560784,
-      "created": 1783298560783,
-      "url": "{{ _.base_url }}/api/users",
-      "name": "Create user",
-      "description": "201 with the created user. Duplicate email \u2192 409 CONFLICT (atomic on the KV driver).",
-      "method": "POST",
-      "parameters": [],
-      "headers": [
-        {
-          "name": "Content-Type",
-          "value": "application/json"
-        }
-      ],
-      "authentication": {},
-      "metaSortKey": 3,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global",
-      "body": {
-        "mimeType": "application/json",
-        "text": "{\n  \"name\": \"Grace Hopper\",\n  \"email\": \"grace@example.com\"\n}"
-      }
     },
     {
       "_id": "req_users_invalid",
@@ -312,7 +281,7 @@
       "created": 1783298560773,
       "url": "{{ _.base_url }}/api/products",
       "name": "Create product",
-      "description": "201 with the created product. price must be > 0 and <= 1000000.",
+      "description": "[ADMIN \u2014 login first via Auth folder] 201 with the created product. price must be > 0 and <= 1000000.",
       "method": "POST",
       "parameters": [],
       "headers": [
@@ -497,7 +466,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}/images",
       "name": "Upload product images",
       "method": "POST",
-      "description": "Multipart upload \u2014 field `image`, repeatable for multiple files (PNG/JPEG/WebP, 1 MB each, format detected from magic bytes). Appends public /uploads URLs to the product's images list.",
+      "description": "[ADMIN \u2014 login first via Auth folder] Multipart upload \u2014 field `image`, repeatable for multiple files (PNG/JPEG/WebP, 1 MB each, format detected from magic bytes). Appends public /uploads URLs to the product's images list.",
       "parameters": [],
       "headers": [],
       "authentication": {},
@@ -558,7 +527,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}/images/{{ _.image_id }}",
       "name": "Delete product image",
       "method": "DELETE",
-      "description": "Removes one image (blob + list entry). 404 when the product or the image does not exist.",
+      "description": "[ADMIN \u2014 login first via Auth folder] Removes one image (blob + list entry). 404 when the product or the image does not exist.",
       "parameters": [],
       "headers": [],
       "authentication": {},
@@ -581,7 +550,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
       "name": "Delete product",
       "method": "DELETE",
-      "description": "Deletes the product and every image blob attached to it. 404 when it does not exist.",
+      "description": "[ADMIN \u2014 login first via Auth folder] Deletes the product and every image blob attached to it. 404 when it does not exist.",
       "parameters": [],
       "headers": [],
       "authentication": {},
@@ -604,7 +573,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
       "name": "Update product (partial)",
       "method": "PATCH",
-      "description": "Partially updates name, price, description and/or slug \u2014 provide at least one field. Slug must match ^[a-z0-9-]{1,80}$ and be unique (409 on conflict); the old slug keeps 301-redirecting to the new URL. Renaming the product does NOT change its slug.",
+      "description": "[ADMIN \u2014 login first via Auth folder] Partially updates name, price, description and/or slug \u2014 provide at least one field. Slug must match ^[a-z0-9-]{1,80}$ and be unique (409 on conflict); the old slug keeps 301-redirecting to the new URL. Renaming the product does NOT change its slug.",
       "parameters": [],
       "headers": [
         {
@@ -635,7 +604,7 @@
       "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
       "name": "Update product + photos (multipart)",
       "method": "PATCH",
-      "description": "Unified update in one request: text fields (name, price, description, slug \u2014 all optional), repeatable `image` files to attach and repeatable `removeImages` ids (e.g. <uuid>.png) to delete. At least one change required. Removals are validated before anything mutates.",
+      "description": "[ADMIN \u2014 login first via Auth folder] Unified update in one request: text fields (name, price, description, slug \u2014 all optional), repeatable `image` files to attach and repeatable `removeImages` ids (e.g. <uuid>.png) to delete. At least one change required. Removals are validated before anything mutates.",
       "parameters": [],
       "headers": [],
       "authentication": {},
@@ -681,6 +650,125 @@
           }
         ]
       }
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 0,
+      "created": 0,
+      "name": "Auth",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1.5
+    },
+    {
+      "_id": "req_auth_signup",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/auth/signup",
+      "name": "Signup",
+      "method": "POST",
+      "description": "Creates the user and starts a session (cookie stored automatically by Insomnia's cookie jar). The FIRST user of the system becomes admin.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"DenoX Admin\",\n  \"email\": \"admin@denox.dev\",\n  \"password\": \"denox-admin\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "Login",
+      "method": "POST",
+      "description": "Verifies credentials and starts a session. Wrong e-mail and wrong password return the same generic 401. Stricter rate limit: 10 attempts / 15 min per IP.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@denox.dev\",\n  \"password\": \"denox-admin\"\n}"
+      }
+    },
+    {
+      "_id": "req_auth_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/auth/me",
+      "name": "Me",
+      "method": "GET",
+      "description": "Returns the authenticated user (401 without a valid session cookie).",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_auth_logout",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/auth/logout",
+      "name": "Logout",
+      "method": "POST",
+      "description": "Revokes the session server-side (204) and clears the cookie \u2014 replaying the old cookie afterwards returns 401.",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
     }
   ]
 }

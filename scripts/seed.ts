@@ -8,14 +8,18 @@
  * Usage: `deno task seed` (respects STORAGE_DRIVER / KV_PATH).
  */
 
-import { createUserRepository } from "@/api/users/user.routes.ts";
+import { hashPassword } from "@/shared/password.ts";
+import { createUserRepository } from "@/api/users/user.singletons.ts";
 import { createProductRepository } from "@/api/products/product.routes.ts";
 import { env } from "@/config/env.ts";
 import { logger } from "@/shared/logger.ts";
 
+// Dev-only credentials: the admin password comes from SEED_ADMIN_PASSWORD.
+const adminPassword = Deno.env.get("SEED_ADMIN_PASSWORD") ?? "denox-admin";
 const users = [
-  { name: "Ada Lovelace", email: "ada@example.com" },
-  { name: "Alan Turing", email: "alan@example.com" },
+  { name: "DenoX Admin", email: "admin@denox.dev", password: adminPassword, role: "admin" },
+  { name: "Ada Lovelace", email: "ada@example.com", password: "denox-user", role: "user" },
+  { name: "Alan Turing", email: "alan@example.com", password: "denox-user", role: "user" },
 ] as const;
 
 const products = [
@@ -44,7 +48,12 @@ let created = 0;
 for (const user of users) {
   const existing = await userRepository.findByEmail(user.email);
   if (existing === null) {
-    await userRepository.create(user);
+    await userRepository.create({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      passwordHash: await hashPassword(user.password),
+    });
     created += 1;
   }
 }

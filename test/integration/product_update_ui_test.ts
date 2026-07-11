@@ -5,6 +5,9 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { app } from "@/app.ts";
+import { adminCookie } from "../helpers/auth.ts";
+
+const ADMIN = await adminCookie();
 
 const PNG_BYTES = Uint8Array.from(
   atob(
@@ -17,7 +20,7 @@ const PNG_BYTES = Uint8Array.from(
 async function createProduct(name: string): Promise<string> {
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name, price: 10 }),
   });
   const body = await res.json();
@@ -36,7 +39,7 @@ Deno.test("PATCH /api/products/:id updates the description of an existing produc
 
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ description: "Added after creation." }),
   });
   assertEquals(res.status, 200);
@@ -53,7 +56,7 @@ Deno.test("PATCH validates fields and rejects empty patches", async () => {
 
   const empty = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({}),
   });
   assertEquals(empty.status, 400);
@@ -61,7 +64,7 @@ Deno.test("PATCH validates fields and rejects empty patches", async () => {
 
   const invalid = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ price: -5 }),
   });
   assertEquals(invalid.status, 400);
@@ -70,7 +73,7 @@ Deno.test("PATCH validates fields and rejects empty patches", async () => {
 
   const missing = await app.request("http://localhost/api/products/nope", {
     method: "PATCH",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name: "New" }),
   });
   assertEquals(missing.status, 404);
@@ -85,6 +88,7 @@ Deno.test("product view renders a carousel for multiple images", async () => {
   await (await app.request(`http://localhost/api/products/${id}/images`, {
     method: "POST",
     body: form,
+    headers: { cookie: ADMIN },
   })).body?.cancel();
 
   const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
@@ -101,6 +105,7 @@ Deno.test("single-image products render plain media (no carousel)", async () => 
   await (await app.request(`http://localhost/api/products/${id}/images`, {
     method: "POST",
     body: form,
+    headers: { cookie: ADMIN },
   })).body?.cancel();
 
   const view = await app.request(`http://localhost/products/${await slugOf(id)}`);
@@ -131,6 +136,7 @@ async function seedImages(id: string, count: number): Promise<string[]> {
   const res = await app.request(`http://localhost/api/products/${id}/images`, {
     method: "POST",
     body: form,
+    headers: { cookie: ADMIN },
   });
   const body = await res.json();
   return body.data.images.map((url: string) => url.split("/").pop());
@@ -147,6 +153,7 @@ Deno.test("multipart PATCH updates data and adds photos in one request", async (
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: form,
+    headers: { cookie: ADMIN },
   });
   assertEquals(res.status, 200);
   const body = await res.json();
@@ -167,6 +174,7 @@ Deno.test("multipart PATCH removes and adds photos atomically with data", async 
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: form,
+    headers: { cookie: ADMIN },
   });
   assertEquals(res.status, 200);
   const body = await res.json();
@@ -194,6 +202,7 @@ Deno.test("multipart PATCH with only photos (no data fields) is accepted", async
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: form,
+    headers: { cookie: ADMIN },
   });
   assertEquals(res.status, 200);
   const body = await res.json();
@@ -206,6 +215,7 @@ Deno.test("multipart PATCH rejects empty payloads and unknown removals", async (
   const empty = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: new FormData(),
+    headers: { cookie: ADMIN },
   });
   assertEquals(empty.status, 400);
   await empty.body?.cancel();
@@ -215,6 +225,7 @@ Deno.test("multipart PATCH rejects empty payloads and unknown removals", async (
   const missing = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: form,
+    headers: { cookie: ADMIN },
   });
   assertEquals(missing.status, 404);
   await missing.body?.cancel();
@@ -224,6 +235,7 @@ Deno.test("multipart PATCH rejects empty payloads and unknown removals", async (
   const rejected = await app.request(`http://localhost/api/products/${id}`, {
     method: "PATCH",
     body: hostile,
+    headers: { cookie: ADMIN },
   });
   assertEquals(rejected.status, 400);
   await rejected.body?.cancel();

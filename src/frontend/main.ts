@@ -7,6 +7,13 @@ import { csrf } from "hono/csrf";
 import { loadPages } from "@/frontend/loader.ts";
 import { registerMediaRoutes } from "@/frontend/media.routes.ts";
 import { productService } from "@/api/products/product.routes.ts";
+import { authService } from "@/api/auth/auth.singletons.ts";
+import { parseLoginDto, parseSignupDto } from "@/api/auth/auth.dto.ts";
+import { SESSION_COOKIE } from "@/middleware/auth.ts";
+import { SESSION_TTL_MS } from "@/api/auth/session.store.ts";
+import { setCookie } from "hono/cookie";
+import { env } from "@/config/env.ts";
+import { AppException } from "@/shared/exceptions/app_exception.ts";
 import { registerSitemapProvider } from "@/frontend/seo.routes.ts";
 import { contactService } from "@/api/contact/contact.routes.ts";
 import { parseCreateContactDto } from "@/api/contact/contact.dto.ts";
@@ -46,6 +53,47 @@ web.use("/products/:slug", async (c, next) => {
     (c as unknown as { set(key: string, value: unknown): void }).set("product", product);
   }
   await next();
+});
+
+// No-JS PRG fallbacks for the auth pages (mirrors the contact pattern).
+function attachSessionCookie(c: Parameters<typeof setCookie>[0], sessionId: string): void {
+  setCookie(c, SESSION_COOKIE, sessionId, {
+    httpOnly: true,
+    sameSite: "Lax",
+    path: "/",
+    secure: env.APP_ENV !== "development",
+    maxAge: Math.floor(SESSION_TTL_MS / 1000),
+  });
+}
+
+web.post("/login", async (c) => {
+  const form = await c.req.parseBody();
+  try {
+    const dto = parseLoginDto({ email: form["email"], password: form["password"] });
+    const { session } = await authService.login(dto);
+    attachSessionCookie(c, session.id);
+    return c.redirect("/", 303);
+  } catch (error) {
+    if (error instanceof AppException) return c.redirect("/login?error=1", 303);
+    throw error;
+  }
+});
+
+web.post("/signup", async (c) => {
+  const form = await c.req.parseBody();
+  try {
+    const dto = parseSignupDto({
+      name: form["name"],
+      email: form["email"],
+      password: form["password"],
+    });
+    const { session } = await authService.signup(dto);
+    attachSessionCookie(c, session.id);
+    return c.redirect("/", 303);
+  } catch (error) {
+    if (error instanceof AppException) return c.redirect("/login?error=1", 303);
+    throw error;
+  }
 });
 
 // Dynamic sitemap entries: every product page (slug URLs).

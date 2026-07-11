@@ -4,6 +4,7 @@
  */
 
 import type { Hono } from "hono";
+import { requireRole } from "@/middleware/auth.ts";
 import { ProductController } from "@/api/products/product.controller.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import { InMemoryProductRepository } from "@/api/products/product.repository.ts";
@@ -41,9 +42,9 @@ export function registerProductRoutes(app: Hono): void {
 
   app.get("/products", controller.index);
   app.get("/products/:id", controller.show);
-  app.post("/products", controller.store);
-  app.patch("/products/:id", controller.update);
-  app.post("/products/:id/images", controller.uploadImages);
-  app.delete("/products/:id/images/:imageId", controller.deleteImage);
-  app.delete("/products/:id", controller.destroy);
+  app.post("/products", requireRole("admin"), controller.store);
+  app.patch("/products/:id", requireRole("admin"), controller.update);
+  app.post("/products/:id/images", requireRole("admin"), controller.uploadImages);
+  app.delete("/products/:id/images/:imageId", requireRole("admin"), controller.deleteImage);
+  app.delete("/products/:id", requireRole("admin"), controller.destroy);
 }

@@ -4,16 +4,20 @@
 import * as page0 from "./pages/index.ts";
 import * as page1 from "./pages/about/main.ts";
 import * as page2 from "./pages/contact/main.ts";
-import * as page3 from "./pages/products/main.ts";
-import * as page4 from "./pages/users/main.ts";
-import * as page5 from "./pages/products/[slug].ts";
+import * as page3 from "./pages/login.ts";
+import * as page4 from "./pages/products/main.ts";
+import * as page5 from "./pages/signup.ts";
+import * as page6 from "./pages/users/main.ts";
+import * as page7 from "./pages/products/[slug].ts";
 
 /** Static route table generated from src/frontend/pages/. */
 export const pages = [
   { route: "/", module: page0 },
   { route: "/about", module: page1 },
   { route: "/contact", module: page2 },
-  { route: "/products", module: page3 },
-  { route: "/users", module: page4 },
-  { route: "/products/:slug", module: page5 },
+  { route: "/login", module: page3 },
+  { route: "/products", module: page4 },
+  { route: "/signup", module: page5 },
+  { route: "/users", module: page6 },
+  { route: "/products/:slug", module: page7 },
 ] as const;

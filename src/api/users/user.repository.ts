@@ -54,8 +54,7 @@ export class InMemoryUserRepository implements UserRepository {
   create(data: NewUser): Promise<User> {
     const user: User = {
       id: crypto.randomUUID(),
-      name: data.name,
-      email: data.email,
+      ...data,
       createdAt: new Date().toISOString(),
     };
     this.users.set(user.id, user);

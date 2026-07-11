@@ -6,12 +6,15 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
 import { app } from "@/app.ts";
+import { adminCookie } from "../helpers/auth.ts";
+
+const ADMIN = await adminCookie();
 
 /** Creates a product through the API and returns its id. */
 async function createProduct(payload: Record<string, unknown>): Promise<string> {
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify(payload),
   });
   assertEquals(res.status, 201);
@@ -83,7 +86,7 @@ Deno.test("API error responses remain JSON envelopes", async () => {
 Deno.test("POST /api/products validates the optional showcase fields", async () => {
   const res = await app.request("http://localhost/api/products", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: ADMIN },
     body: JSON.stringify({ name: "Bad", price: 5, description: "" }),
   });
   assertEquals(res.status, 400);

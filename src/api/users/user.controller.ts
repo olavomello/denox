@@ -8,9 +8,8 @@
  */
 
 import type { Context } from "hono";
-import { parseCreateUserDto } from "@/api/users/user.dto.ts";
+import { toPublicUser } from "@/api/users/user.model.ts";
 import type { UserService } from "@/api/users/user.service.ts";
-import { BadRequestException } from "@/shared/exceptions/app_exception.ts";
 import { ok } from "@/shared/http.ts";
 
 /** HTTP adapter for the users feature. */
@@ -25,7 +24,7 @@ export class UserController {
    */
   index = async (c: Context): Promise<Response> => {
     const users = await this.service.list();
-    return c.json(ok(users), 200);
+    return c.json(ok(users.map(toPublicUser)), 200);
   };
 
   /**
@@ -36,21 +35,6 @@ export class UserController {
    */
   show = async (c: Context): Promise<Response> => {
     const user = await this.service.getById(c.req.param("id") ?? "");
-    return c.json(ok(user), 200);
-  };
-
-  /**
-   * `POST /api/users` — creates a user.
-   *
-   * @param c Request context.
-   * @returns 201 with the created user.
-   */
-  store = async (c: Context): Promise<Response> => {
-    const body: unknown = await c.req.json().catch(() => {
-      throw new BadRequestException("Request body must be valid JSON");
-    });
-    const dto = parseCreateUserDto(body);
-    const user = await this.service.create(dto);
-    return c.json(ok(user), 201);
+    return c.json(ok(toPublicUser(user)), 200);
   };
 }
