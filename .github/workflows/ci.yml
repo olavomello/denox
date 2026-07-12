@@ -43,19 +43,14 @@ jobs:
       - name: Type check
         run: deno task check
 
+      # Tasks are the single source of truth for test commands (the
+      # coverage task already injects dummy Stripe keys — NFR-5: suite
+      # green without a Stripe account regardless of payments.provider).
       - name: Tests with coverage
-        # Dummy Stripe keys keep the boot fail-fast satisfied when the
-        # project config enables a payment provider; no test calls the
-        # live API (NFR-5 — suite green without a Stripe account).
-        env:
-          STRIPE_SECRET_KEY: sk_test_dummy
-          STRIPE_WEBHOOK_SECRET: whsec_dummy
-        run: deno test --allow-net --allow-read --allow-env --allow-run=deno --coverage=coverage
+        run: deno task coverage
 
-      - name: Coverage report
-        run: |
-          deno coverage coverage
-          deno coverage coverage --lcov --output=coverage/lcov.info
+      - name: Coverage lcov
+        run: deno task coverage:lcov
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7

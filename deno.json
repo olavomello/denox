@@ -7,7 +7,7 @@
     "test:unit": "deno test --allow-env test/unit/",
     "test:integration": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-env test/integration/",
     "test:e2e": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-env --allow-run=deno test/e2e/",
-    "coverage": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-env --coverage=coverage && deno coverage coverage",
+    "coverage": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-env --allow-run=deno --coverage=coverage && deno coverage coverage",
     "coverage:lcov": "deno coverage coverage --lcov --output=coverage/lcov.info",
     "lint": "deno lint",
     "fmt": "deno fmt",
@@ -38,9 +38,17 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   },
-  "exclude": ["dist/", "coverage/"],
-  "unstable": ["cron", "kv"]
+  "exclude": [
+    "dist/",
+    "coverage/"
+  ],
+  "unstable": [
+    "cron",
+    "kv"
+  ]
 }
