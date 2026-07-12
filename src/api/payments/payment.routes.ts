@@ -56,3 +56,114 @@ export function registerPaymentRoutes(app: Hono): void {
   app.get("/payments/:id", requireAuth(), controller.show);
   app.get("/payments", requireRole("admin"), controller.index);
 }
+
+import {
+  errorResponse,
+  jsonBody,
+  okResponse,
+  pathParam,
+  registerOpenApiPaths,
+  userSecurity,
+} from "@/shared/openapi.ts";
+
+registerOpenApiPaths({
+  "/api/payments/checkout": {
+    post: {
+      operationId: "createCheckout",
+      summary: "Create a hosted checkout",
+      description:
+        'Exactly ONE mode: { productId } (amount comes exclusively from the stored price; a product snapshot is persisted) or { amountCents, currency?, description? }. Redirect the buyer to the returned url. Answers 501 while payments.provider is "none".',
+      tags: ["Payments"],
+      security: [...userSecurity],
+      requestBody: jsonBody({
+        oneOf: [
+          {
+            type: "object",
+            properties: {
+              productId: { type: "string" },
+              metadata: { type: "object", additionalProperties: { type: "string" } },
+            },
+            required: ["productId"],
+          },
+          {
+            type: "object",
+            properties: {
+              amountCents: { type: "integer", minimum: 1 },
+              currency: { type: "string", pattern: "^[a-z]{3}$" },
+              description: { type: "string", maxLength: 200 },
+              metadata: { type: "object", additionalProperties: { type: "string" } },
+            },
+            required: ["amountCents"],
+          },
+        ],
+        example: { productId: "<product-uuid>" },
+      }),
+      responses: {
+        "201": okResponse("Checkout created", {
+          type: "object",
+          properties: {
+            paymentId: { type: "string" },
+            status: { type: "string" },
+            url: { type: "string" },
+          },
+        }),
+        "400": errorResponse("Validation error"),
+        "401": errorResponse("No session"),
+        "404": errorResponse("Unknown product"),
+        "501": errorResponse("Payments disabled (provider none)"),
+      },
+    },
+  },
+  "/api/payments/webhook": {
+    post: {
+      operationId: "paymentWebhook",
+      summary: "Provider status callbacks (Stripe)",
+      description:
+        "Called BY the provider — signature verified on the raw body (Stripe-Signature) before parsing; idempotent by event id (24h ledger). Use the Stripe CLI locally; manual calls get 400.",
+      tags: ["Payments"],
+      requestBody: jsonBody({ type: "object", description: "Provider event (raw)" }),
+      responses: {
+        "200": okResponse("Acknowledged (also for replays/unknown session ids)", {
+          type: "object",
+          properties: { received: { type: "boolean" } },
+        }),
+        "400": errorResponse("Invalid/stale signature"),
+        "501": errorResponse("Payments disabled (provider none)"),
+      },
+    },
+  },
+  "/api/payments/{id}": {
+    get: {
+      operationId: "getPayment",
+      summary: "Get payment (owner or admin)",
+      tags: ["Payments"],
+      security: [...userSecurity],
+      parameters: [pathParam("id", "Payment id", { type: "string", format: "uuid" })],
+      responses: {
+        "200": okResponse("The payment", { $ref: "#/components/schemas/Payment" }),
+        "401": errorResponse("No session"),
+        "403": errorResponse("Another user's payment"),
+        "404": errorResponse("Unknown payment"),
+        "501": errorResponse("Payments disabled (provider none)"),
+      },
+    },
+  },
+  "/api/payments": {
+    get: {
+      operationId: "listPayments",
+      summary: "List payments",
+      tags: ["Payments"],
+      security: [...userSecurity],
+      "x-denox-role": "admin",
+      responses: {
+        "200": okResponse("Every payment, newest first", {
+          type: "array",
+          items: { $ref: "#/components/schemas/Payment" },
+        }),
+        "401": errorResponse("No session"),
+        "403": errorResponse("Not an admin"),
+        "501": errorResponse("Payments disabled (provider none)"),
+      },
+    },
+  },
+});

@@ -42,3 +42,33 @@ export function registerContactRoutes(app: Hono): void {
   const controller = new ContactController(contactService);
   app.post("/contact", controller.store);
 }
+
+import { errorResponse, jsonBody, okResponse, registerOpenApiPaths } from "@/shared/openapi.ts";
+
+registerOpenApiPaths({
+  "/api/contact": {
+    post: {
+      operationId: "contact",
+      summary: "Submit the contact form",
+      tags: ["Contact"],
+      requestBody: jsonBody({
+        type: "object",
+        properties: {
+          name: { type: "string", minLength: 2, maxLength: 120 },
+          email: { type: "string", format: "email" },
+          message: { type: "string", minLength: 10, maxLength: 4000 },
+        },
+        required: ["name", "email", "message"],
+        example: { name: "Ada", email: "ada@example.com", message: "Loving the framework so far!" },
+      }),
+      responses: {
+        "201": okResponse("Message stored", {
+          type: "object",
+          properties: { id: { type: "string" } },
+        }),
+        "400": errorResponse("Validation error"),
+        "429": errorResponse("Rate limited"),
+      },
+    },
+  },
+});

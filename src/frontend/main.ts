@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { csrf } from "hono/csrf";
 import { loadPages } from "@/frontend/loader.ts";
 import { registerMediaRoutes } from "@/frontend/media.routes.ts";
+import { registerOpenApiRoutes } from "@/frontend/openapi.routes.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { authService } from "@/api/auth/auth.singletons.ts";
 import { parseLoginDto, parseSignupDto } from "@/api/auth/auth.dto.ts";
@@ -28,6 +29,7 @@ web.use("*", csrf());
 
 // Public media (uploads served under the public namespace).
 registerMediaRoutes(web);
+registerOpenApiRoutes(web);
 
 // Friendly product URLs: resolve slugs, 301 legacy UUID and stale-slug
 // requests to the canonical address, and stash the entity for the page.

@@ -21,3 +21,50 @@ export function registerUserRoutes(app: Hono): void {
   app.get("/users", requireRole("admin"), controller.index);
   app.get("/users/:id", requireRole("admin"), controller.show);
 }
+
+import {
+  errorResponse,
+  okResponse,
+  pathParam,
+  registerOpenApiPaths,
+  userSecurity,
+} from "@/shared/openapi.ts";
+
+const adminGuard = {
+  security: [...userSecurity],
+  "x-denox-role": "admin" as const,
+};
+
+registerOpenApiPaths({
+  "/api/users": {
+    get: {
+      operationId: "listUsers",
+      summary: "List users",
+      tags: ["Users"],
+      ...adminGuard,
+      responses: {
+        "200": okResponse("Every user (credentials never serialized)", {
+          type: "array",
+          items: { $ref: "#/components/schemas/PublicUser" },
+        }),
+        "401": errorResponse("No session"),
+        "403": errorResponse("Not an admin"),
+      },
+    },
+  },
+  "/api/users/{id}": {
+    get: {
+      operationId: "getUser",
+      summary: "Get user by id",
+      tags: ["Users"],
+      ...adminGuard,
+      parameters: [pathParam("id", "User id", { type: "string", format: "uuid" })],
+      responses: {
+        "200": okResponse("The user", { $ref: "#/components/schemas/PublicUser" }),
+        "401": errorResponse("No session"),
+        "403": errorResponse("Not an admin"),
+        "404": errorResponse("Unknown user"),
+      },
+    },
+  },
+});

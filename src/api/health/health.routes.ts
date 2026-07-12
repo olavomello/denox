@@ -24,3 +24,36 @@ export function registerHealthRoutes(app: Hono): void {
       uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
     })));
 }
+
+import { okResponse, registerOpenApiPaths } from "@/shared/openapi.ts";
+
+registerOpenApiPaths({
+  "/api/ping": {
+    get: {
+      operationId: "ping",
+      summary: "Liveness probe",
+      tags: ["Health"],
+      responses: {
+        "200": okResponse("Pong", { type: "object", properties: { pong: { type: "boolean" } } }),
+      },
+    },
+  },
+  "/api/health": {
+    get: {
+      operationId: "health",
+      summary: "Health report",
+      description: "Uptime, environment and storage driver.",
+      tags: ["Health"],
+      responses: {
+        "200": okResponse("Health report", {
+          type: "object",
+          properties: {
+            status: { type: "string" },
+            uptimeSeconds: { type: "number" },
+            environment: { type: "string" },
+          },
+        }),
+      },
+    },
+  },
+});

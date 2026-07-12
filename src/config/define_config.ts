@@ -127,6 +127,12 @@ export interface UiConfig {
   readonly footer: FooterConfig;
 }
 
+/** API documentation configuration. */
+export interface ApiConfig {
+  /** Serves /openapi.json and /docs/api-reference. */
+  readonly docs: boolean;
+}
+
 /** Payments configuration (see docs/payments.md). */
 export interface PaymentsConfig {
   /** Active provider. "none" keeps routes answering 501 (no keys needed). */
@@ -174,6 +180,7 @@ export interface DenoxConfig {
   readonly crons: CronsConfig;
   readonly media: MediaConfig;
   readonly payments: PaymentsConfig;
+  readonly api: ApiConfig;
 }
 
 /** Recursive partial used for the developer-facing configuration input. */
@@ -187,6 +194,7 @@ export type DenoxUserConfig = {
   readonly crons?: Partial<CronsConfig>;
   readonly media?: Partial<MediaConfig>;
   readonly payments?: Partial<PaymentsConfig>;
+  readonly api?: Partial<ApiConfig>;
 };
 
 /** Production-ready defaults applied under any omitted option. */
@@ -242,6 +250,9 @@ export const DEFAULT_CONFIG: DenoxConfig = Object.freeze({
   crons: {
     enabled: true,
   },
+  api: {
+    docs: true,
+  },
   payments: {
     provider: "none" as const,
     currency: "usd",
@@ -291,5 +302,6 @@ export function defineConfig(user: DenoxUserConfig = {}): DenoxConfig {
     crons: Object.freeze({ ...DEFAULT_CONFIG.crons, ...user.crons }),
     media: Object.freeze({ ...DEFAULT_CONFIG.media, ...user.media }),
     payments: Object.freeze({ ...DEFAULT_CONFIG.payments, ...user.payments }),
+    api: Object.freeze({ ...DEFAULT_CONFIG.api, ...user.api }),
   });
 }
