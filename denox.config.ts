@@ -30,6 +30,12 @@ export default defineConfig({
     twitterCards: true,
     jsonLd: true,
   },
+  payments: {
+    provider: "stripe",
+    currency: "usd", // "brl" etc. (see https://stripe.com/docs/currencies)
+    successPath: "/",
+    cancelPath: "/",
+  },
   pwa: {
     enabled: true,
   },

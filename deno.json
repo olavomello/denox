@@ -1,8 +1,8 @@
 {
   "tasks": {
     "routes": "deno run --allow-read=src/frontend --allow-write=src/frontend/pages.gen.ts src/frontend/generate_routes.ts",
-    "dev": "deno task fmt && deno task routes && deno run --allow-net --allow-read --allow-env --watch src/main.ts",
-    "start": "deno run --allow-net --allow-read --allow-env src/main.ts",
+    "dev": "deno task fmt && deno task routes && deno run --env-file=.env --allow-net --allow-read --allow-env --watch src/main.ts",
+    "start": "deno run --env-file=.env --allow-net --allow-read --allow-env src/main.ts",
     "test": "deno test --allow-net --allow-read --allow-env --allow-run=deno",
     "test:unit": "deno test --allow-env test/unit/",
     "test:integration": "deno test --allow-net --allow-read --allow-env test/integration/",

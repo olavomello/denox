@@ -3,6 +3,14 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- `dev` and `start` tasks now load `.env` via `--env-file` — the file was documented and templated
+  but never actually read; unnoticed until the Stripe keys became the first genuinely required
+  variables. Missing file only warns (CI and Deno Deploy unaffected).
+
 ## [0.7.0] - 2026-07-11
 
 ### Added
