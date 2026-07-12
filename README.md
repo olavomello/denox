@@ -44,6 +44,9 @@ Read on
 - 🖼 **Image optimization** — header-sniffed dimensions (zero layout shift), responsive `srcset` with
   lazy/eager LCP policy and derived alt text out of the box; opt-in pure-wasm tier adds resizing,
   WebP and cached variants; SSRF-guarded remote image proxy
+- 📜 **Self-documenting API** — OpenAPI 3.1 contract from colocated slice descriptions at
+  `/openapi.json`, zero-dependency reference page at `/docs/api-reference`, generated Insomnia
+  collection with a CI staleness gate, and a parity test that fails when routes and docs drift
 - 📮 **API-backed forms, zero build** — `data-api` forms submit JSON, map per-field validation
   errors automatically, redirect on success and keep page state; native fallback without JS
 - ⚡ **Hono** HTTP engine on native `Deno.serve`
@@ -99,6 +102,7 @@ Open **http://localhost:8000** — try `/?name=Deno`, `/about`, `/products`, `/s
 | `deno task start`     | Start the server                                  |
 | `deno task routes`    | Regenerate `src/frontend/pages.gen.ts`            |
 | `deno task test`      | Run unit + integration + e2e tests                |
+| `deno task insomnia`  | Regenerate the Insomnia collection from OpenAPI   |
 | `deno task test:unit` | Unit tests only (same for `:integration`, `:e2e`) |
 | `deno task coverage`  | Tests with coverage report                        |
 | `deno task ci`        | Full quality gate (fmt, lint, check, tests)       |
@@ -201,6 +205,11 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.8.0** — 📜 OpenAPI milestone: machine-readable API contract assembled from colocated per-slice
+  descriptions, served at /openapi.json with a zero-dependency reference page at
+  /docs/api-reference; the Insomnia collection is now a generated artifact (deno task insomnia)
+  guarded by an in-suite staleness gate, and a bidirectional parity test fails the build whenever
+  routes and docs drift apart.
 - **0.7.0** — 💳 Payments milestone: Stripe checkout behind a provider abstraction — plain REST +
   Web Crypto webhook verification (no SDK, still zero dependencies), server-side pricing with
   product snapshots, idempotent status lifecycle, 501-off by default. Plus the full 0.6 media
