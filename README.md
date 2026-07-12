@@ -180,6 +180,12 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.7.0** — 💳 Payments milestone: Stripe checkout behind a provider abstraction — plain REST +
+  Web Crypto webhook verification (no SDK, still zero dependencies), server-side pricing with
+  product snapshots, idempotent status lifecycle, 501-off by default. Plus the full 0.6 media
+  milestone: two-tier image optimization (zero-dep passthrough + opt-in pure-wasm resize/WebP),
+  CLS-free responsive images, SSRF-guarded remote proxy, and Open Graph images with an
+  opengraph-image.ts registry, absolute URLs and real dimensions.
 - **0.5.0** — 🔐 Authentication milestone: signup/login/logout/me with native PBKDF2 hashing,
   revocable KV-backed sessions, requireAuth/requireRole middleware (product mutations and user reads
   now admin-only), CSRF Origin guard and login rate limiting. Plus 0.4.x storefront polish: friendly
