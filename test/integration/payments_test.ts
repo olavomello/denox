@@ -21,6 +21,7 @@ import { productService } from "@/api/products/product.routes.ts";
 import { errorHandler } from "@/middleware/error_handler.ts";
 import { requireAuth, requireRole } from "@/middleware/auth.ts";
 import { adminCookie, userCookie } from "../helpers/auth.ts";
+import { site } from "@/config/site.ts";
 
 Deno.env.set("AUTH_PBKDF2_ITERATIONS", "1000");
 const ADMIN = await adminCookie();
@@ -56,14 +57,20 @@ async function createProduct(price: number): Promise<{ id: string; name: string 
   return (await created.json()).data;
 }
 
-Deno.test("FR-1: wired app with provider none answers 501 without keys", async () => {
-  const res = await app.request("http://localhost/api/payments/checkout", {
-    method: "POST",
-    headers: { "content-type": "application/json", cookie: ADMIN },
-    body: JSON.stringify({ amountCents: 100 }),
-  });
-  assertEquals(res.status, 501);
-  assertEquals((await res.json()).error.code, "NOT_IMPLEMENTED");
+Deno.test({
+  name: "FR-1: wired app with provider none answers 501 without keys",
+  // This assertion is ABOUT the "none" configuration; on projects that
+  // enabled a real provider it would hit the live API instead — skip.
+  ignore: site.payments.provider !== "none",
+  fn: async () => {
+    const res = await app.request("http://localhost/api/payments/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: ADMIN },
+      body: JSON.stringify({ amountCents: 100 }),
+    });
+    assertEquals(res.status, 501);
+    assertEquals((await res.json()).error.code, "NOT_IMPLEMENTED");
+  },
 });
 
 Deno.test("checkout: anonymous 401; product mode uses stored price and snapshots", async () => {
