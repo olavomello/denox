@@ -27,3 +27,20 @@ export async function adminCookie(): Promise<string> {
   const session = await sessionStore.create(admin.id);
   return `denox_session=${session.id}`;
 }
+
+/**
+ * Creates a regular (non-admin) user directly and returns a session
+ * cookie — for authorization-matrix tests.
+ *
+ * @returns Cookie header value and the user id.
+ */
+export async function userCookie(): Promise<{ cookie: string; userId: string }> {
+  const user = await userRepository.create({
+    name: "Test User",
+    email: `user-${crypto.randomUUID()}@test.local`,
+    passwordHash: await hashPassword("irrelevant-here"),
+    role: "user",
+  });
+  const session = await sessionStore.create(user.id);
+  return { cookie: `denox_session=${session.id}`, userId: user.id };
+}

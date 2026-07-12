@@ -19,7 +19,8 @@ export type ErrorCode =
   | "TOO_MANY_REQUESTS"
   | "INTERNAL_ERROR"
   | "UNAUTHORIZED"
-  | "FORBIDDEN";
+  | "FORBIDDEN"
+  | "NOT_IMPLEMENTED";
 
 /** Extra machine readable details attached to an error (field errors, etc.). */
 export type ErrorDetails = Readonly<Record<string, unknown>>;
@@ -75,6 +76,13 @@ export class ConflictException extends AppException {
 }
 
 /** 429 — the client exceeded the configured rate limit. */
+/** 501 — mechanism present, feature not enabled/implemented. */
+export class NotImplementedException extends AppException {
+  constructor(message = "Not implemented", details?: Record<string, unknown>) {
+    super(501, "NOT_IMPLEMENTED", message, details);
+  }
+}
+
 /** 401 — missing or invalid authentication. */
 export class UnauthorizedException extends AppException {
   constructor(message = "Authentication required", details?: Record<string, unknown>) {

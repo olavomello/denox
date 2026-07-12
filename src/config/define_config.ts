@@ -127,6 +127,18 @@ export interface UiConfig {
   readonly footer: FooterConfig;
 }
 
+/** Payments configuration (see docs/payments.md). */
+export interface PaymentsConfig {
+  /** Active provider. "none" keeps routes answering 501 (no keys needed). */
+  readonly provider: "none" | "stripe";
+  /** ISO currency for checkouts (per-product currency: future extension). */
+  readonly currency: string;
+  /** Redirect target after a successful checkout (gets ?payment=<id>). */
+  readonly successPath: string;
+  /** Redirect target after a cancelled checkout (gets ?payment=<id>). */
+  readonly cancelPath: string;
+}
+
 /** Media/image optimization configuration (see docs/image-optimization.md). */
 export interface MediaConfig {
   /** Enables the wasm image processor (resize/WebP). Off = passthrough. */
@@ -161,6 +173,7 @@ export interface DenoxConfig {
   readonly ui: UiConfig;
   readonly crons: CronsConfig;
   readonly media: MediaConfig;
+  readonly payments: PaymentsConfig;
 }
 
 /** Recursive partial used for the developer-facing configuration input. */
@@ -173,6 +186,7 @@ export type DenoxUserConfig = {
   readonly ui?: Partial<UiConfig>;
   readonly crons?: Partial<CronsConfig>;
   readonly media?: Partial<MediaConfig>;
+  readonly payments?: Partial<PaymentsConfig>;
 };
 
 /** Production-ready defaults applied under any omitted option. */
@@ -228,6 +242,12 @@ export const DEFAULT_CONFIG: DenoxConfig = Object.freeze({
   crons: {
     enabled: true,
   },
+  payments: {
+    provider: "none" as const,
+    currency: "usd",
+    successPath: "/",
+    cancelPath: "/",
+  },
   media: {
     optimization: false,
     widths: [320, 640, 960, 1280],
@@ -270,5 +290,6 @@ export function defineConfig(user: DenoxUserConfig = {}): DenoxConfig {
     ui: Object.freeze({ ...DEFAULT_CONFIG.ui, ...user.ui }),
     crons: Object.freeze({ ...DEFAULT_CONFIG.crons, ...user.crons }),
     media: Object.freeze({ ...DEFAULT_CONFIG.media, ...user.media }),
+    payments: Object.freeze({ ...DEFAULT_CONFIG.payments, ...user.payments }),
   });
 }

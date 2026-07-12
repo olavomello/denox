@@ -7,6 +7,15 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Payments (0.7)** — provider abstraction with Stripe first, implemented over its plain HTTPS REST
+  API with native fetch + Web Crypto (no SDK, zero dependencies): authenticated checkout
+  (`POST /api/payments/checkout`) with server-side pricing and product snapshots, raw-body webhook
+  signature verification (constant-time HMAC, 5-minute replay tolerance), idempotent status
+  lifecycle (pending → paid/failed/expired, with reserved states for future events), owner-or-admin
+  reads, admin listing, KV persistence with provider/user indexes and a 24h event ledger. Default
+  `payments.provider: "none"` keeps endpoints answering 501 with no keys required; enabling stripe
+  fail-fasts on missing env keys.
+
 - **Image optimization pipeline (0.6)** — two tiers behind an `ImageProcessor` interface: the
   zero-dependency passthrough default ships header-sniffed dimensions (CLS-free pages), responsive
   `imageTag()` markup (srcset/sizes, lazy/eager LCP policy), derived alt text with per-image

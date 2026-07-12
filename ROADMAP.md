@@ -72,3 +72,6 @@
 - Observability hooks (OpenTelemetry)
 - Publication on JSR
 - Benchmarks and performance budget in CI
+
+- Product `sku` field and its inclusion in the payment `productSnapshot` (deferred from the 0.7
+  payments spec)

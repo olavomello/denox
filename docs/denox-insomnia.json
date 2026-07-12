@@ -769,6 +769,156 @@
       "settingRebuildPath": true,
       "settingFollowRedirects": "global",
       "body": {}
+    },
+    {
+      "_id": "fld_payments",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 0,
+      "created": 0,
+      "name": "Payments",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 4.5
+    },
+    {
+      "_id": "req_payments_checkout_product",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/checkout",
+      "name": "Checkout (product)",
+      "method": "POST",
+      "description": "[AUTH \u2014 login first] Creates a Stripe-hosted checkout for a product. The amount comes exclusively from the stored price (client amounts are rejected in this mode) and a product snapshot is persisted. Requires payments.provider=stripe; with the default \"none\" this answers 501. Response: { paymentId, status, url } \u2014 open url to pay.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"productId\": \"<product-uuid>\"\n}"
+      }
+    },
+    {
+      "_id": "req_payments_checkout_custom",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/checkout",
+      "name": "Checkout (custom amount)",
+      "method": "POST",
+      "description": "[AUTH] Custom-amount checkout: integer cents, optional 3-letter currency (defaults to config) and description.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"amountCents\": 1990,\n  \"currency\": \"usd\",\n  \"description\": \"Consulting hour\"\n}"
+      }
+    },
+    {
+      "_id": "req_payments_webhook",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/webhook",
+      "name": "Webhook (Stripe)",
+      "method": "POST",
+      "description": "Provider callback \u2014 signature verified on the RAW body (Stripe-Signature header) before parsing; idempotent by event id (24h ledger). Use the Stripe CLI (stripe listen / stripe trigger) rather than calling manually.",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 3,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"note\": \"sent by Stripe \\u2014 see docs/payments.md\"\n}"
+      }
+    },
+    {
+      "_id": "req_payments_get",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/{{ _.payment_id }}",
+      "name": "Get payment",
+      "method": "GET",
+      "description": "[AUTH] Owner or admin. 403 for other users, 401 anonymous.",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 4,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_payments_list",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments",
+      "name": "List payments [ADMIN]",
+      "method": "GET",
+      "description": "[ADMIN] Every payment, newest first.",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
     }
   ]
 }

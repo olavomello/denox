@@ -133,3 +133,54 @@ Deno.test("KvProductRepository hydrates records written before the images revisi
     assertEquals(await repository.delete("legacy-1"), true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Payments (FR-8: KV persistence — record + indexes survive independent of
+// process memory; restart semantics are provided by Deno KV itself).
+// ---------------------------------------------------------------------------
+
+Deno.test("KvPaymentRepository persists payments with provider and user indexes", async () => {
+  const kv = await Deno.openKv(":memory:");
+  try {
+    const { KvPaymentRepository } = await import("@/api/payments/payment.repository.kv.ts");
+    const repository = new KvPaymentRepository(kv);
+    const payment = await repository.create({
+      provider: "stripe",
+      providerId: "cs_kv_1",
+      status: "pending",
+      amountCents: 990,
+      currency: "usd",
+      userId: "user-1",
+      productSnapshot: { id: "p1", name: "Snap", price: 9.9 },
+    });
+
+    // Fresh repository instance over the same KV = same data (no memory state).
+    const rehydrated = new KvPaymentRepository(kv);
+    assertEquals((await rehydrated.findById(payment.id))?.amountCents, 990);
+    assertEquals((await rehydrated.findByProviderId("cs_kv_1"))?.id, payment.id);
+    assertEquals(
+      (await kv.get(["payments_by_user", "user-1", payment.id])).value,
+      payment.id,
+    );
+
+    const paid = await rehydrated.updateStatus(payment.id, "paid", "2026-07-11T00:00:00.000Z");
+    assertEquals(paid.status, "paid");
+    assertEquals((await rehydrated.findById(payment.id))?.paidAt, "2026-07-11T00:00:00.000Z");
+    assertEquals((await rehydrated.findById(payment.id))?.productSnapshot?.name, "Snap");
+  } finally {
+    kv.close();
+  }
+});
+
+Deno.test("KvEventLedger marks event ids exactly once", async () => {
+  const kv = await Deno.openKv(":memory:");
+  try {
+    const { KvEventLedger } = await import("@/api/payments/payment.repository.kv.ts");
+    const ledger = new KvEventLedger(kv);
+    assertEquals(await ledger.seen("evt_a"), false);
+    assertEquals(await ledger.seen("evt_a"), true);
+    assertEquals(await ledger.seen("evt_b"), false);
+  } finally {
+    kv.close();
+  }
+});
