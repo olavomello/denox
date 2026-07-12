@@ -44,6 +44,12 @@ jobs:
         run: deno task check
 
       - name: Tests with coverage
+        # Dummy Stripe keys keep the boot fail-fast satisfied when the
+        # project config enables a payment provider; no test calls the
+        # live API (NFR-5 — suite green without a Stripe account).
+        env:
+          STRIPE_SECRET_KEY: sk_test_dummy
+          STRIPE_WEBHOOK_SECRET: whsec_dummy
         run: deno test --allow-net --allow-read --allow-env --allow-run=deno --coverage=coverage
 
       - name: Coverage report
