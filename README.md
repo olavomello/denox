@@ -31,21 +31,36 @@ Read on
 
 ## Features
 
-- 🏆 **Production Ready by Default** — SEO (meta, Open Graph, Twitter Cards, JSON-LD, sitemap,
-  robots), PWA manifest, asset preload, lazy images and cache headers — automatic, driven by
-  `denox.config.ts`, opt-out per feature
+- 🏆 **Production Ready by Default** — SEO (meta, Open Graph images with an `opengraph-image.ts`
+  registry, Twitter Cards, JSON-LD, dynamic sitemap with providers, robots), PWA manifest, asset
+  preload, CLS-free responsive images and cache headers — automatic, driven by `denox.config.ts`,
+  opt-out per feature
+- 🔑 **Authentication & authorization** — signup/login/logout/me with native PBKDF2 hashing,
+  revocable KV-backed sessions behind hardened HttpOnly cookies, `requireAuth`/`requireRole`
+  middleware, CSRF Origin guard, login rate limiting, ready-made `/login` and `/signup` pages
+- 💳 **Payments** — Stripe checkout behind a provider abstraction (plain REST + Web Crypto webhook
+  verification, no SDK): server-side pricing, product snapshots, idempotent status lifecycle; off by
+  default, enabled with two env keys
+- 🖼 **Image optimization** — header-sniffed dimensions (zero layout shift), responsive `srcset` with
+  lazy/eager LCP policy and derived alt text out of the box; opt-in pure-wasm tier adds resizing,
+  WebP and cached variants; SSRF-guarded remote image proxy
 - 📮 **API-backed forms, zero build** — `data-api` forms submit JSON, map per-field validation
-  errors automatically and keep page state; native fallback without JS
+  errors automatically, redirect on success and keep page state; native fallback without JS
 - ⚡ **Hono** HTTP engine on native `Deno.serve`
-- 🗂 **File based routing** — `pages/about/main.ts` → `/about`, `[id]` → `:id`
+- 🗂 **File based routing** — `pages/about/main.ts` → `/about`, `[slug]` → `:slug`
 - 🏛 **MVC feature slices** — model · DTO · repository · service · controller · routes, with
   constructor injection and interface-based repositories
 - 🔐 **Security by default** — CSP, secure headers, CORS, CSRF, rate limiting, body limits,
   timeouts, error masking, XSS-safe rendering
 - ✅ **Three test layers** — unit, integration (`app.request()`), e2e (real socket)
 - 🧾 **Typed, fail-fast configuration** — every env var validated at startup
-- 🛍 **Reference storefront** — server-rendered product showcase + dynamic product view with image
-  upload (chunked KV blob storage) and per-product SEO
+- 🛍 **Reference storefront** — server-rendered showcase + product pages on friendly slug URLs (301s
+  for legacy links), multi-image upload with carousel (chunked KV blob storage) and per-product SEO
+  with real image dimensions
+- 🎨 **Config-driven identity & layouts** — brand, nav and footer from `denox.config.ts`; three
+  ready example layouts (midnight, editorial, neobrutalist) switchable with one line
+- ⏰ **Cron jobs** — explicit registry over native `Deno.cron` with error containment and inert
+  recipe examples
 - 💾 **Durable storage on demand** — `STORAGE_DRIVER=kv` switches repositories to Deno KV (native on
   Deno Deploy) with atomic uniqueness; memory stays the dev default
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
@@ -71,7 +86,7 @@ cp .env.example .env
 deno task dev
 ```
 
-Open **http://localhost:8000** — try `/?name=Deno`, `/about`, `/api/ping`, `/api/users`.
+Open **http://localhost:8000** — try `/?name=Deno`, `/about`, `/products`, `/signup`, `/api/ping`.
 
 > In development the server binds to `127.0.0.1` by default. Set `HOSTNAME=0.0.0.0`
 > (production/Docker) to listen on all interfaces.
@@ -102,11 +117,14 @@ src/
 ├── middleware/        error handler, security stack, rate limit, request log
 ├── api/               JSON API — one MVC slice per feature
 │   ├── health/        /api/ping, /api/health
+│   ├── auth/          signup · login · sessions (PBKDF2 + KV store)
 │   ├── users/         model · dto · repository · service · controller · routes
-│   └── products/      same slice structure
+│   ├── products/      same slice structure (+ images, slugs)
+│   └── payments/      provider abstraction (Stripe REST) + webhook lifecycle
+├── crons/             explicit Deno.cron registry + scheduler
 └── frontend/          file based pages + layouts (server rendered)
     ├── pages/         index.ts → /, about/main.ts → /about, [id] → :id
-    └── layouts/       default.ts + registry.ts
+    └── layouts/       default · showcase · product + examples/ + registry.ts
 ```
 
 Full contract and conventions: [`AGENTS.md`](AGENTS.md). Reference SDD cycle:
@@ -121,9 +139,9 @@ environments included), and browse the generated API reference with `deno task d
 ## API example
 
 ```bash
-curl -X POST http://localhost:8000/api/users \
+curl -X POST http://localhost:8000/api/auth/signup \
   -H 'content-type: application/json' \
-  -d '{"name":"Grace Hopper","email":"grace@example.com"}'
+  -d '{"name":"Grace Hopper","email":"grace@example.com","password":"compilers-rule"}'
 ```
 
 ```json
@@ -133,6 +151,7 @@ curl -X POST http://localhost:8000/api/users \
     "id": "…",
     "name": "Grace Hopper",
     "email": "grace@example.com",
+    "role": "admin",
     "createdAt": "…"
   }
 }
@@ -140,11 +159,13 @@ curl -X POST http://localhost:8000/api/users \
 
 Errors always use the same envelope
 (`{ "success": false, "error": { "code", "message", "details?" } }`) and never expose stack traces.
+The **first registered user becomes admin**; a session cookie is set on signup/login and protected
+endpoints (product mutations, user reads, payments) require it.
 
 ## Testing
 
 ```bash
-deno task test        # 29 tests across three layers
+deno task test        # 146 tests across three layers
 deno task coverage    # with coverage report
 ```
 
