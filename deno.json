@@ -3,11 +3,11 @@
     "routes": "deno run --allow-read=src/frontend --allow-write=src/frontend/pages.gen.ts src/frontend/generate_routes.ts",
     "dev": "deno task fmt && deno task routes && deno run --env-file=.env --allow-net --allow-read --allow-env --watch src/main.ts",
     "start": "deno run --env-file=.env --allow-net --allow-read --allow-env src/main.ts",
-    "test": "deno test --allow-net --allow-read --allow-env --allow-run=deno",
+    "test": "deno test --env-file=.env --allow-net --allow-read --allow-env --allow-run=deno",
     "test:unit": "deno test --allow-env test/unit/",
-    "test:integration": "deno test --allow-net --allow-read --allow-env test/integration/",
-    "test:e2e": "deno test --allow-net --allow-read --allow-env --allow-run=deno test/e2e/",
-    "coverage": "deno test --allow-net --allow-read --allow-env --coverage=coverage && deno coverage coverage",
+    "test:integration": "deno test --env-file=.env --allow-net --allow-read --allow-env test/integration/",
+    "test:e2e": "deno test --env-file=.env --allow-net --allow-read --allow-env --allow-run=deno test/e2e/",
+    "coverage": "deno test --env-file=.env --allow-net --allow-read --allow-env --coverage=coverage && deno coverage coverage",
     "coverage:lcov": "deno coverage coverage --lcov --output=coverage/lcov.info",
     "lint": "deno lint",
     "fmt": "deno fmt",
@@ -16,7 +16,7 @@
     "compile": "deno task routes && deno compile --allow-net --allow-read --allow-env --output ./dist/app ./src/main.ts",
     "ci": "deno task fmt:check && deno task lint && deno task routes && deno task check && deno task test",
     "deploy": "deno run --allow-run --allow-read --allow-env scripts/deploy.ts",
-    "seed": "deno run --allow-read --allow-write --allow-env scripts/seed.ts",
+    "seed": "deno run --env-file=.env --allow-read --allow-write --allow-env scripts/seed.ts",
     "doc": "deno doc --html --name=DenoX --output=docs/api src/"
   },
   "imports": {
@@ -38,17 +38,9 @@
   },
   "lint": {
     "rules": {
-      "tags": [
-        "recommended"
-      ]
+      "tags": ["recommended"]
     }
   },
-  "exclude": [
-    "dist/",
-    "coverage/"
-  ],
-  "unstable": [
-    "cron",
-    "kv"
-  ]
+  "exclude": ["dist/", "coverage/"],
+  "unstable": ["cron", "kv"]
 }
