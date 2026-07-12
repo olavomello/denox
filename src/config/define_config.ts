@@ -127,6 +127,18 @@ export interface UiConfig {
   readonly footer: FooterConfig;
 }
 
+/** Media/image optimization configuration (see docs/image-optimization.md). */
+export interface MediaConfig {
+  /** Enables the wasm image processor (resize/WebP). Off = passthrough. */
+  readonly optimization: boolean;
+  /** Allowed variant widths for ?w= (bounds cache/CPU abuse). */
+  readonly widths: readonly number[];
+  /** Encoding quality for lossy formats (1-100). */
+  readonly quality: number;
+  /** Allowed hosts for the remote image proxy (/img). Empty = disabled. */
+  readonly remotePatterns: readonly string[];
+}
+
 /** Scheduled jobs configuration (see src/crons/). */
 export interface CronsConfig {
   /** Master switch for cron scheduling at boot. */
@@ -148,6 +160,7 @@ export interface DenoxConfig {
   readonly security: SecurityConfig;
   readonly ui: UiConfig;
   readonly crons: CronsConfig;
+  readonly media: MediaConfig;
 }
 
 /** Recursive partial used for the developer-facing configuration input. */
@@ -159,6 +172,7 @@ export type DenoxUserConfig = {
   readonly security?: Partial<SecurityConfig>;
   readonly ui?: Partial<UiConfig>;
   readonly crons?: Partial<CronsConfig>;
+  readonly media?: Partial<MediaConfig>;
 };
 
 /** Production-ready defaults applied under any omitted option. */
@@ -214,6 +228,12 @@ export const DEFAULT_CONFIG: DenoxConfig = Object.freeze({
   crons: {
     enabled: true,
   },
+  media: {
+    optimization: false,
+    widths: [320, 640, 960, 1280],
+    quality: 80,
+    remotePatterns: [],
+  },
   ui: {
     favicons: [
       { rel: "apple-touch-icon", sizes: "180x180", href: "/images/favicon/apple-touch-icon.png" },
@@ -249,5 +269,6 @@ export function defineConfig(user: DenoxUserConfig = {}): DenoxConfig {
     security: Object.freeze({ ...DEFAULT_CONFIG.security, ...user.security }),
     ui: Object.freeze({ ...DEFAULT_CONFIG.ui, ...user.ui }),
     crons: Object.freeze({ ...DEFAULT_CONFIG.crons, ...user.crons }),
+    media: Object.freeze({ ...DEFAULT_CONFIG.media, ...user.media }),
   });
 }

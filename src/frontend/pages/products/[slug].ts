@@ -13,6 +13,7 @@ import type { Product } from "@/api/products/product.model.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { escapeHtml } from "@/shared/html.ts";
 import { NotFoundException } from "@/shared/exceptions/app_exception.ts";
+import { imageTag } from "@/frontend/image.ts";
 import type { PageMeta } from "@/frontend/head.ts";
 
 /** Page configuration with a per-request metadata resolver. */
@@ -32,7 +33,7 @@ export const config = {
     return {
       title: product.name,
       description: product.description ?? `${product.name} — available on DenoX.`,
-      ...(product.images[0] !== undefined ? { image: product.images[0] } : {}),
+      ...(product.images[0] !== undefined ? { image: product.images[0].url } : {}),
     };
   },
 } as const;
@@ -50,15 +51,21 @@ function productMedia(product: Product, name: string): string {
     }</span></div>`;
   }
   if (product.images.length === 1) {
-    return `<div class="product-view-media"><img src="${
-      escapeHtml(product.images[0] ?? "")
-    }" alt="${name}"></div>`;
+    return `<div class="product-view-media">${
+      imageTag(product.images[0]!, {
+        fallbackAlt: product.name,
+        sizes: "(max-width: 720px) 100vw, 420px",
+        eager: true,
+      })
+    }</div>`;
   }
   const slides = product.images
     .map((image, i) =>
-      `<img src="${escapeHtml(image)}" alt="${name} — photo ${i + 1}"${
-        i === 0 ? ' loading="eager"' : ' loading="lazy"'
-      }>`
+      imageTag(image, {
+        fallbackAlt: `${product.name} — photo ${i + 1}`,
+        sizes: "(max-width: 720px) 100vw, 420px",
+        eager: i === 0,
+      })
     )
     .join("");
   return `<div class="product-carousel" data-carousel>

@@ -109,7 +109,21 @@ export class ProductController {
         }
       }
 
-      const product = await this.service.updateProduct(id, patch, newImages, removeImageIds);
+      const altsField = body["alts"];
+      const altsEntries = Array.isArray(altsField)
+        ? altsField
+        : altsField !== undefined
+        ? [altsField]
+        : [];
+      const alts = altsEntries.filter((entry): entry is string => typeof entry === "string");
+
+      const product = await this.service.updateProduct(
+        id,
+        patch,
+        newImages,
+        removeImageIds,
+        alts,
+      );
       return c.json(ok(product), 200);
     }
 

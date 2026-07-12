@@ -504,7 +504,7 @@
       "url": "{{ _.base_url }}/uploads/products/{{ _.product_id }}/{{ _.image_id }}",
       "name": "Get product image (public)",
       "method": "GET",
-      "description": "Serves an uploaded image from the public namespace with its detected content type. Set `image_id` (e.g. <uuid>.png) from the product's images list.",
+      "description": "Serves an uploaded image from the public namespace. Optional variant params: ?w=<320|640|960|1280> (configured allowlist) and ?f=webp \u2014 processed on the wasm tier (media.optimization), original bytes on the default passthrough tier. Set `image_id` (e.g. <uuid>.png) from the product's images list.",
       "parameters": [],
       "headers": [],
       "authentication": {},

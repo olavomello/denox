@@ -4,11 +4,11 @@
  */
 
 import type { CreateProductDto, UpdateProductDto } from "@/api/products/product.dto.ts";
-import type { Product } from "@/api/products/product.model.ts";
+import type { Product, ProductImage } from "@/api/products/product.model.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import type { Blob, BlobStorage } from "@/shared/blob_storage.ts";
 import { NotFoundException, ValidationException } from "@/shared/exceptions/app_exception.ts";
-import { IMAGE_MAX_BYTES, sniffImageType } from "@/shared/images.ts";
+import { IMAGE_MAX_BYTES, imageDimensions, sniffImageType } from "@/shared/images.ts";
 
 /** Application service for the products feature. */
 export class ProductService {
@@ -96,8 +96,9 @@ export class ProductService {
   private async storeImages(
     productId: string,
     files: readonly Uint8Array[],
-  ): Promise<string[]> {
-    const urls: string[] = [];
+    alts: readonly string[] = [],
+  ): Promise<ProductImage[]> {
+    const stored: ProductImage[] = [];
     for (const bytes of files) {
       if (bytes.length === 0 || bytes.length > IMAGE_MAX_BYTES) {
         throw new ValidationException("Invalid image upload", {
@@ -117,9 +118,15 @@ export class ProductService {
         : "webp";
       const imageId = `${crypto.randomUUID()}.${extension}`;
       await this.blobStorage.put(`products/${productId}/${imageId}`, { contentType, bytes });
-      urls.push(`/uploads/products/${productId}/${imageId}`);
+      const dimensions = imageDimensions(bytes);
+      stored.push({
+        url: `/uploads/products/${productId}/${imageId}`,
+        width: dimensions?.width ?? 0,
+        height: dimensions?.height ?? 0,
+        alt: alts[stored.length]?.trim() ?? "",
+      });
     }
-    return urls;
+    return stored;
   }
 
   async attachImages(id: string, files: readonly Uint8Array[]): Promise<Product> {
@@ -131,9 +138,9 @@ export class ProductService {
       });
     }
 
-    const urls = await this.storeImages(product.id, files);
+    const stored = await this.storeImages(product.id, files);
     const updated = await this.repository.update(product.id, {
-      images: [...product.images, ...urls],
+      images: [...product.images, ...stored],
     });
     return updated ?? product;
   }
@@ -157,6 +164,7 @@ export class ProductService {
     patch: UpdateProductDto,
     newImages: readonly Uint8Array[],
     removeImageIds: readonly string[],
+    alts: readonly string[] = [],
   ): Promise<Product> {
     const product = await this.getById(id);
 
@@ -171,21 +179,21 @@ export class ProductService {
       `/uploads/products/${product.id}/${imageId}`
     );
     for (const [index, url] of removeUrls.entries()) {
-      if (!product.images.includes(url)) {
+      if (!product.images.some((image) => image.url === url)) {
         throw new NotFoundException(
           `Image "${removeImageIds[index]}" not found on product "${id}"`,
         );
       }
     }
 
-    const addedUrls = await this.storeImages(product.id, newImages);
+    const added = await this.storeImages(product.id, newImages, alts);
     for (const imageId of removeImageIds) {
       await this.blobStorage.delete(`products/${product.id}/${imageId}`);
     }
 
     const images = [
-      ...product.images.filter((image) => !removeUrls.includes(image)),
-      ...addedUrls,
+      ...product.images.filter((image) => !removeUrls.includes(image.url)),
+      ...added,
     ];
     const updated = await this.repository.update(product.id, { ...patch, images });
     return updated ?? product;
@@ -202,12 +210,12 @@ export class ProductService {
   async removeImage(id: string, imageId: string): Promise<Product> {
     const product = await this.getById(id);
     const url = `/uploads/products/${product.id}/${imageId}`;
-    if (!product.images.includes(url)) {
+    if (!product.images.some((image) => image.url === url)) {
       throw new NotFoundException(`Image "${imageId}" not found on product "${id}"`);
     }
     await this.blobStorage.delete(`products/${product.id}/${imageId}`);
     const updated = await this.repository.update(product.id, {
-      images: product.images.filter((image) => image !== url),
+      images: product.images.filter((image) => image.url !== url),
     });
     return updated ?? product;
   }
@@ -220,7 +228,7 @@ export class ProductService {
    */
   async remove(id: string): Promise<void> {
     const product = await this.getById(id);
-    for (const url of product.images) {
+    for (const { url } of product.images) {
       const imageId = url.split("/").pop() ?? "";
       await this.blobStorage.delete(`products/${product.id}/${imageId}`);
     }

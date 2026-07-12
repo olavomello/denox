@@ -3,6 +3,16 @@
  */
 
 /** A catalog product. */
+/** An uploaded product image with layout/SEO metadata. */
+export interface ProductImage {
+  readonly url: string;
+  /** Pixel dimensions (0 when unknown — legacy records). */
+  readonly width: number;
+  readonly height: number;
+  /** Alt text override; empty string means "derive from product name". */
+  readonly alt: string;
+}
+
 export interface Product {
   readonly id: string;
   readonly name: string;
@@ -11,8 +21,8 @@ export interface Product {
   readonly slug: string;
   /** Optional short description shown on the showcase and product view. */
   readonly description?: string;
-  /** Uploaded image URLs, served under the public namespace (/uploads/...). */
-  readonly images: readonly string[];
+  /** Uploaded images with their metadata (served under /uploads/...). */
+  readonly images: readonly ProductImage[];
   readonly createdAt: string;
 }
 

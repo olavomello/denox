@@ -3,6 +3,24 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Image optimization pipeline (0.6)** — two tiers behind an `ImageProcessor` interface: the
+  zero-dependency passthrough default ships header-sniffed dimensions (CLS-free pages), responsive
+  `imageTag()` markup (srcset/sizes, lazy/eager LCP policy), derived alt text with per-image
+  overrides (`alts` on the multipart PATCH) and stable variant URLs; the opt-in wasm tier
+  (`media.optimization`, imagescript pure-wasm build — the npm build requires FFI and is not
+  Deploy-safe) adds real resizing, WebP transcoding and BlobStorage-cached, in-flight-deduplicated
+  variants. Plus an SSRF-guarded remote image proxy (`/img`, disabled until `media.remotePatterns`
+  is set).
+
+### Changed
+
+- Product `images` evolved from `string[]` to `ProductImage[]` (`url`, `width`, `height`, `alt`) —
+  legacy records hydrate at the persistence boundary; API consumers should read `images[].url`.
+
 ## [0.5.0] - 2026-07-10
 
 ### Added

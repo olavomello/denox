@@ -59,16 +59,16 @@ Deno.test("uploading multiple images appends public /uploads URLs", async () => 
   assertEquals(res.status, 200);
   const body = await res.json();
   assertEquals(body.data.images.length, 2);
-  assertStringIncludes(body.data.images[0], `/uploads/products/${id}/`);
-  assertStringIncludes(body.data.images[0], ".png");
-  assertStringIncludes(body.data.images[1], ".jpg");
-  assertEquals(body.data.images[0].startsWith("/api/"), false);
+  assertStringIncludes(body.data.images[0].url, `/uploads/products/${id}/`);
+  assertStringIncludes(body.data.images[0].url, ".png");
+  assertStringIncludes(body.data.images[1].url, ".jpg");
+  assertEquals(body.data.images[0].url.startsWith("/api/"), false);
 });
 
 Deno.test("uploaded images are served publicly with the sniffed type", async () => {
   const id = await createProduct("Served");
   const uploaded = await (await uploadImages(id, [PNG_BYTES])).json();
-  const url: string = uploaded.data.images[0];
+  const url: string = uploaded.data.images[0].url;
 
   const served = await app.request(`http://localhost${url}`);
   assertEquals(served.status, 200);
@@ -94,7 +94,7 @@ Deno.test("showcase and product view render the first image as cover", async () 
 Deno.test("deleting one image removes its blob and list entry", async () => {
   const id = await createProduct("Trimmed");
   const uploaded = await (await uploadImages(id, [PNG_BYTES, JPEG_BYTES])).json();
-  const first: string = uploaded.data.images[0];
+  const first: string = uploaded.data.images[0].url;
   const imageId = first.split("/").pop() ?? "";
 
   const res = await app.request(`http://localhost/api/products/${id}/images/${imageId}`, {
@@ -113,7 +113,7 @@ Deno.test("deleting one image removes its blob and list entry", async () => {
 Deno.test("deleting a product removes it and its image blobs", async () => {
   const id = await createProduct("Doomed");
   const uploaded = await (await uploadImages(id, [PNG_BYTES])).json();
-  const url: string = uploaded.data.images[0];
+  const url: string = uploaded.data.images[0].url;
 
   const res = await app.request(`http://localhost/api/products/${id}`, {
     method: "DELETE",

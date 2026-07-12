@@ -3,14 +3,20 @@
  * Key layout: ["products", id] → Product.
  */
 
-import type { NewProduct, Product, ProductPatch } from "@/api/products/product.model.ts";
+import type {
+  NewProduct,
+  Product,
+  ProductImage,
+  ProductPatch,
+} from "@/api/products/product.model.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import { ConflictException } from "@/shared/exceptions/app_exception.ts";
 import { slugCandidate, slugify } from "@/shared/slug.ts";
 
 /** Shape of records persisted before the multi-image/slug revisions. */
 type StoredProduct = Omit<Product, "images" | "slug"> & {
-  readonly images?: readonly string[];
+  /** Modern object entries or legacy plain URL strings. */
+  readonly images?: readonly (string | ProductImage)[];
   readonly slug?: string;
   /** Legacy single-image field from the first upload revision. */
   readonly imageUrl?: string;
@@ -29,7 +35,10 @@ export class KvProductRepository implements ProductRepository {
    */
   private hydrate(stored: StoredProduct): Product {
     const { imageUrl: _legacy, ...rest } = stored;
-    return { ...rest, slug: stored.slug ?? "", images: stored.images ?? [] };
+    const images: ProductImage[] = (stored.images ?? []).map((entry) =>
+      typeof entry === "string" ? { url: entry, width: 0, height: 0, alt: "" } : entry
+    );
+    return { ...rest, slug: stored.slug ?? "", images };
   }
 
   /**

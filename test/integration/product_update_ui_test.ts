@@ -139,7 +139,7 @@ async function seedImages(id: string, count: number): Promise<string[]> {
     headers: { cookie: ADMIN },
   });
   const body = await res.json();
-  return body.data.images.map((url: string) => url.split("/").pop());
+  return body.data.images.map((image: { url: string }) => image.url.split("/").pop());
 }
 
 Deno.test("multipart PATCH updates data and adds photos in one request", async () => {
@@ -181,11 +181,11 @@ Deno.test("multipart PATCH removes and adds photos atomically with data", async 
   assertEquals(body.data.description, "Photos swapped.");
   assertEquals(body.data.images.length, 2);
   assertEquals(
-    body.data.images.some((url: string) => url.endsWith(first ?? "?")),
+    body.data.images.some((image: { url: string }) => image.url.endsWith(first ?? "?")),
     false,
   );
   assertEquals(
-    body.data.images.some((url: string) => url.endsWith(second ?? "?")),
+    body.data.images.some((image: { url: string }) => image.url.endsWith(second ?? "?")),
     true,
   );
 

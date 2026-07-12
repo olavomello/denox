@@ -11,6 +11,7 @@ import type { Context } from "hono";
 import type { Product } from "@/api/products/product.model.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { escapeHtml } from "@/shared/html.ts";
+import { imageTag } from "@/frontend/image.ts";
 
 /** Page configuration. */
 export const config = {
@@ -34,7 +35,7 @@ function productCard(product: Product): string {
     : "";
   const cover = product.images[0];
   const media = cover !== undefined
-    ? `<img src="${escapeHtml(cover)}" alt="${name}" loading="lazy">`
+    ? imageTag(cover, { fallbackAlt: product.name, sizes: "(max-width: 720px) 100vw, 260px" })
     : `<span class="product-card-initial" aria-hidden="true">${
       escapeHtml(product.name.charAt(0).toUpperCase())
     }</span>`;
