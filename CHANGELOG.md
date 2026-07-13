@@ -7,6 +7,11 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ### Added
 
+- **Product SKU** — optional `sku` on products (`^[A-Za-z0-9._-]{1,64}$`), **unique when present**
+  via sparse atomic index (slug/e-mail discipline): 409 on conflicts, changing releases the old SKU,
+  `""` clears it; carried into the payment `productSnapshot` through the shared checkout path and
+  shown on the product view. Closes the item deferred from the 0.7 payments spec. OpenAPI schemas
+  and the generated Insomnia collection updated under the 0.8 gates.
 - **Buy now on the product page** — zero-JS PRG flow (`POST
   /products/:slug/buy`): rendered and
   routed only when `payments.provider` is enabled; anonymous buyers 303 to `/login`, authenticated

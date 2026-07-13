@@ -91,6 +91,7 @@ registerOpenApiPaths({
           name: { type: "string", minLength: 2, maxLength: 200 },
           price: { type: "number", exclusiveMinimum: 0 },
           description: { type: "string", maxLength: 2000 },
+          sku: { type: "string", pattern: "^[A-Za-z0-9._-]{1,64}$" },
         },
         required: ["name", "price"],
         example: { name: "DenoX T-Shirt", price: 49.9, description: "Soft cotton tee." },
@@ -125,6 +126,10 @@ registerOpenApiPaths({
           price: { type: "number" },
           description: { type: "string" },
           slug: { type: "string", pattern: "^[a-z0-9-]{1,80}$" },
+          sku: {
+            type: "string",
+            description: "Set/change the unique SKU; empty string clears it.",
+          },
         },
         example: { description: "Updated copy.", slug: "denox-t-shirt" },
       }, false),

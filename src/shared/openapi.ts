@@ -154,6 +154,11 @@ const components: SchemaObject = {
         id: { type: "string", format: "uuid" },
         name: { type: "string" },
         slug: { type: "string", pattern: "^[a-z0-9-]{1,80}$" },
+        sku: {
+          type: "string",
+          pattern: "^[A-Za-z0-9._-]{1,64}$",
+          description: "Optional stock keeping unit — unique when present.",
+        },
         price: { type: "number" },
         description: { type: "string" },
         images: { type: "array", items: { $ref: "#/components/schemas/ProductImage" } },
@@ -167,6 +172,7 @@ const components: SchemaObject = {
       properties: {
         id: { type: "string" },
         name: { type: "string" },
+        sku: { type: "string", description: "Present when the product had one at checkout." },
         price: { type: "number" },
       },
       required: ["id", "name", "price"],

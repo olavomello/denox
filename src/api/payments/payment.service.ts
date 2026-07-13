@@ -65,7 +65,12 @@ export class PaymentService {
       amountCents = Math.round(product.price * 100);
       productId = product.id;
       productName = product.name;
-      productSnapshot = { id: product.id, name: product.name, price: product.price };
+      productSnapshot = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        ...(product.sku !== undefined ? { sku: product.sku } : {}),
+      };
     } else {
       amountCents = dto.amountCents;
       description = dto.description;

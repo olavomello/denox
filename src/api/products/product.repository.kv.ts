@@ -105,6 +105,15 @@ export class KvProductRepository implements ProductRepository {
       images: [],
       createdAt: new Date().toISOString(),
     };
+    if (data.sku !== undefined) {
+      const claim = await this.kv.atomic()
+        .check({ key: ["product_skus", data.sku], versionstamp: null })
+        .set(["product_skus", data.sku], id)
+        .commit();
+      if (!claim.ok) {
+        throw new ConflictException(`SKU "${data.sku}" is already in use`);
+      }
+    }
     const slug = await this.claimSlug(data.name, id, draft);
     return { ...draft, slug };
   }
@@ -129,7 +138,22 @@ export class KvProductRepository implements ProductRepository {
         return { ...existing, ...patch };
       }
     }
-    const updated: Product = { ...existing, ...patch };
+    if (patch.sku !== undefined && patch.sku !== existing.sku) {
+      if (patch.sku !== "") {
+        const claim = await this.kv.atomic()
+          .check({ key: ["product_skus", patch.sku], versionstamp: null })
+          .set(["product_skus", patch.sku], id)
+          .commit();
+        if (!claim.ok) {
+          throw new ConflictException(`SKU "${patch.sku}" is already in use`);
+        }
+      }
+      // Unlike slugs, old SKUs are released (operational ids, no 301s).
+      if (existing.sku !== undefined) await this.kv.delete(["product_skus", existing.sku]);
+    }
+    const merged = { ...existing, ...patch };
+    if (merged.sku === "") delete (merged as { sku?: string }).sku;
+    const updated: Product = merged;
     await this.kv.set(["products", id], updated);
     return updated;
   }
@@ -138,6 +162,7 @@ export class KvProductRepository implements ProductRepository {
   async delete(id: string): Promise<boolean> {
     const existing = await this.findById(id);
     if (existing === null) return false;
+    if (existing.sku !== undefined) await this.kv.delete(["product_skus", existing.sku]);
     await this.kv.delete(["products", id]);
     return true;
   }

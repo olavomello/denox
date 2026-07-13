@@ -34,7 +34,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 Checkout body: `{ "productId": "..." }` **or**
 `{ "amountCents": 1990, "currency": "brl", "description": "..." }` (exactly one mode). In product
 mode the amount comes **exclusively** from the stored price — client amounts are rejected — and the
-payment persists a `productSnapshot { id, name, price }` so purchase history survives product
+payment persists a `productSnapshot { id, name, sku?, price }` so purchase history survives product
 edits/deletion. Response: `{ paymentId, status, url }` → redirect the buyer to `url`.
 
 ## Buying from the product page

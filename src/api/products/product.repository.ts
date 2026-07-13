@@ -20,6 +20,8 @@ export interface ProductRepository {
 /** In memory {@link ProductRepository} for development and tests. */
 export class InMemoryProductRepository implements ProductRepository {
   private readonly products = new Map<string, Product>();
+  /** sku → product id (sparse; released on change/clear/delete). */
+  private readonly skuIndex = new Map<string, string>();
   /** slug → product id (stale slugs stay mapped for 301 redirects). */
   private readonly slugIndex = new Map<string, string>();
 
@@ -67,6 +69,14 @@ export class InMemoryProductRepository implements ProductRepository {
       images: [],
       createdAt: new Date().toISOString(),
     };
+    if (product.sku !== undefined) {
+      if (this.skuIndex.has(product.sku)) {
+        return Promise.reject(
+          new ConflictException(`SKU "${product.sku}" is already in use`),
+        );
+      }
+      this.skuIndex.set(product.sku, product.id);
+    }
     this.products.set(product.id, product);
     return Promise.resolve(product);
   }
@@ -85,13 +95,30 @@ export class InMemoryProductRepository implements ProductRepository {
       this.slugIndex.set(patch.slug, id);
       // The previous slug stays mapped for 301 redirects.
     }
-    const updated: Product = { ...existing, ...patch };
+    if (patch.sku !== undefined && patch.sku !== existing.sku) {
+      if (patch.sku !== "") {
+        const owner = this.skuIndex.get(patch.sku);
+        if (owner !== undefined && owner !== id) {
+          return Promise.reject(
+            new ConflictException(`SKU "${patch.sku}" is already in use`),
+          );
+        }
+        this.skuIndex.set(patch.sku, id);
+      }
+      // Unlike slugs, old SKUs are released (operational ids, no 301s).
+      if (existing.sku !== undefined) this.skuIndex.delete(existing.sku);
+    }
+    const merged = { ...existing, ...patch };
+    if (merged.sku === "") delete (merged as { sku?: string }).sku;
+    const updated: Product = merged;
     this.products.set(id, updated);
     return Promise.resolve(updated);
   }
 
   /** Removes a product; @returns whether it existed. */
   delete(id: string): Promise<boolean> {
+    const existing = this.products.get(id);
+    if (existing?.sku !== undefined) this.skuIndex.delete(existing.sku);
     return Promise.resolve(this.products.delete(id));
   }
 }

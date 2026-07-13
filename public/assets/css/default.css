@@ -464,3 +464,9 @@ form[aria-busy="true"] button[type="submit"] {
 .product-buy-button:hover {
   background: #15803d;
 }
+
+.product-sku {
+  color: #6b7280;
+  font-size: 0.82rem;
+  margin-top: -6px;
+}

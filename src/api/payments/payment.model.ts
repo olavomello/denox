@@ -23,6 +23,8 @@ export type PaymentStatus =
 export interface ProductSnapshot {
   readonly id: string;
   readonly name: string;
+  /** Present when the product carried a SKU at checkout time. */
+  readonly sku?: string;
   readonly price: number;
 }
 

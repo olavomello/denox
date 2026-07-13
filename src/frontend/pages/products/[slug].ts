@@ -116,6 +116,9 @@ export default function productPage(c: Context): string {
       <div class="product-view-details">
         <h1>${name}</h1>
         <p class="product-price product-price-large">${formatPrice(product.price)}</p>
+        ${
+    product.sku !== undefined ? `<p class="product-sku">SKU: ${escapeHtml(product.sku)}</p>` : ""
+  }
         ${buyButtonHtml(product)}
         ${
     product.description !== undefined

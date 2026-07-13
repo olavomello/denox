@@ -19,6 +19,8 @@ export interface Product {
   readonly price: number;
   /** Unique URL slug (page address: /products/<slug>). */
   readonly slug: string;
+  /** Optional stock keeping unit — unique when present. */
+  readonly sku?: string;
   /** Optional short description shown on the showcase and product view. */
   readonly description?: string;
   /** Uploaded images with their metadata (served under /uploads/...). */
@@ -29,6 +31,7 @@ export interface Product {
 /** Data required to create a {@link Product}. */
 export interface NewProduct {
   readonly name: string;
+  readonly sku?: string;
   readonly price: number;
   readonly description?: string;
 }

@@ -76,3 +76,10 @@ mutates, and the final state is written in a single repository update.
 With two or more images the product view renders a scroll-snap carousel (swipe/scroll works without
 JavaScript; `denox-carousel.js` adds prev/next buttons and the position counter). One image renders
 plain; none renders the initial placeholder. The first image stays the showcase cover and og:image.
+
+## SKU
+
+Products accept an optional `sku` (`^[A-Za-z0-9._-]{1,64}$`) — **unique when present** (409 on
+conflict, atomic on the KV driver). PATCH sets or changes it (the old SKU is released — operational
+ids have no 301 semantics, unlike slugs) and `"sku": ""` clears it. The product view shows a muted
+`SKU:` line when present, and payment snapshots carry it (see docs/payments.md).

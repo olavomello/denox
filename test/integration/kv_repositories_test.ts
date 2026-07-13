@@ -184,3 +184,37 @@ Deno.test("KvEventLedger marks event ids exactly once", async () => {
     kv.close();
   }
 });
+
+Deno.test("KvProductRepository enforces sparse SKU uniqueness atomically", async () => {
+  const kv = await Deno.openKv(":memory:");
+  try {
+    const { KvProductRepository } = await import("@/api/products/product.repository.kv.ts");
+    const repository = new KvProductRepository(kv);
+    const a = await repository.create({ name: "Kv Sku A", price: 1, sku: "KV-1" });
+    await assertRejectsConflict(() =>
+      repository.create({ name: "Kv Sku B", price: 1, sku: "KV-1" })
+    );
+
+    // Change releases; clear frees; delete releases too.
+    await repository.update(a.id, { sku: "KV-2" });
+    const b = await repository.create({ name: "Kv Sku B", price: 1, sku: "KV-1" });
+    await repository.update(b.id, { sku: "" });
+    assertEquals((await repository.findById(b.id))?.sku, undefined);
+    await repository.delete(a.id);
+    const c = await repository.create({ name: "Kv Sku C", price: 1, sku: "KV-2" });
+    assertEquals(c.sku, "KV-2");
+  } finally {
+    kv.close();
+  }
+});
+
+/** Asserts the promise rejects with a 409 ConflictException. */
+async function assertRejectsConflict(run: () => Promise<unknown>): Promise<void> {
+  let status = 0;
+  try {
+    await run();
+  } catch (error) {
+    status = (error as { status?: number }).status ?? 0;
+  }
+  assertEquals(status, 409);
+}

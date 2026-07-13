@@ -5,10 +5,15 @@
 
 import { ValidationException } from "@/shared/exceptions/app_exception.ts";
 import { SLUG_PATTERN } from "@/shared/slug.ts";
+
+const SKU_PATTERN = /^[A-Za-z0-9._-]{1,64}$/;
 import type { NewProduct } from "@/api/products/product.model.ts";
 
 /** Partial payload accepted by `PATCH /api/products/:id`. */
-export type UpdateProductDto = Partial<NewProduct> & { readonly slug?: string };
+export type UpdateProductDto = Partial<NewProduct> & {
+  readonly slug?: string;
+  readonly sku?: string;
+};
 
 /** Payload accepted by `POST /api/products`. */
 export type CreateProductDto = NewProduct;
@@ -53,6 +58,14 @@ export function parseCreateProductDto(input: unknown): CreateProductDto {
     }
   }
 
+  let sku: string | undefined;
+  if (body.sku !== undefined) {
+    sku = typeof body.sku === "string" ? body.sku.trim() : "";
+    if (!SKU_PATTERN.test(sku)) {
+      fields.sku = "sku must match ^[A-Za-z0-9._-]{1,64}$";
+    }
+  }
+
   if (Object.keys(fields).length > 0) {
     throw new ValidationException("Invalid product payload", { fields });
   }
@@ -61,6 +74,7 @@ export function parseCreateProductDto(input: unknown): CreateProductDto {
     name,
     price,
     ...(description !== undefined ? { description } : {}),
+    ...(sku !== undefined ? { sku } : {}),
   };
 }
 
@@ -77,12 +91,12 @@ export function parseUpdateProductDto(input: unknown): UpdateProductDto {
     throw new ValidationException("Request body must be a JSON object");
   }
   const body = input as Record<string, unknown>;
-  const provided = ["name", "price", "description", "slug"].filter((key) =>
+  const provided = ["name", "price", "description", "slug", "sku"].filter((key) =>
     body[key] !== undefined
   );
   if (provided.length === 0) {
     throw new ValidationException(
-      "At least one field (name, price, description, slug) must be provided",
+      "At least one field (name, price, description, slug, sku) must be provided",
     );
   }
 
@@ -100,10 +114,16 @@ export function parseUpdateProductDto(input: unknown): UpdateProductDto {
     name: body.name ?? "placeholder",
     price: body.price ?? 1,
     ...(body.description !== undefined ? { description: body.description } : {}),
+    // Empty string clears the SKU (releases its index) — skip validation.
+    ...(body.sku !== undefined && body.sku !== "" ? { sku: body.sku } : {}),
   });
   const patch: Record<string, unknown> = {};
   for (const key of provided) {
-    patch[key] = key === "slug" ? body.slug : validated[key as keyof typeof validated];
+    patch[key] = key === "slug"
+      ? body.slug
+      : key === "sku" && body.sku === ""
+      ? ""
+      : validated[key as keyof typeof validated];
   }
   return patch as UpdateProductDto;
 }
