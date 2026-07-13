@@ -444,3 +444,23 @@ form[aria-busy="true"] button[type="submit"] {
   padding: 2px 9px;
   border-radius: 999px;
 }
+
+/* Product buy flow (rendered only when a payment provider is enabled). */
+.product-buy {
+  margin-top: 18px;
+}
+
+.product-buy-button {
+  background: #16a34a;
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.product-buy-button:hover {
+  background: #15803d;
+}

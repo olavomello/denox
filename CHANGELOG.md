@@ -3,6 +3,18 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Buy now on the product page** — zero-JS PRG flow (`POST
+  /products/:slug/buy`): rendered and
+  routed only when `payments.provider` is enabled; anonymous buyers 303 to `/login`, authenticated
+  buyers get a pending payment (server-side price + product snapshot via the same
+  `PaymentService.checkout` path as the API) and a 303 to the hosted checkout. Payments singletons
+  extracted to `payment.singletons.ts` (users/auth pattern) as the seam between API routes and the
+  frontend flow.
+
 ## [0.8.0] - 2026-07-12
 
 ### Fixed

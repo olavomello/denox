@@ -37,6 +37,14 @@ mode the amount comes **exclusively** from the stored price — client amounts a
 payment persists a `productSnapshot { id, name, price }` so purchase history survives product
 edits/deletion. Response: `{ paymentId, status, url }` → redirect the buyer to `url`.
 
+## Buying from the product page
+
+With a provider enabled, every product view renders a **Buy now** button — a plain form posting to
+`POST /products/<slug>/buy` (zero JavaScript, CSP-clean, PRG pattern): anonymous visitors are
+redirected to `/login`; authenticated buyers get a `pending` payment (server-side price + product
+snapshot, the exact same `PaymentService.checkout` path as the API) and a 303 to the Stripe-hosted
+checkout. With `provider: "none"` neither the button nor the route exists.
+
 ## Webhook setup
 
 1. Stripe Dashboard → Developers → Webhooks → Add endpoint:

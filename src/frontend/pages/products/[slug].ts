@@ -9,6 +9,7 @@
  */
 
 import type { Context } from "hono";
+import { site } from "@/config/site.ts";
 import type { Product } from "@/api/products/product.model.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { escapeHtml } from "@/shared/html.ts";
@@ -37,6 +38,29 @@ export const config = {
     };
   },
 } as const;
+
+/**
+ * Buy-now form fragment — rendered only when a payment provider is
+ * enabled (zero-JS PRG: posts to /products/<slug>/buy, which redirects
+ * the browser to the hosted checkout).
+ *
+ * @param product Product being viewed.
+ * @param provider Active provider (injectable for tests).
+ * @returns Form HTML, or empty string when payments are disabled.
+ */
+export function buyButtonHtml(
+  product: { slug: string; price: number },
+  provider: string = site.payments.provider,
+): string {
+  if (provider === "none") return "";
+  return `<form class="product-buy" method="post" action="/products/${
+    escapeHtml(product.slug)
+  }/buy">
+        <button type="submit" class="product-buy-button">Buy now — ${
+    formatPrice(product.price)
+  }</button>
+      </form>`;
+}
 
 /** Formats a price for display. */
 function formatPrice(price: number): string {
@@ -92,6 +116,7 @@ export default function productPage(c: Context): string {
       <div class="product-view-details">
         <h1>${name}</h1>
         <p class="product-price product-price-large">${formatPrice(product.price)}</p>
+        ${buyButtonHtml(product)}
         ${
     product.description !== undefined
       ? `<p class="product-view-description">${escapeHtml(product.description)}</p>`
