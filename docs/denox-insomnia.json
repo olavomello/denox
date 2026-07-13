@@ -28,7 +28,7 @@
         "image_id": ""
       },
       "dataPropertyOrder": null,
-      "color": null,
+      "color": "#ff3b30",
       "isPrivate": false,
       "metaSortKey": 0
     },
@@ -43,7 +43,7 @@
         "base_url": "https://denox.olavomello.deno.net"
       },
       "dataPropertyOrder": null,
-      "color": null,
+      "color": "#34c759",
       "isPrivate": false,
       "metaSortKey": 1
     },
