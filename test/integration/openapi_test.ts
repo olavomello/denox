@@ -8,7 +8,7 @@ import { Hono } from "hono";
 import { app } from "@/app.ts";
 import { registerOpenApiRoutes } from "@/frontend/openapi.routes.ts";
 import { buildOpenApiDocument, registeredOperations } from "@/shared/openapi.ts";
-import { buildInsomniaCollection } from "../../scripts/generate_insomnia.ts";
+import { buildInsomniaCollection, paramVariable } from "../../scripts/generate_insomnia.ts";
 
 Deno.test("FR-1: /openapi.json serves a valid 3.1 document", async () => {
   const res = await app.request("http://localhost/openapi.json");
@@ -78,4 +78,23 @@ Deno.test("FR-6: role requirements are machine-readable", () => {
   const doc = buildOpenApiDocument();
   assertEquals(doc.paths["/api/users"].get["x-denox-role"], "admin");
   assertEquals(doc.paths["/api/payments"].get.security[0].sessionCookie.length, 0);
+});
+
+Deno.test("Insomnia path variables are derived from the path (features get theirs free)", () => {
+  // Known slices keep their variables...
+  assertEquals(paramVariable("/api/products/{id}", "id"), "product_id");
+  assertEquals(paramVariable("/api/payments/{id}", "id"), "payment_id");
+  assertEquals(paramVariable("/api/products/{id}/images/{imageId}", "imageId"), "image_id");
+  // ...and anything `denox g feature` generates gets one without touching
+  // the generator (singularized collection segment).
+  assertEquals(paramVariable("/api/widgets/{id}", "id"), "widget_id");
+  assertEquals(paramVariable("/api/categories/{id}", "id"), "category_id");
+
+  // The Base Environment ships exactly the keys the requests reference.
+  const collection = buildInsomniaCollection();
+  const resources = collection.resources as Record<string, unknown>[];
+  const base = resources.find((resource) => resource._id === "env_base");
+  const keys = Object.keys((base?.data ?? {}) as Record<string, string>);
+  assertEquals(keys.includes("product_id"), true);
+  assertEquals(keys.includes("id"), false); // no colliding generic variable
 });

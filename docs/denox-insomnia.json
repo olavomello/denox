@@ -23,10 +23,10 @@
       "name": "Base Environment",
       "data": {
         "base_url": "http://localhost:8000",
-        "product_id": "",
+        "image_id": "",
         "payment_id": "",
-        "user_id": "",
-        "image_id": ""
+        "product_id": "",
+        "user_id": ""
       },
       "dataPropertyOrder": null,
       "color": "#ff3b30",
@@ -706,6 +706,95 @@
         "mimeType": "application/json",
         "text": "{\n  \"name\": \"Ada\",\n  \"email\": \"ada@example.com\",\n  \"message\": \"Loving the framework so far!\"\n}"
       }
+    },
+    {
+      "_id": "fld_widgets",
+      "_type": "request_group",
+      "parentId": "wrk_denox",
+      "modified": 0,
+      "created": 0,
+      "name": "Widgets",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_listwidgets",
+      "_type": "request",
+      "parentId": "fld_widgets",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/widgets",
+      "name": "List widgets",
+      "method": "GET",
+      "description": "",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 23,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
+    },
+    {
+      "_id": "req_createwidgets",
+      "_type": "request",
+      "parentId": "fld_widgets",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/widgets",
+      "name": "Create widgets",
+      "method": "POST",
+      "description": "",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 24,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"First widgets\"\n}"
+      }
+    },
+    {
+      "_id": "req_getwidgets",
+      "_type": "request",
+      "parentId": "fld_widgets",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/widgets/{{ _.id }}",
+      "name": "Get widgets",
+      "method": "GET",
+      "description": "",
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 25,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {}
     }
   ]
 }
