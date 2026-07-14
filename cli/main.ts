@@ -419,6 +419,34 @@ export function insertWiring(source: string, names: Names): string | null {
     updated.slice(lineStart);
 }
 
+/**
+ * Removes a feature's wiring — the exact inverse of {@link insertWiring}:
+ * applying both to a source returns it unchanged (no blank-line scar).
+ *
+ * @param source Current main.ts content.
+ * @param names Derived names.
+ * @returns Updated source (unchanged when the lines are absent).
+ */
+export function removeWiring(source: string, names: Names): string {
+  const importLine =
+    `import { register${names.pascal}Routes } from "@/api/${names.kebab}/${names.kebab}.routes.ts";`;
+  const callLine = `register${names.pascal}Routes(api);`;
+  return source
+    .split("\n")
+    .filter((line) => line !== importLine && line !== callLine)
+    .join("\n");
+}
+
+/** Slices that ship with the framework — never removable by the CLI. */
+export const BUILTIN_FEATURES = [
+  "health",
+  "auth",
+  "users",
+  "products",
+  "contact",
+  "payments",
+] as const;
+
 /** Wiring instructions for the anchor-missing fallback. */
 export function wiringInstructions(names: Names): string {
   return [
@@ -575,6 +603,70 @@ async function commandGenerateFeature(name: string): Promise<number> {
   return 0;
 }
 
+/** `denox remove feature <name>` implementation. */
+async function commandRemoveFeature(
+  name: string,
+  flags: Record<string, string>,
+): Promise<number> {
+  let names: Names;
+  try {
+    names = deriveNames(name);
+  } catch (error) {
+    console.error((error as Error).message);
+    return 1;
+  }
+  if ((BUILTIN_FEATURES as readonly string[]).includes(names.kebab)) {
+    console.error(
+      `"${names.kebab}" ships with the framework — remove it by hand if you really mean to.`,
+    );
+    return 1;
+  }
+  const folder = `src/api/${names.kebab}`;
+  try {
+    await Deno.stat(folder);
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      console.error(`Feature "${names.kebab}" not found (${folder})`);
+      return 1;
+    }
+    throw error;
+  }
+  const testPath = `test/integration/${names.kebab}_test.ts`;
+  const dryRun = flags["dry-run"] === "true";
+
+  if (dryRun) {
+    console.log(`Would remove:\n  ${folder}/\n  ${testPath}`);
+    console.log(`Would unwire from src/api/main.ts:`);
+    console.log(
+      `  import { register${names.pascal}Routes } from "@/api/${names.kebab}/${names.kebab}.routes.ts";`,
+    );
+    console.log(`  register${names.pascal}Routes(api);`);
+    return 0;
+  }
+
+  // Unwire FIRST: an interrupted run must never leave the router pointing
+  // at missing modules (the failure mode this command exists to prevent).
+  const mainPath = "src/api/main.ts";
+  const source = await Deno.readTextFile(mainPath);
+  const unwired = removeWiring(source, names);
+  if (unwired !== source) {
+    await Deno.writeTextFile(mainPath, unwired);
+    console.log(`  unwired ${mainPath}`);
+  }
+  await Deno.remove(folder, { recursive: true });
+  console.log(`  removed ${folder}/`);
+  try {
+    await Deno.remove(testPath);
+    console.log(`  removed ${testPath}`);
+  } catch (error) {
+    if (!(error instanceof Deno.errors.NotFound)) throw error;
+  }
+  console.log(
+    `\nFeature removed. Run:\n  deno task insomnia   # drop the endpoints from the collection\n  deno task test`,
+  );
+  return 0;
+}
+
 /** `denox generate page <route>` implementation. */
 async function commandGeneratePage(route: string): Promise<number> {
   let file: { path: string; content: string };
@@ -597,6 +689,7 @@ USAGE
   denox new <name> [--url=<production-url>] [--template=<git-url>]
   denox generate feature <name>     (alias: g feature)
   denox generate page <route>       (alias: g page)
+  denox remove feature <name>       (alias: rm feature) [--dry-run]
   denox version
   denox help
 
@@ -604,12 +697,13 @@ EXAMPLES
   denox new my-shop --url=https://my-shop.deno.net
   denox g feature reviews
   denox g page docs/faq
+  denox rm feature reviews --dry-run
 `;
 
 /** Entry point. */
 export async function main(argv: readonly string[]): Promise<number> {
   const cli = parseCli(argv);
-  const command = cli.command === "g" ? "generate" : cli.command;
+  const command = cli.command === "g" ? "generate" : cli.command === "rm" ? "remove" : cli.command;
   switch (command) {
     case "new": {
       if (cli.args[0] === undefined) {
@@ -623,6 +717,14 @@ export async function main(argv: readonly string[]): Promise<number> {
       if (target === "feature" && name !== undefined) return await commandGenerateFeature(name);
       if (target === "page" && name !== undefined) return await commandGeneratePage(name);
       console.error("Usage: denox generate feature|page <name>");
+      return 1;
+    }
+    case "remove": {
+      const [target, name] = cli.args;
+      if (target === "feature" && name !== undefined) {
+        return await commandRemoveFeature(name, { ...cli.flags });
+      }
+      console.error("Usage: denox remove feature <name> [--dry-run]");
       return 1;
     }
     case "version": {

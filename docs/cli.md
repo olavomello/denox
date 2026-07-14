@@ -47,6 +47,25 @@ If you removed the anchor, the files are still generated and the two wiring line
 you to paste — the CLI never guesses at edited code. Existing features and invalid names abort with
 an error; nothing is ever overwritten.
 
+## `denox remove feature <name>` (alias `rm`)
+
+```bash
+denox rm feature reviews --dry-run   # see exactly what would go
+denox rm feature reviews
+```
+
+The exact inverse of `generate feature`: **unwires the router first** (so an interrupted run never
+leaves imports pointing at missing modules — the failure mode this command exists to prevent), then
+deletes the slice and its test. `src/api/main.ts` is left byte-identical to what it was before
+generation — no leftover import, no blank-line scar.
+
+Framework slices (`health`, `auth`, `users`, `products`, `contact`, `payments`) are refused: they
+are the scaffold's own surface, so removing them is a deliberate manual decision. Unknown features
+error out, and `--dry-run` is the guard rail (the CLI never prompts).
+
+Afterwards, run `deno task insomnia` — the collection still carries the removed endpoints until it
+is regenerated.
+
 ## `denox generate page <route>`
 
 ```bash

@@ -79,3 +79,59 @@ Deno.test("insertWiring is idempotent-safe on the real main.ts", async () => {
   assertStringIncludes(wired ?? "", "registerWidgetsRoutes(api);");
   assertStringIncludes(wired ?? "", "// denox:features");
 });
+
+Deno.test("remove feature: unwires, deletes and leaves main.ts byte-identical (FR-1)", async () => {
+  await cleanup();
+  const original = await Deno.readTextFile("src/api/main.ts");
+  try {
+    assertEquals(await main(["generate", "feature", TEMP]), 0);
+    assertEquals(await main(["remove", "feature", TEMP]), 0);
+
+    // No trace in the router — the failure mode this command prevents.
+    const after = await Deno.readTextFile("src/api/main.ts");
+    assertEquals(after, original);
+
+    // Files are gone.
+    await Deno.stat(`src/api/${TEMP}`).then(
+      () => {
+        throw new Error("folder should be gone");
+      },
+      () => {},
+    );
+
+    // And the project still type-checks.
+    const check = await new Deno.Command("deno", {
+      args: ["check", "--no-lock", "src/api/main.ts"],
+      env: { STRIPE_SECRET_KEY: "sk_test_dummy", STRIPE_WEBHOOK_SECRET: "whsec_dummy" },
+    }).output();
+    assertEquals(check.success, true);
+  } finally {
+    await Deno.writeTextFile("src/api/main.ts", original);
+    await cleanup();
+  }
+});
+
+Deno.test("remove feature: --dry-run changes nothing (FR-4)", async () => {
+  await cleanup();
+  const original = await Deno.readTextFile("src/api/main.ts");
+  try {
+    await main(["generate", "feature", TEMP]);
+    const wired = await Deno.readTextFile("src/api/main.ts");
+
+    assertEquals(await main(["remove", "feature", TEMP, "--dry-run"]), 0);
+    assertEquals(await Deno.readTextFile("src/api/main.ts"), wired); // untouched
+    assertEquals((await Deno.stat(`src/api/${TEMP}`)).isDirectory, true); // still there
+  } finally {
+    await Deno.writeTextFile("src/api/main.ts", original);
+    await cleanup();
+  }
+});
+
+Deno.test("remove feature: built-in and unknown slices are refused (FR-2/FR-3)", async () => {
+  const before = await Deno.readTextFile("src/api/main.ts");
+  assertEquals(await main(["remove", "feature", "payments"]), 1); // framework surface
+  assertEquals(await main(["remove", "feature", "nonexistent"]), 1); // unknown
+  assertEquals(await main(["remove", "feature"]), 1); // missing name
+  assertEquals(await Deno.readTextFile("src/api/main.ts"), before); // nothing touched
+  assertEquals((await Deno.stat("src/api/payments")).isDirectory, true);
+});

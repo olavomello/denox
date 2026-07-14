@@ -20,3 +20,6 @@ cli/main.ts   single self-contained file: argument parsing, name
 - **Never guesses at foreign code**: wiring happens at the `// denox:features` anchor; without it
   the CLI prints the lines and exits 0 with a warning rather than editing blindly.
 - **Never overwrites**: every write checks first; collisions abort.
+- **Removal is the exact inverse of generation**: `removeWiring` undoes `insertWiring` byte for byte
+  (round-trip tested), and unwiring happens _before_ deletion so a failure can never leave the
+  router importing missing modules — the exact breakage that motivated the command.

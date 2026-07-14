@@ -3,7 +3,15 @@
  */
 
 import { assertEquals, assertStringIncludes, assertThrows } from "@std/assert";
-import { deriveNames, featureFiles, insertWiring, pageFile, parseCli } from "../../cli/main.ts";
+import {
+  BUILTIN_FEATURES,
+  deriveNames,
+  featureFiles,
+  insertWiring,
+  pageFile,
+  parseCli,
+  removeWiring,
+} from "../../cli/main.ts";
 
 Deno.test("deriveNames derives spellings and rejects bad input", () => {
   assertEquals(deriveNames("blog-posts"), {
@@ -68,4 +76,31 @@ Deno.test("pageFile builds nested and dynamic routes, rejects traversal", () => 
   assertStringIncludes(faq.content, "<h1>Faq</h1>");
   assertEquals(pageFile("items/[id]").path, "src/frontend/pages/items/[id].ts");
   assertThrows(() => pageFile("../../etc/passwd"), Error);
+});
+
+Deno.test("removeWiring is the exact inverse of insertWiring (FR-5)", () => {
+  const original = [
+    'import { registerHealthRoutes } from "@/api/health/health.routes.ts";',
+    "",
+    "const api = new Hono();",
+    "registerHealthRoutes(api);",
+    "// denox:features",
+    "",
+    "export default api;",
+  ].join("\n");
+  const names = deriveNames("reviews");
+
+  const wired = insertWiring(original, names) ?? "";
+  assertStringIncludes(wired, "registerReviewsRoutes(api);");
+
+  // Round trip: no import, no registration, no blank-line scar.
+  assertEquals(removeWiring(wired, names), original);
+  // Idempotent when the lines are already absent.
+  assertEquals(removeWiring(original, names), original);
+});
+
+Deno.test("built-in slices are listed as unremovable", () => {
+  assertEquals(BUILTIN_FEATURES.includes("payments"), true);
+  assertEquals(BUILTIN_FEATURES.includes("auth"), true);
+  assertEquals((BUILTIN_FEATURES as readonly string[]).includes("reviews"), false);
 });

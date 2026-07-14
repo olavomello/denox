@@ -5,6 +5,14 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ## [Unreleased]
 
+### Added
+
+- **`denox remove feature <name>`** (alias `rm`) — the exact inverse of `generate feature`: unwires
+  the router **first** (so an interrupted run never leaves imports pointing at missing modules),
+  then deletes the slice and its test, leaving `src/api/main.ts` byte-identical to its
+  pre-generation state. Framework slices are refused, unknown features error out, and `--dry-run`
+  lists everything that would go without touching a file.
+
 ### Fixed
 
 - **Insomnia path variables are derived from the path** instead of a hardcoded list:
