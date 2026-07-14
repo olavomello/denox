@@ -69,7 +69,8 @@ Read on
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
 - 🛠 **`denox` CLI** — `denox new` scaffolds a project; `denox g feature <name>` generates a full MVC
   slice (model, DTO, KV repository, service, controller, routes with OpenAPI description and a test
-  skeleton) wired into the API — zero dependencies, installable from a single URL
+  skeleton) wired into the API, and `denox rm feature` undoes it exactly — zero dependencies,
+  installable from a single URL
 - 📐 **Specification Driven Development** — AI-agent-ready contract in `AGENTS.md`
 
 ---
@@ -177,7 +178,7 @@ endpoints (product mutations, user reads, payments) require it.
 ## Testing
 
 ```bash
-deno task test        # 146 tests across three layers
+deno task test        # 182 tests across three layers
 deno task coverage    # with coverage report
 ```
 
@@ -213,6 +214,11 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **0.9.0** — 🛠 CLI milestone: `denox new` scaffolds a project from the template and
+  `denox g feature` writes a complete MVC slice (KV repository, colocated OpenAPI description, test
+  skeleton) wired into the router — `denox rm feature` undoes it exactly. Plus product SKUs, a
+  zero-JS buy button on the product page, a practical generated Insomnia collection and a hardened
+  first-admin rule.
 - **0.8.0** — 📜 OpenAPI milestone: machine-readable API contract assembled from colocated per-slice
   descriptions, served at /openapi.json with a zero-dependency reference page at
   /docs/api-reference; the Insomnia collection is now a generated artifact (deno task insomnia)
