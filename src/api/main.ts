@@ -22,5 +22,6 @@ registerUserRoutes(api);
 registerProductRoutes(api);
 registerContactRoutes(api);
 registerPaymentRoutes(api);
+// denox:features — `denox generate feature` wires new slices below.
 
 export default api;

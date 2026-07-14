@@ -12,6 +12,9 @@
   images, remote proxy, Open Graph images registry
 - ✅ **0.7 — Payments**: Stripe provider over plain REST + Web Crypto (no SDK), server-side pricing,
   product snapshots, idempotent webhooks
+- ✅ **0.9 — CLI**: `denox new` (scaffold from the template with fresh git history) and
+  `denox generate feature|page` (embedded templates producing full MVC slices with KV repositories,
+  OpenAPI descriptions and test skeletons, auto-wired), zero dependencies, installable from one URL
 - ✅ **0.8 — OpenAPI**: 3.1 document from colocated slice descriptions, zero-dependency reference
   page, generated Insomnia collection with staleness gate, bidirectional route/document parity test
 
@@ -19,7 +22,6 @@
 
 - Payments follow-ups: product `sku` field + inclusion in `productSnapshot` (deferred from the 0.7
   spec); reserved statuses (`processing`/`cancelled`/`refunded`) gaining producing events; refunds
-- `denox` CLI (`denox new`, `denox generate feature <name>`)
 - Frontend ergonomics: nested layouts / per-directory `_layout.ts`, optional JSX/TSX pages, layout
   auto-registration
 - WebSocket support

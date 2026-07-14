@@ -67,6 +67,9 @@ Read on
 - 💾 **Durable storage on demand** — `STORAGE_DRIVER=kv` switches repositories to Deno KV (native on
   Deno Deploy) with atomic uniqueness; memory stays the dev default
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
+- 🛠 **`denox` CLI** — `denox new` scaffolds a project; `denox g feature <name>` generates a full MVC
+  slice (model, DTO, KV repository, service, controller, routes with OpenAPI description and a test
+  skeleton) wired into the API — zero dependencies, installable from a single URL
 - 📐 **Specification Driven Development** — AI-agent-ready contract in `AGENTS.md`
 
 ---
@@ -83,6 +86,11 @@ Verify: `deno --version`
 ## Quick Start
 
 ```bash
+# with the CLI
+deno install -grA -n denox https://raw.githubusercontent.com/olavomello/denox/main/cli/main.ts
+denox new my-shop && cd my-shop
+
+# or clone directly
 git clone https://github.com/olavomello/denox.git
 cd denox
 cp .env.example .env
