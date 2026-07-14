@@ -49,7 +49,9 @@ registerOpenApiPaths({
   "/api/contact": {
     post: {
       operationId: "contact",
-      summary: "Submit the contact form",
+      summary: "Send message",
+      description: "Submits the contact form.",
+      "x-denox-sort": 1,
       tags: ["Contact"],
       requestBody: jsonBody({
         type: "object",

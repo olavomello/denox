@@ -24,6 +24,19 @@ export interface OperationObject {
   readonly security?: readonly Record<string, readonly string[]>[];
   /** DenoX extension: role demanded by the middleware. */
   readonly "x-denox-role"?: "admin" | "user";
+  /** DenoX extension: practical ordering inside the Insomnia folder. */
+  readonly "x-denox-sort"?: number;
+  /** DenoX extension: named request examples (one Insomnia request each). */
+  readonly "x-denox-examples"?: readonly {
+    readonly name: string;
+    readonly body?: unknown;
+    readonly multipart?: readonly {
+      name: string;
+      value?: string;
+      file?: boolean;
+      disabled?: boolean;
+    }[];
+  }[];
   readonly parameters?: readonly SchemaObject[];
   readonly requestBody?: SchemaObject;
   readonly responses: Record<string, SchemaObject>;

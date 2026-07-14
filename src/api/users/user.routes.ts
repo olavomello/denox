@@ -40,6 +40,7 @@ registerOpenApiPaths({
     get: {
       operationId: "listUsers",
       summary: "List users",
+      "x-denox-sort": 1,
       tags: ["Users"],
       ...adminGuard,
       responses: {
@@ -55,7 +56,8 @@ registerOpenApiPaths({
   "/api/users/{id}": {
     get: {
       operationId: "getUser",
-      summary: "Get user by id",
+      summary: "Get user",
+      "x-denox-sort": 2,
       tags: ["Users"],
       ...adminGuard,
       parameters: [pathParam("id", "User id", { type: "string", format: "uuid" })],

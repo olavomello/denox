@@ -31,7 +31,9 @@ registerOpenApiPaths({
   "/api/ping": {
     get: {
       operationId: "ping",
-      summary: "Liveness probe",
+      summary: "Ping",
+      description: "Liveness probe.",
+      "x-denox-sort": 1,
       tags: ["Health"],
       responses: {
         "200": okResponse("Pong", { type: "object", properties: { pong: { type: "boolean" } } }),
@@ -41,7 +43,8 @@ registerOpenApiPaths({
   "/api/health": {
     get: {
       operationId: "health",
-      summary: "Health report",
+      summary: "Health",
+      "x-denox-sort": 2,
       description: "Uptime, environment and storage driver.",
       tags: ["Health"],
       responses: {

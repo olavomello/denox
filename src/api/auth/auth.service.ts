@@ -27,8 +27,9 @@ export class AuthService {
   ) {}
 
   /**
-   * Registers a new user and starts a session. The first user of the
-   * system becomes `admin` (scaffold convention); everyone else is `user`.
+   * Registers a new user and starts a session. The signup becomes `admin`
+   * while no admin exists yet (scaffold convention, robust to legacy
+   * records); everyone else is `user`.
    *
    * @param dto Validated signup payload.
    * @returns The created user and session.
@@ -40,12 +41,15 @@ export class AuthService {
       throw new ConflictException(`E-mail "${dto.email}" is already registered`);
     }
     const passwordHash = await hashPassword(dto.password);
-    const isFirst = (await this.users.findAll()).length === 0;
+    // Admin is granted while NO admin exists yet — robust to legacy
+    // pre-auth records (production databases seeded before 0.5) and to
+    // any future import path: the rule is "first admin", not "first row".
+    const hasAdmin = (await this.users.findAll()).some((user) => user.role === "admin");
     const user = await this.users.create({
       name: dto.name,
       email: dto.email,
       passwordHash,
-      role: isFirst ? "admin" : "user",
+      role: hasAdmin ? "user" : "admin",
     });
     const session = await this.sessions.create(user.id);
     return { user, session };

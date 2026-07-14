@@ -218,3 +218,23 @@ async function assertRejectsConflict(run: () => Promise<unknown>): Promise<void>
   }
   assertEquals(status, 409);
 }
+
+Deno.test("KvUserRepository hydrates legacy users without role/passwordHash", async () => {
+  const kv = await Deno.openKv(":memory:");
+  try {
+    await kv.set(["users", "legacy-u1"], {
+      id: "legacy-u1",
+      name: "Pre Auth",
+      email: "preauth@example.com",
+      createdAt: "2026-01-01T00:00:00.000Z",
+    });
+    await kv.set(["users_by_email", "preauth@example.com"], "legacy-u1");
+    const { KvUserRepository } = await import("@/api/users/user.repository.kv.ts");
+    const repository = new KvUserRepository(kv);
+    const user = await repository.findByEmail("preauth@example.com");
+    assertEquals(user?.role, "user");
+    assertEquals(user?.passwordHash, "");
+  } finally {
+    kv.close();
+  }
+});

@@ -11,6 +11,17 @@
  */
 
 import type { NewUser, User } from "@/api/users/user.model.ts";
+
+/** Stored shape: pre-0.5 records may lack credentials/role. */
+type StoredUser = Omit<User, "role" | "passwordHash"> & {
+  readonly role?: User["role"];
+  readonly passwordHash?: string;
+};
+
+/** Fills legacy gaps at the persistence boundary (established pattern). */
+function hydrate(stored: StoredUser): User {
+  return { ...stored, role: stored.role ?? "user", passwordHash: stored.passwordHash ?? "" };
+}
 import type { UserRepository } from "@/api/users/user.repository.ts";
 import { ConflictException } from "@/shared/exceptions/app_exception.ts";
 
@@ -21,16 +32,16 @@ export class KvUserRepository implements UserRepository {
   /** @returns Every stored user. */
   async findAll(): Promise<readonly User[]> {
     const users: User[] = [];
-    for await (const entry of this.kv.list<User>({ prefix: ["users"] })) {
-      users.push(entry.value);
+    for await (const entry of this.kv.list<StoredUser>({ prefix: ["users"] })) {
+      users.push(hydrate(entry.value));
     }
     return users;
   }
 
   /** @returns The user with the given id, or null. */
   async findById(id: string): Promise<User | null> {
-    const entry = await this.kv.get<User>(["users", id]);
-    return entry.value;
+    const entry = await this.kv.get<StoredUser>(["users", id]);
+    return entry.value === null ? null : hydrate(entry.value);
   }
 
   /** @returns The user with the given email, or null. */

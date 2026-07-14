@@ -52,7 +52,8 @@ registerOpenApiPaths({
   "/api/payments/checkout": {
     post: {
       operationId: "createCheckout",
-      summary: "Create a hosted checkout",
+      summary: "Checkout",
+      "x-denox-sort": 1,
       description:
         'Exactly ONE mode: { productId } (amount comes exclusively from the stored price; a product snapshot is persisted) or { amountCents, currency?, description? }. Redirect the buyer to the returned url. Answers 501 while payments.provider is "none".',
       tags: ["Payments"],
@@ -80,6 +81,13 @@ registerOpenApiPaths({
         ],
         example: { productId: "<product-uuid>" },
       }),
+      "x-denox-examples": [
+        { name: "product", body: { productId: "{{ _.product_id }}" } },
+        {
+          name: "custom amount",
+          body: { amountCents: 1990, currency: "usd", description: "Consulting hour" },
+        },
+      ],
       responses: {
         "201": okResponse("Checkout created", {
           type: "object",
@@ -99,7 +107,8 @@ registerOpenApiPaths({
   "/api/payments/webhook": {
     post: {
       operationId: "paymentWebhook",
-      summary: "Provider status callbacks (Stripe)",
+      summary: "Stripe webhook",
+      "x-denox-sort": 4,
       description:
         "Called BY the provider — signature verified on the raw body (Stripe-Signature) before parsing; idempotent by event id (24h ledger). Use the Stripe CLI locally; manual calls get 400.",
       tags: ["Payments"],
@@ -117,7 +126,9 @@ registerOpenApiPaths({
   "/api/payments/{id}": {
     get: {
       operationId: "getPayment",
-      summary: "Get payment (owner or admin)",
+      summary: "Get payment",
+      description: "Owner or admin.",
+      "x-denox-sort": 2,
       tags: ["Payments"],
       security: [...userSecurity],
       parameters: [pathParam("id", "Payment id", { type: "string", format: "uuid" })],
@@ -134,6 +145,7 @@ registerOpenApiPaths({
     get: {
       operationId: "listPayments",
       summary: "List payments",
+      "x-denox-sort": 3,
       tags: ["Payments"],
       security: [...userSecurity],
       "x-denox-role": "admin",

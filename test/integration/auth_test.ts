@@ -191,3 +191,34 @@ Deno.test("login and signup pages render with data-api forms", async () => {
     assertStringIncludes(html, 'data-redirect="/"');
   }
 });
+
+Deno.test("admin is granted while NO admin exists (robust to legacy records)", async () => {
+  // Legacy pre-auth rows (production databases seeded before 0.5) must
+  // not consume the first-admin slot: with only role-less/user rows in
+  // the repository, the next signup still becomes admin.
+  const { AuthService } = await import("@/api/auth/auth.service.ts");
+  const { InMemoryUserRepository } = await import("@/api/users/user.repository.ts");
+  const { InMemorySessionStore } = await import("@/api/auth/session.store.ts");
+  const repository = new InMemoryUserRepository();
+  await repository.create({
+    name: "Legacy Row",
+    email: "legacy@example.com",
+    passwordHash: "",
+    role: "user",
+  });
+  const service = new AuthService(repository, new InMemorySessionStore());
+
+  const first = await service.signup({
+    name: "Real Owner",
+    email: "owner@example.com",
+    password: "long-enough-pass",
+  });
+  assertEquals(first.user.role, "admin");
+
+  const second = await service.signup({
+    name: "Visitor",
+    email: "visitor@example.com",
+    password: "long-enough-pass",
+  });
+  assertEquals(second.user.role, "user");
+});

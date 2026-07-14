@@ -12,12 +12,12 @@ native Deno primitives (zero dependencies):
 
 ## Endpoints
 
-| Method | Path               | Description                                              |
-| ------ | ------------------ | -------------------------------------------------------- |
-| POST   | `/api/auth/signup` | Create account + session (first user = **admin**)        |
-| POST   | `/api/auth/login`  | Verify credentials + session (generic 401; rate limited) |
-| POST   | `/api/auth/logout` | Revoke the session (204)                                 |
-| GET    | `/api/auth/me`     | Authenticated user (401 otherwise)                       |
+| Method | Path               | Description                                                                                                   |
+| ------ | ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| POST   | `/api/auth/signup` | Create account + session (first **admin**: granted while no admin exists — robust to legacy/pre-auth records) |
+| POST   | `/api/auth/login`  | Verify credentials + session (generic 401; rate limited)                                                      |
+| POST   | `/api/auth/logout` | Revoke the session (204)                                                                                      |
+| GET    | `/api/auth/me`     | Authenticated user (401 otherwise)                                                                            |
 
 Passwords: 8–128 chars, hashed with PBKDF2-HMAC-SHA256 (210k iterations, per-user salt, parameters
 stored in the hash for future migration, constant-time compare). Login failures are

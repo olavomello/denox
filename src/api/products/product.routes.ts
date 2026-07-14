@@ -54,6 +54,7 @@ import {
   jsonBody,
   okResponse,
   pathParam,
+  queryParam,
   registerOpenApiPaths,
   userSecurity,
 } from "@/shared/openapi.ts";
@@ -71,6 +72,7 @@ registerOpenApiPaths({
     get: {
       operationId: "listProducts",
       summary: "List products",
+      "x-denox-sort": 1,
       tags: ["Products"],
       responses: {
         "200": okResponse("Every product", {
@@ -82,6 +84,7 @@ registerOpenApiPaths({
     post: {
       operationId: "createProduct",
       summary: "Create product",
+      "x-denox-sort": 2,
       description: "The friendly slug is derived from the name (collisions get -2, -3 suffixes).",
       tags: ["Products"],
       ...adminGuard,
@@ -106,14 +109,16 @@ registerOpenApiPaths({
   "/api/products/{id}": {
     get: {
       operationId: "getProduct",
-      summary: "Get product by id",
+      summary: "Get product",
+      "x-denox-sort": 3,
       tags: ["Products"],
       parameters: [pathParam("id", "Product id", { type: "string", format: "uuid" })],
       responses: { "200": productOk("The product"), "404": errorResponse("Unknown product") },
     },
     patch: {
       operationId: "updateProduct",
-      summary: "Update product (JSON or multipart)",
+      summary: "Update product",
+      "x-denox-sort": 4,
       description:
         "JSON: partial name/price/description/slug (slug must match ^[a-z0-9-]{1,80}$, 409 on conflict; renames never change the slug). Multipart: same text fields plus repeatable `image` files, repeatable `removeImages` ids and repeatable `alts` aligned to the new uploads.",
       tags: ["Products"],
@@ -143,7 +148,9 @@ registerOpenApiPaths({
     },
     delete: {
       operationId: "deleteProduct",
-      summary: "Delete product (cascades stored images)",
+      summary: "Delete product",
+      description: "Cascades stored images.",
+      "x-denox-sort": 7,
       tags: ["Products"],
       ...adminGuard,
       parameters: [pathParam("id", "Product id", { type: "string", format: "uuid" })],
@@ -157,7 +164,8 @@ registerOpenApiPaths({
   "/api/products/{id}/images": {
     post: {
       operationId: "uploadProductImages",
-      summary: "Upload product images (multipart)",
+      summary: "Upload images",
+      "x-denox-sort": 5,
       description:
         "Repeatable `image` files (PNG/JPEG/WebP, 1MB each, magic-byte validated). Dimensions are sniffed and stored per image.",
       tags: ["Products"],
@@ -181,12 +189,38 @@ registerOpenApiPaths({
         "400": errorResponse("Invalid upload"),
         ...adminErrors,
       },
+      "x-denox-examples": [{ name: "upload", multipart: [{ name: "image", file: true }] }],
+    },
+  },
+  "/uploads/products/{id}/{imageId}": {
+    get: {
+      operationId: "getProductImage",
+      summary: "Get image (variants)",
+      description:
+        "Serves an uploaded image from the public namespace. Optional variant params: w (configured allowlist, default 320/640/960/1280) and f=webp — processed on the wasm tier (media.optimization), original bytes on the passthrough default.",
+      tags: ["Products"],
+      "x-denox-sort": 8,
+      parameters: [
+        pathParam("id", "Product id", { type: "string", format: "uuid" }),
+        pathParam("imageId", "Image file id (e.g. <uuid>.png)"),
+        queryParam("w", "Variant width (must be in media.widths)", {
+          type: "integer",
+          enum: [320, 640, 960, 1280],
+        }),
+        queryParam("f", "Variant format", { type: "string", enum: ["webp"] }),
+      ],
+      responses: {
+        "200": { description: "Image bytes (long-lived immutable cache)" },
+        "400": errorResponse("Width outside the allowlist / bad format"),
+        "404": errorResponse("Unknown product or image"),
+      },
     },
   },
   "/api/products/{id}/images/{imageId}": {
     delete: {
       operationId: "deleteProductImage",
-      summary: "Remove one product image",
+      summary: "Delete image",
+      "x-denox-sort": 6,
       tags: ["Products"],
       ...adminGuard,
       parameters: [

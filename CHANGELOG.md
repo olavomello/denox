@@ -5,6 +5,19 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **First-admin rule hardened**: the admin role is granted while **no admin exists** (previously:
+  while no users existed) — production databases carrying legacy pre-auth rows no longer block the
+  first real signup from becoming admin; legacy KV users hydrate role/credentials at the persistence
+  boundary.
+- **Insomnia collection practicality**: short action names (OpenAPI summaries tightened to spec
+  style, detail moved to descriptions — improving the reference page too), contextual path variables
+  (product_id/payment_id/user_id/image_id), usage-ordered folders and requests (`x-denox-sort`),
+  multiple named examples per operation (`x-denox-examples`: Checkout product/custom, Update
+  JSON/multipart), multipart body scaffolds, a **Local** environment alongside Production, and the
+  public image variants endpoint added to the contract.
+
 ### Added
 
 - **Product SKU** — optional `sku` on products (`^[A-Za-z0-9._-]{1,64}$`), **unique when present**

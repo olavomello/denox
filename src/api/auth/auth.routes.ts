@@ -51,7 +51,8 @@ registerOpenApiPaths({
   "/api/auth/signup": {
     post: {
       operationId: "signup",
-      summary: "Create account and start a session",
+      summary: "Sign up",
+      "x-denox-sort": 1,
       description:
         "The FIRST user of the system becomes admin (scaffold convention). Sets the denox_session cookie.",
       tags: ["Auth"],
@@ -77,7 +78,8 @@ registerOpenApiPaths({
   "/api/auth/login": {
     post: {
       operationId: "login",
-      summary: "Verify credentials and start a session",
+      summary: "Login",
+      "x-denox-sort": 2,
       description:
         "Wrong e-mail and wrong password return the same generic 401 (no user enumeration). Stricter rate bucket: 10 attempts / 15 min per IP.",
       tags: ["Auth"],
@@ -100,7 +102,8 @@ registerOpenApiPaths({
   "/api/auth/logout": {
     post: {
       operationId: "logout",
-      summary: "Revoke the current session",
+      summary: "Logout",
+      "x-denox-sort": 4,
       description: "Replaying the old cookie afterwards returns 401.",
       tags: ["Auth"],
       responses: { "204": { description: "Session revoked; cookie cleared" } },
@@ -109,7 +112,8 @@ registerOpenApiPaths({
   "/api/auth/me": {
     get: {
       operationId: "me",
-      summary: "Authenticated user",
+      summary: "Current user",
+      "x-denox-sort": 3,
       tags: ["Auth"],
       security: [...userSecurity],
       responses: {

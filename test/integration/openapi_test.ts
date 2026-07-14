@@ -27,8 +27,12 @@ Deno.test("FR-2: served routes and document agree in BOTH directions", () => {
     if (route.handler.length < 1) continue;
     served.add(`${route.method} ${route.path.replace(/:(\w+)/g, "{$1}")}`);
   }
+  // Non-/api documented paths (e.g. the public /uploads image endpoint)
+  // are part of the contract but outside the API-router parity scope.
   const documented = new Set(
-    registeredOperations().map((op) => `${op.method} ${op.path}`),
+    registeredOperations()
+      .filter((op) => op.path.startsWith("/api"))
+      .map((op) => `${op.method} ${op.path}`),
   );
   const missingDocs = [...served].filter((r) => !documented.has(r));
   const ghostDocs = [...documented].filter((r) => !served.has(r));
