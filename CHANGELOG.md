@@ -5,6 +5,13 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ## [Unreleased]
 
+### Changed
+
+- **Docs know about the CLI**: the creating-a-feature guide now opens with the `denox g feature`
+  shortcut (and explains what it produces, which is what you need once the slice grows), and
+  `AGENTS.md` — the contract agents follow — mandates scaffolding via the CLI in its implementation
+  step, alongside the `deno task insomnia` reminder for contract changes.
+
 ### Added
 
 - **`denox remove feature <name>`** (alias `rm`) — the exact inverse of `generate feature`: unwires

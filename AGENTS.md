@@ -49,6 +49,8 @@ The tree below is normative. New features copy the `users/` slice exactly.
 ```
 denox/
 ├── AGENTS.md                     ← this contract
+├── cli/
+│   └── main.ts                   ← `denox` CLI (self-contained: no @/ imports)
 ├── deno.json                     ← tasks, imports, strict compiler options
 ├── .env.example                  ← every variable, documented
 ├── src/
@@ -149,6 +151,21 @@ Components, Flow, Sequence, Dependencies, Risks.
 Ordered steps with a definition of done.
 
 ## Step 4 — Implementation
+
+Scaffold the slice with the CLI rather than by hand:
+
+```bash
+deno task cli g feature <name>     # or: denox g feature <name>
+```
+
+It writes the whole slice (model, DTO, in-memory + KV repositories, service, controller, routes
+**with a colocated `registerOpenApiPaths` block**) plus an integration test skeleton, and wires it
+at the `// denox:features` anchor in `src/api/main.ts`. Then implement the feature's real behaviour
+on top of it. `deno task cli rm feature <name>` undoes exactly that (unwires, then deletes).
+
+Endpoints added or changed? The API contract is generated from the colocated descriptions, so
+`deno task insomnia` must run in the same patch — the suite's staleness gate fails otherwise, and
+`/docs/api-reference` renders from the same document automatically.
 
 ## Step 5 — Tests (all three layers where applicable)
 

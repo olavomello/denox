@@ -4,6 +4,11 @@ This walkthrough builds a complete API feature — a `notes` endpoint — the De
 practical companion to the contract in [`AGENTS.md`](../../AGENTS.md); the `users` slice
 ([`src/api/users/`](../../src/api/users/)) is the living reference for every step.
 
+> **Shortcut:** `denox g feature notes` generates every file below — slice, KV repository, colocated
+> OpenAPI description, test skeleton — and wires it into the router. This guide explains _what it
+> produces and why_, which is what you need when the generated slice grows beyond the template.
+> Removing it again is `denox rm feature notes`. See [`docs/cli.md`](../cli.md).
+
 ## 0. Start with the spec (SDD)
 
 Copy [`specs/_TEMPLATE.md`](../../specs/_TEMPLATE.md) to `specs/notes.md`, fill it in and set
