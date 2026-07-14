@@ -11,7 +11,6 @@ import { registerPaymentRoutes } from "@/api/payments/payment.routes.ts";
 import { originCheck } from "@/middleware/auth.ts";
 import { registerProductRoutes } from "@/api/products/product.routes.ts";
 import { registerUserRoutes } from "@/api/users/user.routes.ts";
-import { registerWidgetsRoutes } from "@/api/widgets/widgets.routes.ts";
 
 const api = new Hono();
 
@@ -23,7 +22,6 @@ registerUserRoutes(api);
 registerProductRoutes(api);
 registerContactRoutes(api);
 registerPaymentRoutes(api);
-registerWidgetsRoutes(api);
 // denox:features — `denox generate feature` wires new slices below.
 
 export default api;
