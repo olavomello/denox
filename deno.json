@@ -18,7 +18,7 @@
     "deploy": "deno run --allow-run --allow-read --allow-env scripts/deploy.ts",
     "seed": "deno run --env-file=.env --allow-read --allow-write --allow-env scripts/seed.ts",
     "doc": "deno doc --html --name=DenoX --output=docs/api src/",
-    "insomnia": "deno run --allow-read --allow-write=docs/denox-insomnia.json --allow-env --allow-net scripts/generate_insomnia.ts",
+    "insomnia": "deno run --env-file=.env --allow-read --allow-write=docs/denox-insomnia.json --allow-env --allow-net scripts/generate_insomnia.ts",
     "cli": "deno run --allow-read --allow-write --allow-run --allow-net cli/main.ts"
   },
   "imports": {
@@ -40,17 +40,9 @@
   },
   "lint": {
     "rules": {
-      "tags": [
-        "recommended"
-      ]
+      "tags": ["recommended"]
     }
   },
-  "exclude": [
-    "dist/",
-    "coverage/"
-  ],
-  "unstable": [
-    "cron",
-    "kv"
-  ]
+  "exclude": ["dist/", "coverage/"],
+  "unstable": ["cron", "kv"]
 }
