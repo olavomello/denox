@@ -1,8 +1,8 @@
 ---
 feature: cli-remove-feature
-status: draft
+status: approved
 author: olavomello
-reviewed_by:
+reviewed_by: olavomello
 date: 2026-07-13
 ---
 
