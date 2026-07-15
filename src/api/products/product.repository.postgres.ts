@@ -107,6 +107,21 @@ export class PostgresProductRepository implements ProductRepository {
     const client = await this.pool.connect();
     try {
       const id = crypto.randomUUID();
+
+      // Check SKU uniqueness explicitly (like the KV driver) rather than
+      // relying on the DB error inside a transaction: deno.land/x/postgres
+      // wraps in-transaction failures, so the PostgresError fields are not
+      // reliably reachable from the catch. The UNIQUE constraint remains
+      // the ultimate guard against races.
+      if (data.sku !== undefined && data.sku !== "") {
+        const taken = await client.queryObject(
+          "SELECT 1 FROM products WHERE sku = $1",
+          [data.sku],
+        );
+        if (taken.rows.length > 0) {
+          throw new ConflictException(`SKU "${data.sku}" is already in use`);
+        }
+      }
       const slug = await this.claimSlug(client, data.name);
       const product: Product = {
         id,
@@ -142,8 +157,8 @@ export class PostgresProductRepository implements ProductRepository {
         await tx.commit();
       } catch (error) {
         await tx.rollback().catch(() => {});
-        // Any unique violation on create is the SKU (slug is deduped
-        // beforehand), so match on the SQLSTATE, not a constraint name.
+        // The explicit check above handles the common case; this catches a
+        // concurrent insert that slipped past it and hit the UNIQUE guard.
         if (isUniqueViolation(error)) {
           throw new ConflictException(`SKU "${data.sku}" is already in use`);
         }

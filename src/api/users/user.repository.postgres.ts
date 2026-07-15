@@ -70,8 +70,12 @@ export class PostgresUserRepository implements UserRepository {
     }
   }
 
-  /** Creates a user (409 on duplicate e-mail via the UNIQUE constraint). */
+  /** Creates a user (409 on duplicate e-mail; UNIQUE guards races). */
   async create(data: NewUser): Promise<User> {
+    const existing = await this.findByEmail(data.email);
+    if (existing !== null) {
+      throw new ConflictException("E-mail already registered");
+    }
     const user: User = {
       id: crypto.randomUUID(),
       name: data.name,

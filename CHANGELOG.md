@@ -5,6 +5,14 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ## [Unreleased]
 
+### Fixed
+
+- **Postgres duplicate SKU / e-mail now return 409** — conflict detection uses an explicit
+  uniqueness pre-check (a SELECT before the INSERT, like the KV driver) instead of interpreting an
+  in-transaction database error, whose structured fields `deno.land/x/postgres` does not reliably
+  expose from within a transaction (the earlier SQLSTATE attempt still failed in CI). The UNIQUE
+  constraint remains the guard against concurrent races.
+
 ### Added
 
 - **Payments lifecycle & refunds** — the three statuses reserved since 0.7 now have producing paths,
