@@ -13,6 +13,7 @@ import type {
 } from "@/api/products/product.model.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import { ConflictException } from "@/shared/exceptions/app_exception.ts";
+import { isUniqueViolation } from "@/shared/pg_errors.ts";
 import { slugCandidate, slugify } from "@/shared/slug.ts";
 
 interface ProductRow {
@@ -141,7 +142,9 @@ export class PostgresProductRepository implements ProductRepository {
         await tx.commit();
       } catch (error) {
         await tx.rollback().catch(() => {});
-        if (String(error).includes("products_sku_key")) {
+        // Any unique violation on create is the SKU (slug is deduped
+        // beforehand), so match on the SQLSTATE, not a constraint name.
+        if (isUniqueViolation(error)) {
           throw new ConflictException(`SKU "${data.sku}" is already in use`);
         }
         throw error;

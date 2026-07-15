@@ -7,6 +7,7 @@ import type { Pool } from "https://deno.land/x/postgres@v0.19.3/mod.ts";
 import type { NewUser, User } from "@/api/users/user.model.ts";
 import type { UserRepository } from "@/api/users/user.repository.ts";
 import { ConflictException } from "@/shared/exceptions/app_exception.ts";
+import { isUniqueViolation } from "@/shared/pg_errors.ts";
 
 interface UserRow {
   id: string;
@@ -88,7 +89,7 @@ export class PostgresUserRepository implements UserRepository {
       );
       return user;
     } catch (error) {
-      if (String(error).includes("users_email_key")) {
+      if (isUniqueViolation(error)) {
         throw new ConflictException("E-mail already registered");
       }
       throw error;
