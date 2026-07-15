@@ -12,9 +12,10 @@ import { ContactController } from "@/api/contact/contact.controller.ts";
 import type { ContactRepository } from "@/api/contact/contact.repository.ts";
 import { InMemoryContactRepository } from "@/api/contact/contact.repository.ts";
 import { KvContactRepository } from "@/api/contact/contact.repository.kv.ts";
+import { PostgresContactRepository } from "@/api/contact/contact.repository.postgres.ts";
 import { ContactService } from "@/api/contact/contact.service.ts";
 import { env } from "@/config/env.ts";
-import { requireKv } from "@/shared/storage.ts";
+import { requireKv, requirePool } from "@/shared/storage.ts";
 
 /**
  * Chooses the {@link ContactRepository} implementation for the configured
@@ -23,9 +24,14 @@ import { requireKv } from "@/shared/storage.ts";
  * @returns Repository instance.
  */
 export function createContactRepository(): ContactRepository {
-  return env.STORAGE_DRIVER === "kv"
-    ? new KvContactRepository(requireKv())
-    : new InMemoryContactRepository();
+  switch (env.STORAGE_DRIVER) {
+    case "postgres":
+      return new PostgresContactRepository(requirePool());
+    case "kv":
+      return new KvContactRepository(requireKv());
+    default:
+      return new InMemoryContactRepository();
+  }
 }
 
 /** Shared contact service instance (API + no-JS frontend fallback). */

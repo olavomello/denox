@@ -183,6 +183,9 @@ database access, business rules, file operations, error response construction (t
 
 **Services** — business rules only. Never: HTTP, HTML, routing, `Context`.
 
+**Repositories** — persistence only, always behind an interface. Three drivers implement each one
+(memory, Deno KV, Postgres), selected by `STORAGE_DRIVER`; adding a driver is new repository
+classes + one branch per composition root, never a change to services. See docs/postgres.md.
 **Repositories** — persistence only, always behind an interface. Services depend on the interface
 (dependency inversion); concrete implementations are chosen only in the feature's `*.routes.ts`
 composition root.

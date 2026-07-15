@@ -18,7 +18,7 @@ export type AppEnv = "development" | "test" | "production";
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
 /** Supported storage drivers for the repository layer. */
-export type StorageDriver = "memory" | "kv";
+export type StorageDriver = "memory" | "kv" | "postgres";
 
 /** Fully validated application configuration. */
 export interface Env {
@@ -33,6 +33,7 @@ export interface Env {
   readonly REQUEST_TIMEOUT_MS: number;
   readonly STORAGE_DRIVER: StorageDriver;
   readonly KV_PATH: string;
+  readonly DATABASE_URL: string;
 }
 
 /** Error thrown when the environment is invalid. Aborts startup. */
@@ -45,7 +46,7 @@ export class EnvValidationError extends Error {
 
 const APP_ENVS: readonly AppEnv[] = ["development", "test", "production"];
 const LOG_LEVELS: readonly LogLevel[] = ["debug", "info", "warn", "error"];
-const STORAGE_DRIVERS: readonly StorageDriver[] = ["memory", "kv"];
+const STORAGE_DRIVERS: readonly StorageDriver[] = ["memory", "kv", "postgres"];
 
 /**
  * Parses and validates a raw environment map into a typed {@link Env}.
@@ -109,10 +110,17 @@ export function loadEnv(raw: Readonly<Record<string, string | undefined>>): Env 
     REQUEST_TIMEOUT_MS: readInt("REQUEST_TIMEOUT_MS", 30_000, 100, 300_000),
     STORAGE_DRIVER: readEnum("STORAGE_DRIVER", STORAGE_DRIVERS, "memory"),
     KV_PATH: (raw["KV_PATH"] ?? "").trim(),
+    DATABASE_URL: (raw["DATABASE_URL"] ?? "").trim(),
   };
 
   if (env.APP_ENV === "production" && env.CORS_ORIGIN === "*") {
     issues.push('CORS_ORIGIN must not be "*" in production');
+  }
+
+  // DATABASE_URL is required only under the Postgres driver — memory and
+  // KV never need it (fail-fast, the payments-keys pattern).
+  if (env.STORAGE_DRIVER === "postgres" && env.DATABASE_URL === "") {
+    issues.push('DATABASE_URL is required when STORAGE_DRIVER is "postgres"');
   }
 
   if (issues.length > 0) {

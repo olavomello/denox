@@ -1,10 +1,11 @@
-# Persistence (Deno KV)
+# Persistence (memory · KV · Postgres)
 
 DenoX repositories support two storage drivers, selected by environment:
 
 ```bash
 STORAGE_DRIVER=memory   # default — ephemeral, zero setup (dev/tests)
 STORAGE_DRIVER=kv       # Deno KV — durable, native on Deno Deploy
+STORAGE_DRIVER=postgres # Postgres — relational, with forward-only migrations
 KV_PATH=                # optional: local DB file; empty = runtime default
 ```
 
@@ -31,4 +32,8 @@ needs the `kv` unstable feature, already enabled via `deno.json` (`"unstable": [
 ## What stays the same
 
 The in-memory driver remains the default; behavior, API and tests are unchanged when
-`STORAGE_DRIVER` is unset. Postgres and migrations arrive in 0.3.1 behind the same interfaces.
+`STORAGE_DRIVER` is unset.
+
+Postgres is a first-class third option behind the same repository interfaces — see
+[docs/postgres.md](postgres.md) for enabling it, the `DATABASE_URL` contract, and the migrations
+workflow. KV stays a peer (the right choice on Deno Deploy); Postgres is for projects that need SQL.

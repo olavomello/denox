@@ -29,7 +29,9 @@ src/api/notes/
 ```
 
 Each layer only imports downward, and the service depends on the repository **interface** — that is
-what lets `STORAGE_DRIVER=kv` swap persistence without touching business code.
+what lets `STORAGE_DRIVER` swap persistence (memory, KV, or Postgres) without touching business
+code. A generated slice ships memory + KV implementations; add a `*.repository.postgres.ts` when you
+need SQL (see docs/postgres.md).
 
 ## 2. Model and DTO
 
@@ -47,9 +49,9 @@ centralized error handler does the rest. Use the shared primitives (`logger`, `o
 
 ## 4. Wire it
 
-In `note.routes.ts`, add the `createNoteRepository()` factory (memory/KV by `env.STORAGE_DRIVER`),
-compose repository → service → controller and register the routes. Then one line in
-`src/api/main.ts`: `registerNoteRoutes(api);`
+In `note.routes.ts`, add the `createNoteRepository()` factory (a `switch` on `env.STORAGE_DRIVER`
+over memory/KV/Postgres), compose repository → service → controller and register the routes. Then
+one line in `src/api/main.ts`: `registerNoteRoutes(api);`
 
 ## 5. Frontend (optional)
 

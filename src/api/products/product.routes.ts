@@ -9,10 +9,11 @@ import { ProductController } from "@/api/products/product.controller.ts";
 import type { ProductRepository } from "@/api/products/product.repository.ts";
 import { InMemoryProductRepository } from "@/api/products/product.repository.ts";
 import { KvProductRepository } from "@/api/products/product.repository.kv.ts";
+import { PostgresProductRepository } from "@/api/products/product.repository.postgres.ts";
 import { ProductService } from "@/api/products/product.service.ts";
 import { createBlobStorage } from "@/shared/blob_storage.ts";
 import { env } from "@/config/env.ts";
-import { requireKv } from "@/shared/storage.ts";
+import { requireKv, requirePool } from "@/shared/storage.ts";
 
 /**
  * Chooses the {@link ProductRepository} implementation for the configured
@@ -21,9 +22,14 @@ import { requireKv } from "@/shared/storage.ts";
  * @returns Repository instance.
  */
 export function createProductRepository(): ProductRepository {
-  return env.STORAGE_DRIVER === "kv"
-    ? new KvProductRepository(requireKv())
-    : new InMemoryProductRepository();
+  switch (env.STORAGE_DRIVER) {
+    case "postgres":
+      return new PostgresProductRepository(requirePool());
+    case "kv":
+      return new KvProductRepository(requireKv());
+    default:
+      return new InMemoryProductRepository();
+  }
 }
 
 /** Shared product service instance (API + server-rendered pages). */

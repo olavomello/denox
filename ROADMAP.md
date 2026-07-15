@@ -28,7 +28,8 @@
 
 ## 1.0 — Production hardening
 
-- Postgres driver + migrations (Deno Deploy "+Attach" SQL)
+- ✅ Postgres driver + migrations (memory/kv stay first-class)
+- MySQL driver — possible follow-up if demand appears
 - Redis-backed rate limiting store
 - Observability hooks (OpenTelemetry)
 - Publication on JSR

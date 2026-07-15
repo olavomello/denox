@@ -4,7 +4,7 @@
     "dev": "deno task fmt && deno task routes && deno run --env-file=.env --allow-net --allow-read --allow-env --watch src/main.ts",
     "start": "deno run --env-file=.env --allow-net --allow-read --allow-env src/main.ts",
     "test": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-write=src,test --allow-env --allow-run=deno",
-    "test:unit": "deno test --allow-env test/unit/",
+    "test:unit": "deno test --allow-write=test --allow-env test/unit/",
     "test:integration": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-write=src,test --allow-env test/integration/",
     "test:e2e": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-env --allow-run=deno test/e2e/",
     "coverage": "STRIPE_SECRET_KEY=sk_test_dummy STRIPE_WEBHOOK_SECRET=whsec_dummy deno test --allow-net --allow-read --allow-write=src,test --allow-env --allow-run=deno --coverage=coverage && deno coverage coverage",
@@ -19,7 +19,9 @@
     "seed": "deno run --env-file=.env --allow-read --allow-write --allow-env scripts/seed.ts",
     "doc": "deno doc --html --name=DenoX --output=docs/api src/",
     "insomnia": "deno run --env-file=.env --allow-read --allow-write=docs/denox-insomnia.json --allow-env --allow-net scripts/generate_insomnia.ts",
-    "cli": "deno run --allow-read --allow-write --allow-run --allow-net cli/main.ts"
+    "cli": "deno run --allow-read --allow-write --allow-run --allow-net cli/main.ts",
+    "migrate": "deno run --env-file=.env --allow-read --allow-env --allow-net scripts/migrate.ts",
+    "migrate:status": "deno run --env-file=.env --allow-read --allow-env --allow-net scripts/migrate.ts status"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@^1.0.13",
@@ -40,9 +42,17 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": [
+        "recommended"
+      ]
     }
   },
-  "exclude": ["dist/", "coverage/"],
-  "unstable": ["cron", "kv"]
+  "exclude": [
+    "dist/",
+    "coverage/"
+  ],
+  "unstable": [
+    "cron",
+    "kv"
+  ]
 }

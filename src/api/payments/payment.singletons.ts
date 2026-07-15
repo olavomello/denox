@@ -15,7 +15,35 @@ import { PaymentService } from "@/api/payments/payment.service.ts";
 import { createPaymentProvider, type PaymentProvider } from "@/api/payments/provider.ts";
 import { productService } from "@/api/products/product.routes.ts";
 import { env } from "@/config/env.ts";
-import { requireKv } from "@/shared/storage.ts";
+import { requireKv, requirePool } from "@/shared/storage.ts";
+import {
+  PostgresEventLedger,
+  PostgresPaymentRepository,
+} from "@/api/payments/payment.repository.postgres.ts";
+
+/** @returns The payment repository for the configured driver. */
+function createPaymentRepository() {
+  switch (env.STORAGE_DRIVER) {
+    case "postgres":
+      return new PostgresPaymentRepository(requirePool());
+    case "kv":
+      return new KvPaymentRepository(requireKv());
+    default:
+      return new InMemoryPaymentRepository();
+  }
+}
+
+/** @returns The event ledger for the configured driver. */
+function createEventLedger() {
+  switch (env.STORAGE_DRIVER) {
+    case "postgres":
+      return new PostgresEventLedger(requirePool());
+    case "kv":
+      return new KvEventLedger(requireKv());
+    default:
+      return new InMemoryEventLedger();
+  }
+}
 
 /** Configured provider, or null when payments are disabled. */
 export const paymentProvider: PaymentProvider | null = createPaymentProvider();
@@ -24,10 +52,8 @@ export const paymentProvider: PaymentProvider | null = createPaymentProvider();
 export const paymentService: PaymentService | null = paymentProvider === null
   ? null
   : new PaymentService(
-    env.STORAGE_DRIVER === "kv"
-      ? new KvPaymentRepository(requireKv())
-      : new InMemoryPaymentRepository(),
-    env.STORAGE_DRIVER === "kv" ? new KvEventLedger(requireKv()) : new InMemoryEventLedger(),
+    createPaymentRepository(),
+    createEventLedger(),
     paymentProvider,
     productService,
   );

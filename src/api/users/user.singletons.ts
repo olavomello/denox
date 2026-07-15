@@ -9,9 +9,10 @@
 import type { UserRepository } from "@/api/users/user.repository.ts";
 import { InMemoryUserRepository } from "@/api/users/user.repository.ts";
 import { KvUserRepository } from "@/api/users/user.repository.kv.ts";
+import { PostgresUserRepository } from "@/api/users/user.repository.postgres.ts";
 import { UserService } from "@/api/users/user.service.ts";
 import { env } from "@/config/env.ts";
-import { requireKv } from "@/shared/storage.ts";
+import { requireKv, requirePool } from "@/shared/storage.ts";
 
 /**
  * Chooses the {@link UserRepository} implementation for the configured
@@ -20,9 +21,14 @@ import { requireKv } from "@/shared/storage.ts";
  * @returns Repository instance.
  */
 export function createUserRepository(): UserRepository {
-  return env.STORAGE_DRIVER === "kv"
-    ? new KvUserRepository(requireKv())
-    : new InMemoryUserRepository();
+  switch (env.STORAGE_DRIVER) {
+    case "postgres":
+      return new PostgresUserRepository(requirePool());
+    case "kv":
+      return new KvUserRepository(requireKv());
+    default:
+      return new InMemoryUserRepository();
+  }
 }
 
 /** Shared user repository instance. */

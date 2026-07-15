@@ -64,8 +64,8 @@ Read on
   ready example layouts (midnight, editorial, neobrutalist) switchable with one line
 - ⏰ **Cron jobs** — explicit registry over native `Deno.cron` with error containment and inert
   recipe examples
-- 💾 **Durable storage on demand** — `STORAGE_DRIVER=kv` switches repositories to Deno KV (native on
-  Deno Deploy) with atomic uniqueness; memory stays the dev default
+- 💾 **Durable storage on demand** — `STORAGE_DRIVER` selects memory (dev), Deno KV (native on Deno
+  Deploy, atomic uniqueness), or **Postgres** with forward-only migrations
 - 🚀 **One-command deploy** — Deno Deploy, Fly.io, Railway, Render, Docker, VPS
 - 🛠 **`denox` CLI** — `denox new` scaffolds a project; `denox g feature <name>` generates a full MVC
   slice (model, DTO, KV repository, service, controller, routes with OpenAPI description and a test
