@@ -6,7 +6,7 @@
  */
 
 import type { Context } from "hono";
-import { parseCheckoutDto } from "@/api/payments/payment.dto.ts";
+import { parseCheckoutDto, parseRefundDto } from "@/api/payments/payment.dto.ts";
 import type { PaymentService } from "@/api/payments/payment.service.ts";
 import type { PaymentProvider } from "@/api/payments/provider.ts";
 import type { User } from "@/api/users/user.model.ts";
@@ -72,6 +72,19 @@ export class PaymentController {
     if (payment.userId !== user.id && user.role !== "admin") {
       throw new ForbiddenException();
     }
+    return c.json(ok(payment));
+  };
+
+  /**
+   * `POST /api/payments/:id/refund` — admin only (money moves here).
+   *
+   * @param c Request context.
+   * @returns 200 with the refunded payment.
+   */
+  refund = async (c: Context): Promise<Response> => {
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+    const dto = parseRefundDto(body);
+    const payment = await this.service.refund(c.req.param("id") ?? "", this.user(c).id, dto);
     return c.json(ok(payment));
   };
 

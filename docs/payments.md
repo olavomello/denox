@@ -45,6 +45,63 @@ redirected to `/login`; authenticated buyers get a `pending` payment (server-sid
 snapshot, the exact same `PaymentService.checkout` path as the API) and a 303 to the Stripe-hosted
 checkout. With `provider: "none"` neither the button nor the route exists.
 
+## Refunds
+
+Admin-only, over Stripe's REST API (still no SDK):
+
+```bash
+# full refund
+curl -X POST http://localhost:8000/api/payments/<id>/refund \
+  -H 'cookie: denox_session=...' -H 'content-type: application/json' -d '{}'
+
+# partial
+curl -X POST http://localhost:8000/api/payments/<id>/refund \
+  -H 'cookie: denox_session=...' -H 'content-type: application/json' \
+  -d '{"amountCents": 500, "reason": "requested_by_customer"}'
+```
+
+Only `paid` (and `partially_refunded`) payments qualify — anything else is a 409. Amounts are
+validated **against the stored payment**, never the client: over-refunding is a 400, and refunding
+an already fully refunded payment is a 409. Partial refunds accumulate in `refundedCents` until they
+reach the total, at which point the status becomes `refunded`.
+
+A refund we issue and the `charge.refunded` webhook Stripe sends afterwards **do not double-count**:
+the webhook carries the cumulative refunded amount, so only the delta is ever recorded.
+
+## Status lifecycle
+
+| Status               | Produced by                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `pending`            | checkout created                                              |
+| `processing`         | `payment_intent.processing` (async methods, e.g. bank debits) |
+| `paid`               | `checkout.session.completed`                                  |
+| `failed`             | `checkout.session.async_payment_failed`                       |
+| `expired`            | `checkout.session.expired`                                    |
+| `partially_refunded` | a partial refund (ours or Stripe-side)                        |
+| `refunded`           | a full refund (ours or Stripe-side)                           |
+
+Transitions are **guarded**: a signature-valid but out-of-order event (say, `charge.refunded` for a
+`pending` payment) is rejected and logged rather than applied — the signature proves the sender, the
+guard protects the semantics.
+
+## Audit trail
+
+Every status change appends an entry to `transitions[]`:
+
+```json
+{
+  "from": "paid",
+  "to": "partially_refunded",
+  "at": "2026-07-13T18:04:11.000Z",
+  "source": "admin",
+  "actorId": "<user-id>",
+  "refundedCents": 500
+}
+```
+
+Webhook-sourced entries carry the provider `eventId` instead of an actor. This is what makes "why is
+this payment refunded, and who did it?" answerable.
+
 ## Webhook setup
 
 1. Stripe Dashboard → Developers → Webhooks → Add endpoint:

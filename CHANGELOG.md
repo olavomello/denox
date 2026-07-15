@@ -3,6 +3,18 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Payments lifecycle & refunds** — the three statuses reserved since 0.7 now have producing paths,
+  and `partially_refunded` joins them: admin-only refunds (`POST /api/payments/{id}/refund`, full or
+  partial) over Stripe's REST API with server-validated amounts; `refundedCents` accumulating across
+  partial refunds; `payment_intent.processing` and `charge.refunded` handled; and a **transition
+  audit trail** recording every status change with its source (webhook event id or admin actor).
+  Transitions are guarded by a legal-state matrix, so a signature-valid but out-of-order event
+  cannot corrupt a record — and a refund we issue plus the webhook it triggers never double-count.
+
 ## [0.9.0] - 2026-07-13
 
 ### Added

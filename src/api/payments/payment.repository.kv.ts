@@ -6,8 +6,13 @@
  * native KV TTL.
  */
 
-import type { NewPayment, Payment, PaymentStatus } from "@/api/payments/payment.model.ts";
-import type { EventLedger, PaymentRepository } from "@/api/payments/payment.repository.ts";
+import type { NewPayment, Payment } from "@/api/payments/payment.model.ts";
+import type {
+  EventLedger,
+  PaymentRepository,
+  StatusChange,
+} from "@/api/payments/payment.repository.ts";
+import { withTransition } from "@/api/payments/payment.repository.ts";
 
 const EVENT_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -18,7 +23,14 @@ export class KvPaymentRepository implements PaymentRepository {
   /** Persists a new payment atomically with its indexes. */
   async create(data: NewPayment): Promise<Payment> {
     const now = new Date().toISOString();
-    const payment: Payment = { id: crypto.randomUUID(), ...data, createdAt: now, updatedAt: now };
+    const payment: Payment = {
+      id: crypto.randomUUID(),
+      ...data,
+      refundedCents: 0,
+      transitions: [],
+      createdAt: now,
+      updatedAt: now,
+    };
     const result = await this.kv.atomic()
       .set(["payments", payment.id], payment)
       .set(["payments_by_provider_id", payment.providerId], payment.id)
@@ -49,16 +61,11 @@ export class KvPaymentRepository implements PaymentRepository {
     return payments.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
-  /** Applies a status transition. */
-  async updateStatus(id: string, status: PaymentStatus, paidAt?: string): Promise<Payment> {
+  /** Applies a status change together with its audit entry. */
+  async applyTransition(id: string, change: StatusChange): Promise<Payment> {
     const current = await this.findById(id);
     if (current === null) throw new Error(`Payment ${id} not found`);
-    const updated: Payment = {
-      ...current,
-      status,
-      updatedAt: new Date().toISOString(),
-      ...(paidAt !== undefined ? { paidAt } : {}),
-    };
+    const updated = withTransition(current, change);
     await this.kv.set(["payments", id], updated);
     return updated;
   }

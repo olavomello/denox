@@ -41,11 +41,31 @@ export interface ProviderEvent {
   readonly payload: unknown;
 }
 
+/** Refund request (amount omitted = full refund). */
+export interface RefundInput {
+  /** Provider checkout/session id of the payment being refunded. */
+  readonly providerId: string;
+  /** Cents to refund; omit for the full remaining amount. */
+  readonly amountCents?: number;
+  /** Stripe-compatible reason. */
+  readonly reason?: "duplicate" | "fraudulent" | "requested_by_customer";
+}
+
+/** Provider's answer to a refund. */
+export interface ProviderRefund {
+  /** Provider refund id (audit). */
+  readonly refundId: string;
+  /** Cents actually refunded by this call. */
+  readonly refundedCents: number;
+}
+
 /** Contract every payment provider implements. */
 export interface PaymentProvider {
   createCheckout(input: CheckoutInput): Promise<ProviderCheckout>;
   /** Verifies the signature (raw body!) and normalizes the event. */
   parseWebhook(rawBody: string, signature: string): Promise<ProviderEvent>;
+  /** Refunds a payment (full or partial) — money moves here. */
+  refund(input: RefundInput): Promise<ProviderRefund>;
 }
 
 const encoder = new TextEncoder();
@@ -148,6 +168,53 @@ export class StripeProvider implements PaymentProvider {
   }
 
   /**
+   * Refunds through Stripe's REST API: the session gives us the payment
+   * intent, and refunds are created against the intent.
+   *
+   * @param input Refund request (amount omitted = full).
+   * @returns Provider refund id and cents refunded.
+   * @throws {BadRequestException} When the session or the refund is rejected.
+   */
+  async refund(input: RefundInput): Promise<ProviderRefund> {
+    const sessionResponse = await fetch(
+      `${this.apiBase}/v1/checkout/sessions/${input.providerId}`,
+      { headers: { "authorization": `Bearer ${this.options.secretKey}` } },
+    );
+    if (!sessionResponse.ok) {
+      throw new BadRequestException("Payment provider could not load the session", {
+        status: sessionResponse.status,
+      });
+    }
+    const session = await sessionResponse.json() as { payment_intent?: string | null };
+    const intent = session.payment_intent ?? null;
+    if (intent === null || intent === "") {
+      throw new BadRequestException("Payment has no charge to refund");
+    }
+
+    const body = new URLSearchParams({ payment_intent: intent });
+    if (input.amountCents !== undefined) body.set("amount", String(input.amountCents));
+    if (input.reason !== undefined) body.set("reason", input.reason);
+
+    const response = await fetch(`${this.apiBase}/v1/refunds`, {
+      method: "POST",
+      headers: {
+        "authorization": `Bearer ${this.options.secretKey}`,
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new BadRequestException("Payment provider rejected the refund", {
+        status: response.status,
+        detail: detail.slice(0, 300),
+      });
+    }
+    const refund = await response.json() as { id: string; amount: number };
+    return { refundId: refund.id, refundedCents: refund.amount };
+  }
+
+  /**
    * Verifies `Stripe-Signature` (t=...,v1=HMAC(secret, "t.rawBody")) with
    * constant-time comparison and replay tolerance, then normalizes.
    *
@@ -200,6 +267,15 @@ export class MockProvider implements PaymentProvider {
     return Promise.resolve({
       providerId: `mock_session_${this.counter}`,
       url: `https://checkout.mock.local/session/${this.counter}?payment=${input.paymentId}`,
+    });
+  }
+
+  /** Echoes the requested refund (tests assert the service, not Stripe). */
+  refund(input: RefundInput): Promise<ProviderRefund> {
+    this.counter += 1;
+    return Promise.resolve({
+      refundId: `mock_refund_${this.counter}`,
+      refundedCents: input.amountCents ?? 0,
     });
   }
 

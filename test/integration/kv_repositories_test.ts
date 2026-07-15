@@ -163,9 +163,15 @@ Deno.test("KvPaymentRepository persists payments with provider and user indexes"
       payment.id,
     );
 
-    const paid = await rehydrated.updateStatus(payment.id, "paid", "2026-07-11T00:00:00.000Z");
+    const paid = await rehydrated.applyTransition(payment.id, {
+      status: "paid",
+      source: "webhook",
+      eventId: "evt_kv_1",
+    });
     assertEquals(paid.status, "paid");
-    assertEquals((await rehydrated.findById(payment.id))?.paidAt, "2026-07-11T00:00:00.000Z");
+    // paidAt is stamped by the transition itself (no caller-supplied clock).
+    assertEquals((await rehydrated.findById(payment.id))?.paidAt !== undefined, true);
+    assertEquals((await rehydrated.findById(payment.id))?.transitions[0]?.eventId, "evt_kv_1");
     assertEquals((await rehydrated.findById(payment.id))?.productSnapshot?.name, "Snap");
   } finally {
     kv.close();

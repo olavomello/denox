@@ -109,3 +109,47 @@ export function parseCheckoutDto(input: unknown): CheckoutDto {
     ...(metadata !== undefined ? { metadata } : {}),
   };
 }
+
+/** Validated refund request (empty = full refund). */
+export interface RefundDto {
+  readonly amountCents?: number;
+  readonly reason?: "duplicate" | "fraudulent" | "requested_by_customer";
+}
+
+const REFUND_REASONS = ["duplicate", "fraudulent", "requested_by_customer"];
+
+/**
+ * Validates a refund payload. The amount is checked against the stored
+ * payment in the service — money rules never live in the DTO.
+ *
+ * @param body Raw request body.
+ * @returns Validated refund request.
+ * @throws {ValidationException} With per-field details.
+ */
+export function parseRefundDto(body: Record<string, unknown>): RefundDto {
+  const fields: Record<string, string> = {};
+  let amountCents: number | undefined;
+  if (body.amountCents !== undefined) {
+    const amount = body.amountCents;
+    if (typeof amount !== "number" || !Number.isInteger(amount) || amount < 1) {
+      fields.amountCents = "amountCents must be a positive integer (cents)";
+    } else {
+      amountCents = amount;
+    }
+  }
+  let reason: RefundDto["reason"];
+  if (body.reason !== undefined) {
+    if (typeof body.reason !== "string" || !REFUND_REASONS.includes(body.reason)) {
+      fields.reason = `reason must be one of: ${REFUND_REASONS.join(", ")}`;
+    } else {
+      reason = body.reason as RefundDto["reason"];
+    }
+  }
+  if (Object.keys(fields).length > 0) {
+    throw new ValidationException("Invalid refund payload", { fields });
+  }
+  return {
+    ...(amountCents !== undefined ? { amountCents } : {}),
+    ...(reason !== undefined ? { reason } : {}),
+  };
+}

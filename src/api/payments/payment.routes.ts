@@ -27,6 +27,7 @@ export function registerPaymentRoutes(app: Hono): void {
     app.post("/payments/checkout", disabled);
     app.post("/payments/webhook", disabled);
     app.get("/payments/:id", disabled);
+    app.post("/payments/:id/refund", disabled);
     app.get("/payments", disabled);
     return;
   }
@@ -36,6 +37,7 @@ export function registerPaymentRoutes(app: Hono): void {
   app.post("/payments/checkout", requireAuth(), controller.checkout);
   app.post("/payments/webhook", controller.webhook);
   app.get("/payments/:id", requireAuth(), controller.show);
+  app.post("/payments/:id/refund", requireRole("admin"), controller.refund);
   app.get("/payments", requireRole("admin"), controller.index);
 }
 
@@ -108,7 +110,7 @@ registerOpenApiPaths({
     post: {
       operationId: "paymentWebhook",
       summary: "Stripe webhook",
-      "x-denox-sort": 4,
+      "x-denox-sort": 5,
       description:
         "Called BY the provider — signature verified on the raw body (Stripe-Signature) before parsing; idempotent by event id (24h ledger). Use the Stripe CLI locally; manual calls get 400.",
       tags: ["Payments"],
@@ -139,6 +141,43 @@ registerOpenApiPaths({
         "404": errorResponse("Unknown payment"),
         "501": errorResponse("Payments disabled (provider none)"),
       },
+    },
+  },
+  "/api/payments/{id}/refund": {
+    post: {
+      operationId: "refundPayment",
+      summary: "Refund payment",
+      description:
+        "Full refund by default; partial with { amountCents } (validated against the refundable remainder). Only paid/partially refunded payments qualify. Idempotent against its own charge.refunded webhook.",
+      tags: ["Payments"],
+      security: [...userSecurity],
+      "x-denox-role": "admin",
+      "x-denox-sort": 3,
+      parameters: [pathParam("id", "Payment id", { type: "string", format: "uuid" })],
+      requestBody: jsonBody({
+        type: "object",
+        properties: {
+          amountCents: { type: "integer", minimum: 1, description: "Omit for a full refund" },
+          reason: {
+            type: "string",
+            enum: ["duplicate", "fraudulent", "requested_by_customer"],
+          },
+        },
+        example: {},
+      }, false),
+      responses: {
+        "200": okResponse("Refunded payment", { $ref: "#/components/schemas/Payment" }),
+        "400": errorResponse("Refund exceeds the refundable amount"),
+        "401": errorResponse("No session"),
+        "403": errorResponse("Not an admin"),
+        "404": errorResponse("Unknown payment"),
+        "409": errorResponse("Payment is not refundable (wrong status / already refunded)"),
+        "501": errorResponse("Payments disabled (provider none)"),
+      },
+      "x-denox-examples": [
+        { name: "full", body: {} },
+        { name: "partial", body: { amountCents: 500, reason: "requested_by_customer" } },
+      ],
     },
   },
   "/api/payments": {

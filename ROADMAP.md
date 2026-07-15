@@ -20,8 +20,7 @@
 
 ## Next
 
-- Payments follow-ups: product `sku` field + inclusion in `productSnapshot` (deferred from the 0.7
-  spec); reserved statuses (`processing`/`cancelled`/`refunded`) gaining producing events; refunds
+- Disputes/chargebacks (`charge.dispute.*` — needs evidence submission)
 - Frontend ergonomics: nested layouts / per-directory `_layout.ts`, optional JSX/TSX pages, layout
   auto-registration
 - WebSocket support

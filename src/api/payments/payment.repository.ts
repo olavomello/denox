@@ -3,7 +3,51 @@
  * webhook-idempotency event ledger.
  */
 
-import type { NewPayment, Payment, PaymentStatus } from "@/api/payments/payment.model.ts";
+import type {
+  NewPayment,
+  Payment,
+  PaymentStatus,
+  PaymentTransition,
+} from "@/api/payments/payment.model.ts";
+
+/** A status change plus the audit metadata that explains it. */
+export interface StatusChange {
+  readonly status: PaymentStatus;
+  readonly source: PaymentTransition["source"];
+  readonly eventId?: string;
+  readonly actorId?: string;
+  /** Cents refunded BY THIS CHANGE (accumulated into refundedCents). */
+  readonly refundedCents?: number;
+}
+
+/**
+ * Builds the updated record: new status, accumulated refunds, appended
+ * transition. Shared by both drivers so the audit trail cannot diverge.
+ *
+ * @param current Stored payment.
+ * @param change Status change with its provenance.
+ * @returns Updated payment.
+ */
+export function withTransition(current: Payment, change: StatusChange): Payment {
+  const at = new Date().toISOString();
+  const transition: PaymentTransition = {
+    from: current.status,
+    to: change.status,
+    at,
+    source: change.source,
+    ...(change.eventId !== undefined ? { eventId: change.eventId } : {}),
+    ...(change.actorId !== undefined ? { actorId: change.actorId } : {}),
+    ...(change.refundedCents !== undefined ? { refundedCents: change.refundedCents } : {}),
+  };
+  return {
+    ...current,
+    status: change.status,
+    refundedCents: current.refundedCents + (change.refundedCents ?? 0),
+    transitions: [...current.transitions, transition],
+    updatedAt: at,
+    ...(change.status === "paid" && current.paidAt === undefined ? { paidAt: at } : {}),
+  };
+}
 
 /** Storage contract for payments. */
 export interface PaymentRepository {
@@ -11,7 +55,8 @@ export interface PaymentRepository {
   findById(id: string): Promise<Payment | null>;
   findByProviderId(providerId: string): Promise<Payment | null>;
   findAll(): Promise<readonly Payment[]>;
-  updateStatus(id: string, status: PaymentStatus, paidAt?: string): Promise<Payment>;
+  /** Applies a status change together with its audit entry. */
+  applyTransition(id: string, change: StatusChange): Promise<Payment>;
 }
 
 /** Records processed provider event ids (webhook idempotency). */
@@ -28,7 +73,14 @@ export class InMemoryPaymentRepository implements PaymentRepository {
   /** Persists a new payment. */
   create(data: NewPayment): Promise<Payment> {
     const now = new Date().toISOString();
-    const payment: Payment = { id: crypto.randomUUID(), ...data, createdAt: now, updatedAt: now };
+    const payment: Payment = {
+      id: crypto.randomUUID(),
+      ...data,
+      refundedCents: 0,
+      transitions: [],
+      createdAt: now,
+      updatedAt: now,
+    };
     this.payments.set(payment.id, payment);
     this.byProvider.set(payment.providerId, payment.id);
     return Promise.resolve(payment);
@@ -52,16 +104,11 @@ export class InMemoryPaymentRepository implements PaymentRepository {
     );
   }
 
-  /** Applies a status transition. */
-  updateStatus(id: string, status: PaymentStatus, paidAt?: string): Promise<Payment> {
+  /** Applies a status change together with its audit entry. */
+  applyTransition(id: string, change: StatusChange): Promise<Payment> {
     const current = this.payments.get(id);
     if (current === undefined) throw new Error(`Payment ${id} not found`);
-    const updated: Payment = {
-      ...current,
-      status,
-      updatedAt: new Date().toISOString(),
-      ...(paidAt !== undefined ? { paidAt } : {}),
-    };
+    const updated = withTransition(current, change);
     this.payments.set(id, updated);
     return Promise.resolve(updated);
   }

@@ -584,6 +584,68 @@
       "body": {}
     },
     {
+      "_id": "req_refundpayment_full",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/{{ _.payment_id }}/refund",
+      "name": "[ADMIN] Refund payment (full)",
+      "method": "POST",
+      "description": "Full refund by default; partial with { amountCents } (validated against the refundable remainder). Only paid/partially refunded payments qualify. Idempotent against its own charge.refunded webhook.\n\nRequires an admin session (login first via Auth).",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 19,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      }
+    },
+    {
+      "_id": "req_refundpayment_partial",
+      "_type": "request",
+      "parentId": "fld_payments",
+      "modified": 0,
+      "created": 0,
+      "url": "{{ _.base_url }}/api/payments/{{ _.payment_id }}/refund",
+      "name": "[ADMIN] Refund payment (partial)",
+      "method": "POST",
+      "description": "Full refund by default; partial with { amountCents } (validated against the refundable remainder). Only paid/partially refunded payments qualify. Idempotent against its own charge.refunded webhook.\n\nRequires an admin session (login first via Auth).",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 20,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"amountCents\": 500,\n  \"reason\": \"requested_by_customer\"\n}"
+      }
+    },
+    {
       "_id": "req_paymentwebhook",
       "_type": "request",
       "parentId": "fld_payments",
@@ -596,7 +658,7 @@
       "parameters": [],
       "headers": [],
       "authentication": {},
-      "metaSortKey": 19,
+      "metaSortKey": 21,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -631,7 +693,7 @@
       "parameters": [],
       "headers": [],
       "authentication": {},
-      "metaSortKey": 20,
+      "metaSortKey": 22,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -654,7 +716,7 @@
       "parameters": [],
       "headers": [],
       "authentication": {},
-      "metaSortKey": 21,
+      "metaSortKey": 23,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -694,7 +756,7 @@
         }
       ],
       "authentication": {},
-      "metaSortKey": 22,
+      "metaSortKey": 24,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,

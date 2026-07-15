@@ -227,3 +227,38 @@ Deno.test("StripeProvider posts form-encoded sessions to STRIPE_API_BASE", async
   assertStringIncludes(captured, "payment%3Dpay_1"); // success_url carries ?payment=
   await server.shutdown();
 });
+
+Deno.test("StripeProvider refunds against the payment intent (REST shape)", async () => {
+  const requests: { path: string; body: string }[] = [];
+  const server = Deno.serve({ port: 0, onListen: () => {} }, async (req) => {
+    const url = new URL(req.url);
+    requests.push({ path: url.pathname, body: req.method === "POST" ? await req.text() : "" });
+    // The session lookup hands us the intent refunds are created against.
+    if (url.pathname.startsWith("/v1/checkout/sessions/")) {
+      return Response.json({ id: "cs_local_1", payment_intent: "pi_local_1" });
+    }
+    return Response.json({ id: "re_local_1", amount: 500 });
+  });
+  const { port } = server.addr as Deno.NetAddr;
+  const provider = new StripeProvider({
+    secretKey: "sk_test_x",
+    webhookSecret: "whsec_x",
+    apiBase: `http://127.0.0.1:${port}`,
+  });
+
+  const refund = await provider.refund({
+    providerId: "cs_local_1",
+    amountCents: 500,
+    reason: "requested_by_customer",
+  });
+  await server.shutdown();
+
+  assertEquals(refund.refundId, "re_local_1");
+  assertEquals(refund.refundedCents, 500);
+  assertEquals(requests[0]?.path, "/v1/checkout/sessions/cs_local_1");
+  assertEquals(requests[1]?.path, "/v1/refunds");
+  const body = new URLSearchParams(requests[1]?.body ?? "");
+  assertEquals(body.get("payment_intent"), "pi_local_1");
+  assertEquals(body.get("amount"), "500");
+  assertEquals(body.get("reason"), "requested_by_customer");
+});
