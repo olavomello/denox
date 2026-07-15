@@ -26,12 +26,6 @@
 - WebSocket support
 - Documentation site (Lume) publishing the guides + API reference
 
-## 0.x — Agent Skills
-
-- Package DenoX know-how as installable skills for coding agents (Claude, Cursor, Codex):
-  feature-slice scaffolding, SDD workflow enforcement, deploy targets — distilled from AGENTS.md and
-  the guides
-
 ## 1.0 — Production hardening
 
 - Postgres driver + migrations (Deno Deploy "+Attach" SQL)
