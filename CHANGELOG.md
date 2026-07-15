@@ -5,6 +5,13 @@ All notable changes to DenoX are documented in this file. Format based on
 
 ## [Unreleased]
 
+### Changed
+
+- **`deno task migrate` reads `DATABASE_URL` from the environment**, so the same command works
+  locally (from `.env`) and on Deno Deploy / tunnel (where the platform injects it per timeline) —
+  no auto-migration on boot, migrations stay explicit and controlled. Connection failures now print
+  a hint (check the URL, copy the direct connection string) instead of the driver's raw stack trace.
+
 ### Fixed
 
 - **Postgres duplicate SKU / e-mail now return 409** — conflict detection uses an explicit

@@ -42,6 +42,18 @@ enforced with atomic checks (`email`, `slug`, `sku`) becomes native `UNIQUE` con
 `transitions` audit trail) live in `JSONB` columns, so nothing in the domain model changes when you
 switch drivers.
 
+## Where `DATABASE_URL` comes from
+
+`deno task migrate` reads `DATABASE_URL` from the environment, so the same command works everywhere:
+
+- **Local**: it is loaded from `.env` (the `--env-file` flag only warns — never aborts — when the
+  file is absent). Paste a full Postgres URL:
+  `postgres://user:password@host:5432/database?sslmode=require`.
+- **Deno Deploy / tunnel**: the platform injects `DATABASE_URL` automatically per timeline, so there
+  is nothing to set — the harmless "`.env` not found" warning is expected.
+
+If a connection fails, the command prints a hint rather than the driver's raw stack trace.
+
 ## Deno Deploy
 
 Deno Deploy can attach a managed Postgres; set `STORAGE_DRIVER=postgres` and the provided
