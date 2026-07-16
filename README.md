@@ -178,7 +178,7 @@ endpoints (product mutations, user reads, payments) require it.
 ## Testing
 
 ```bash
-deno task test        # 182 tests across three layers
+deno task test        # 199 tests across three layers
 deno task coverage    # with coverage report
 ```
 
@@ -214,6 +214,10 @@ Every production target requires `APP_ENV=production`, `HOSTNAME=0.0.0.0` and a 
 
 Concise highlights per version — full details in [`CHANGELOG.md`](CHANGELOG.md).
 
+- **1.0.0** — 🎉 Production-ready. Postgres joins memory and KV as a first-class storage driver,
+  with a forward-only migrations system (`deno task migrate`); `DATABASE_URL` is read from the
+  environment so it works locally and on Deno Deploy unchanged. Plus the full payments lifecycle:
+  admin refunds (full and partial) with a transition audit trail.
 - **0.9.0** — 🛠 CLI milestone: `denox new` scaffolds a project from the template and
   `denox g feature` writes a complete MVC slice (KV repository, colocated OpenAPI description, test
   skeleton) wired into the router — `denox rm feature` undoes it exactly. Plus product SKUs, a

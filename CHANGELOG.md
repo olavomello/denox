@@ -3,7 +3,33 @@
 All notable changes to DenoX are documented in this file. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.0.0] - 2026-07-15
+
+Production-ready by default. This release adds the relational persistence tier — Postgres with
+forward-only migrations — that completes the storage story, alongside the full payments lifecycle
+with refunds.
+
+### Added
+
+- **Postgres storage driver + migrations** — a third `STORAGE_DRIVER` option alongside memory and KV
+  (both stay first-class). Per-slice Postgres repositories implement the existing interfaces:
+  uniqueness (email/slug/sku) enforced by an explicit pre-check plus native `UNIQUE` constraints
+  (the same 409), nested shapes (product images, payment `productSnapshot` and the `transitions`
+  audit trail) in `JSONB`, so the domain model is unchanged. A forward-only migrations system
+  (`deno task
+  migrate` / `migrate:status`, transactional, idempotent via a `_denox_migrations`
+  ledger) versions the schema. `DATABASE_URL` is read from the environment — working locally
+  (`.env`) and on Deno Deploy / tunnel (injected per timeline) — and required only under this driver
+  (fail-fast); memory/kv never load the client. Integration tests run against real Postgres, gated
+  on `TEST_DATABASE_URL` so the suite stays green without a database (CI supplies a Postgres service
+  container).
+- **Payments lifecycle & refunds** — the three statuses reserved since 0.7 now have producing paths,
+  and `partially_refunded` joins them: admin-only refunds (`POST /api/payments/{id}/refund`, full or
+  partial) over Stripe's REST API with server-validated amounts; `refundedCents` accumulating across
+  partial refunds; `payment_intent.processing` and `charge.refunded` handled; and a **transition
+  audit trail** recording every status change with its source (webhook event id or admin actor).
+  Transitions are guarded by a legal-state matrix, so a signature-valid but out-of-order event
+  cannot corrupt a record — and a refund we issue plus the webhook it triggers never double-count.
 
 ### Changed
 
@@ -17,18 +43,8 @@ All notable changes to DenoX are documented in this file. Format based on
 - **Postgres duplicate SKU / e-mail now return 409** — conflict detection uses an explicit
   uniqueness pre-check (a SELECT before the INSERT, like the KV driver) instead of interpreting an
   in-transaction database error, whose structured fields `deno.land/x/postgres` does not reliably
-  expose from within a transaction (the earlier SQLSTATE attempt still failed in CI). The UNIQUE
-  constraint remains the guard against concurrent races.
-
-### Added
-
-- **Payments lifecycle & refunds** — the three statuses reserved since 0.7 now have producing paths,
-  and `partially_refunded` joins them: admin-only refunds (`POST /api/payments/{id}/refund`, full or
-  partial) over Stripe's REST API with server-validated amounts; `refundedCents` accumulating across
-  partial refunds; `payment_intent.processing` and `charge.refunded` handled; and a **transition
-  audit trail** recording every status change with its source (webhook event id or admin actor).
-  Transitions are guarded by a legal-state matrix, so a signature-valid but out-of-order event
-  cannot corrupt a record — and a refund we issue plus the webhook it triggers never double-count.
+  expose from within a transaction. The UNIQUE constraint remains the guard against concurrent
+  races.
 
 ## [0.9.0] - 2026-07-13
 
